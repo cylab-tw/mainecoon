@@ -3,7 +3,7 @@
         {
             "AETitle": "YMOrthanc",
             "enableHTTPS": true,
-            "hostname": "raccoon.dicom.tw",
+            "hostname": "hackathon.raccoon.dicom.tw",
             "PORT": 443,
             "contentType": "application/json",
             "timeout": 80000,
@@ -24,7 +24,7 @@
         {
             "AETitle": "YMOrthanc",
             "enableHTTPS": true,
-            "hostname": "raccoon.dicom.tw",
+            "hostname": "hackathon.raccoon.dicom.tw",
             "PORT": 443,
             "contentType": "application/json",
             "timeout": 80000,
