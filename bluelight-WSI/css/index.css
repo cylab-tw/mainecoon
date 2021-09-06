@@ -1,0 +1,24 @@
+.root-layout
+{
+    display: flex;
+    flex-direction: column;
+}
+
+.root-layout-header
+{
+    display: flex;
+    flex-direction: row;
+    background-color: #018e53;
+}
+
+.root-layout-content-section
+{
+    display: flex;
+    flex-direction: row;
+    background-color: khaki;
+}
+
+.root-layout-content-main
+{
+    background-color: white;
+}
