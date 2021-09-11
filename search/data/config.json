@@ -19,7 +19,7 @@
             "enableXml2Dcm":false,
             "Xml2DcmUrl":"/upload",
             "target": "https://cylab-tw.github.io/bluelight/bluelight/html/start.html",
-            "target_wsi": "../../bluelight-WSI/html/start.html",
+            "target_wsi": "../../bluelight-WSI/html/index.html",
             "token": ""
         },
         {
@@ -41,7 +41,7 @@
             "enableXml2Dcm":false,
             "Xml2DcmUrl":"/upload",
             "target": "https://cylab-tw.github.io/bluelight/bluelight/html/start.html",
-            "target_wsi": "../../bluelight-WSI/html/start.html",
+            "target_wsi": "../../bluelight-WSI/html/index.html",
             "token": ""
         }
     ],
