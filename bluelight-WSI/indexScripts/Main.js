@@ -1,6 +1,8 @@
-window.onload = function()
+window.onload = async function()
 {
     var JCG = new JsonConfigGetter("../data/config.json");
-    var Config = JCG.getConfig();
+    var Config = await JCG.getConfig();
+    console.log(Config);
     
+
 }
