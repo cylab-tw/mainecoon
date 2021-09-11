@@ -7,19 +7,20 @@ class JsonConfigGetter
 
     getConfig()
     {
-        let config = {};
-        let request = new XMLHttpRequest();
-        request.open('GET', this.url);
-        request.responseType = 'json';
-        request.send();
-        request.onload = function ()
-        {
-            let tempConfig = {}
-            tempConfig = request.response;
-            config = DeepCopy(tempConfig);
-        }
-        console.log(config);
-        return config;
+        return new Promise((resolve, reject) => {
+            let config = {};
+            let request = new XMLHttpRequest();
+            request.open('GET', this.url);
+            request.responseType = 'json';
+            request.send();
+            request.onload = function ()
+            {
+                let tempConfig = {}
+                tempConfig = request.response;
+                config = DeepCopy(tempConfig);
+                resolve(config);
+            }
+        });
     }
 }
 
