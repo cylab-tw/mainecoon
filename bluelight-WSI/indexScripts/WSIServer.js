@@ -4,16 +4,16 @@ class WSIServer
     {
         this.Config = undefined;
         this.DICOMWebServersConfig = undefined;
-        this.QIDO_Url = undefined;
+        this.QIDO_URL = undefined;
         this.DicomFile = undefined;
-        this.API_Url = undefined;
+        this.API_URL = undefined;
     }
 
     async init()
     {
         await this.loadConfigValue();
-        await this.combine_QIDO_Url();
-        await this.combine_API_Url();
+        await this.combine_QIDO_URL();
+        await this.combine_API_URL();
     }
 
     async loadConfigValue()
@@ -24,7 +24,7 @@ class WSIServer
         this.DICOMWebServersConfig = this.Config["DICOMWebServersConfig"][0];
     }
 
-    async combine_QIDO_Url()
+    async combine_QIDO_URL()
     {
         let url = undefined;
         let StudyInstanceUID = ("" + location.search).replace("?", "");
@@ -42,10 +42,10 @@ class WSIServer
             + tempQIDOConfig.service + "/studies" 
             + "?" + StudyInstanceUID; 
         
-        this.QIDO_Url = url;
+        this.QIDO_URL = url;
     }
 
-    async combine_API_Url()
+    async combine_API_URL()
     {
         let url = undefined;
         let DICOMWebServersConfig = this.DICOMWebServersConfig;
@@ -61,7 +61,7 @@ class WSIServer
             + tempQIDOConfig.port + "/" 
             + tempQIDOConfig.service 
         
-        this.API_Url = url;
+        this.API_URL = url;
     }
 
 
@@ -80,7 +80,7 @@ class WSIServer
     async connectToWSIServer()
     {
         await this.loadConfigValue();
-        await this.combine_QIDO_Url();
+        await this.combine_QIDO_URL();
         //await this.connectingWSIServer();
     }
 
@@ -89,7 +89,7 @@ class WSIServer
         let DICOMWebServersConfig = this.DICOMWebServersConfig;
 
         let request = new XMLHttpRequest();
-        request.open('GET', this.QIDO_Url);
+        request.open('GET', this.QIDO_URL);
         request.responseType = 'json';
         request.send();
         request.onload = function getDicomDataByStudy() 

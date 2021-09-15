@@ -3,7 +3,7 @@ class DicomFile
     constructor(WSIServer)
     {
         this.WSIServer = WSIServer;
-        this.QIDO_Url = WSIServer.QIDO_Url;
+        this.QIDO_URL = WSIServer.QIDO_URL;
         this.Study_URL = undefined;
         this.Study_MetaData_URL = undefined;
         this.MetaData = {};
@@ -23,7 +23,7 @@ class DicomFile
         return new Promise((resolve, reject) => {
             let MetaData = {};
             let request = new XMLHttpRequest();
-            request.open('GET', this.QIDO_Url);
+            request.open('GET', this.QIDO_URL);
             request.responseType = 'json';
             request.send();
             request.onload = function () 
