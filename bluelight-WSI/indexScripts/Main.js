@@ -1,6 +1,9 @@
 window.onload = async function()
 {
     let WSIS = new WSIServer();
-    await WSIS.connectToWSIServer();
+    await WSIS.init();
 
+    let Patient = new DicomFile(WSIS.QIDO_Url);
+    await Patient.init();
+    console.log(Patient.MetaData);
 }

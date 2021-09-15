@@ -5,6 +5,15 @@ class WSIServer
         this.Config = undefined;
         this.DICOMWebServersConfig = undefined;
         this.QIDO_Url = undefined;
+        this.DicomFile = undefined;
+        this.API_Url = undefined;
+    }
+
+    async init()
+    {
+        await this.loadConfigValue();
+        await this.combine_QIDO_Url();
+        await this.combine_API_Url();
     }
 
     async loadConfigValue()
@@ -35,6 +44,38 @@ class WSIServer
         
         this.QIDO_Url = url;
     }
+
+    async combine_API_Url()
+    {
+        let url = undefined;
+        let DICOMWebServersConfig = this.DICOMWebServersConfig;
+        
+        let tempQIDOConfig = {};
+        tempQIDOConfig.https = DICOMWebServersConfig["enableHTTPS"] == true ? "https" : "http";
+        tempQIDOConfig.hostname = DICOMWebServersConfig["hostname"];
+        tempQIDOConfig.port = DICOMWebServersConfig["PORT"];
+        tempQIDOConfig.service = DICOMWebServersConfig["QIDO"];
+        
+        url = tempQIDOConfig.https + "://" 
+            + tempQIDOConfig.hostname + ":" 
+            + tempQIDOConfig.port + "/" 
+            + tempQIDOConfig.service 
+        
+        this.API_Url = url;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     async connectToWSIServer()
     {
@@ -84,7 +125,7 @@ class WSIServer
                                  + tempWADOConfig.service 
                                  + "/studies/" + DicomSeriesResponse[imagesIndex]["0020000D"].Value[0]
                                  + "/series/" + DicomSeriesResponse[imagesIndex]["0020000E"].Value[0];
-                        console.log(imageUrl);
+                        //console.log(imageUrl);
                         
                     }
                 }
