@@ -12,6 +12,8 @@ class Study
     async init()
     {
         this.MetaData = await this.getMetaData();
+        this.combine_Series_URL();
+        this.combine_Series_MetaData_URL();
     }
 
     async getMetaData()
@@ -54,5 +56,15 @@ class Study
                 resolve(MetaData);
             }
         });
+    }
+
+    combine_Series_URL()
+    {
+        this.Series_URL = this.Study_Url + "/series/" + this.MetaData.SeriesInstanceUID.Value[0];
+    }
+
+    combine_Series_MetaData_URL()
+    {
+        this.Series_MetaData_URL = this.Series_URL + "/metadata";
     }
 }

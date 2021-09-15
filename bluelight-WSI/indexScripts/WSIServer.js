@@ -81,7 +81,7 @@ class WSIServer
     {
         await this.loadConfigValue();
         await this.combine_QIDO_Url();
-        await this.connectingWSIServer();
+        //await this.connectingWSIServer();
     }
 
     async connectingWSIServer()
