@@ -375,6 +375,7 @@ function readConfigJson(url, callBack, callBack2) {
     tempConfig.contentType = tempDicomResponse["contentType"];
     tempConfig.timeout = tempDicomResponse["timeout"];
     tempConfig.includefield = tempDicomResponse["includefield"];
+    console.log(config.WADO);
 
     //tempConfig.enableXml2Dcm=tempDicomResponse["enableXml2Dcm"];
     //tempConfig.Xml2DcmUrl=tempDicomResponse["Xml2DcmUrl"];
