@@ -5,5 +5,4 @@ window.onload = async function()
 
     let Patient = new DicomFile(WSIS.QIDO_Url);
     await Patient.init();
-    console.log(Patient.MetaData);
 }
