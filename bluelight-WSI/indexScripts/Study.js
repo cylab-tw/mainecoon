@@ -1,12 +1,13 @@
 class Study
 {
-    constructor(Study_Url, Study_MetaData_URL)
+    constructor(Study_URL, Study_MetaData_URL)
     {
-        this.Study_Url = Study_Url;
+        this.Study_URL = Study_URL;
         this.Study_MetaData_URL = Study_MetaData_URL;
         this.Series_URL = undefined;
         this.Series_MetaData_URL = undefined;
         this.MetaData = {};
+        this.Series = undefined;
     }
 
     async init()
@@ -60,7 +61,7 @@ class Study
 
     combine_Series_URL()
     {
-        this.Series_URL = this.Study_Url + "/series/" + this.MetaData.SeriesInstanceUID.Value[0];
+        this.Series_URL = this.Study_URL + "/series/" + this.MetaData.SeriesInstanceUID.Value[0];
     }
 
     combine_Series_MetaData_URL()
