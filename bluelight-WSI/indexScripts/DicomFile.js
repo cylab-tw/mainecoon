@@ -16,7 +16,6 @@ class DicomFile
         this.combine_Study_URL();
         this.combine_Study_MetaData_URL();
         this.Study = await this.getStudy();
-        console.log(this.Study);
     }
 
     async getMetaData()
