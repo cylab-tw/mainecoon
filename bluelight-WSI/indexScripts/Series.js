@@ -17,6 +17,7 @@ class Series
         this.calInstancesCount();
         this.Instances_URL_List = this.getInstances_URL_List();
         this.Instances_MetaData_URL_List = this.getInstances_MetaData_URL_List();
+        this.Instances = await this.getInstances();
     }
 
     async getMetaData() //目前只抓取 SOPInstanceUID 以達成抓取 Instances 的目的
@@ -91,15 +92,18 @@ class Series
 
     getInstances()
     {
-        /*
         return new Promise( async(resolve, reject) => {
-            let result = {};
-            let tempResult = new Series(this.Series_URL, this.Series_MetaData_URL);
-            await tempResult.init();
-            result = DeepCopy(tempResult);
-            resolve(result);
+            
+            let resultList = [];
+            
+            for (let i = 0; i < this.InstancesCount; i++)
+            {
+                let result = new Instance(this.Instances_URL_List[i], this.Instances_MetaData_URL_List[i]);
+                await result.init();
+                resultList.push(DeepCopy(result));
+            }
+            resolve(resultList);
         }); 
-        */
     }
 
 }
