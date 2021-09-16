@@ -1,14 +1,14 @@
 class Series
 {
-    constructor(Study_URL, Series_MetaData_URL)
+    constructor(Series_URL, Series_MetaData_URL)
     {
-        this.Study_URL = Study_URL;
+        this.Series_URL = Series_URL;
         this.Series_MetaData_URL = Series_MetaData_URL;
         this.InstancesCount = 0;
         this.Instances_URL_List = undefined;
         this.Instances_MetaData_URL_List = undefined;
         this.MetaData = {};
-        this.Frames = undefined;
+        this.Instances = undefined;
     }
 
     async init()
@@ -58,16 +58,16 @@ class Series
         for (let i = 0; i < this.InstancesCount; i++)
         {
             let result = undefined;
-            result = this.getInstances_URL(this.Study_URL, this.MetaData[i].SOPInstanceUID);
+            result = this.getInstances_URL(this.Series_URL, this.MetaData[i].SOPInstanceUID);
             resultList.push(DeepCopy(result));
         }
 
         return resultList;
     }
 
-    getInstances_URL(Study_URL, SOPInstanceUID)
+    getInstances_URL(Series_URL, SOPInstanceUID)
     {
-        return Study_URL + "/instances/" + SOPInstanceUID;
+        return Series_URL + "/instances/" + SOPInstanceUID;
     }
 
     getInstances_MetaData_URL_List()
@@ -77,17 +77,29 @@ class Series
         for (let i = 0; i < this.InstancesCount; i++)
         {
             let result = undefined;
-            result = this.getInstances_MetaData_URL(this.Study_URL, this.MetaData[i].SOPInstanceUID);
+            result = this.getInstances_MetaData_URL(this.Series_URL, this.MetaData[i].SOPInstanceUID);
             resultList.push(DeepCopy(result));
         }
 
         return resultList;
     }
 
-    getInstances_MetaData_URL(Study_URL, SOPInstanceUID)
+    getInstances_MetaData_URL(Series_URL, SOPInstanceUID)
     {
-        return this.getInstances_URL(Study_URL, SOPInstanceUID) + "/metadata";
+        return this.getInstances_URL(Series_URL, SOPInstanceUID) + "/metadata";
     }
 
+    getInstances()
+    {
+        /*
+        return new Promise( async(resolve, reject) => {
+            let result = {};
+            let tempResult = new Series(this.Series_URL, this.Series_MetaData_URL);
+            await tempResult.init();
+            result = DeepCopy(tempResult);
+            resolve(result);
+        }); 
+        */
+    }
 
 }
