@@ -5,5 +5,4 @@ window.onload = async function()
 
     let Patient = new DicomFile(WSIS);
     await Patient.init();
-    console.log(Patient.Study);
 }
