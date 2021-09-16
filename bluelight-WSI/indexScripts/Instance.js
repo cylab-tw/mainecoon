@@ -6,7 +6,6 @@ class Instance
         this.Instance_MetaData_URL = Instance_MetaData_URL;
         this.FramesCount = 0;
         this.Frames_URL_List = undefined;
-        this.Frames_MetaData_URL_List = undefined;
         this.MetaData = {};
         this.Frames = undefined;
     }
@@ -16,6 +15,7 @@ class Instance
         this.MetaData = await this.getMetaData();
         this.FramesCount = this.getFramesCount();
         this.Frames_URL_List = await this.getFrames_URL_List();
+        this.Frames = await this.getFrames();
     }
 
     async getMetaData()
@@ -55,7 +55,7 @@ class Instance
         for (let i = 0; i < this.FramesCount; i++)
         {
             let result = undefined;
-            result = this.getFrames_URL(this.Instance_URL, i+1);
+            result = this.getFrames_URL(this.Instance_URL, i+1);    //URL 的 index 從1開始
             resultList.push(DeepCopy(result));
         }
         
@@ -67,5 +67,19 @@ class Instance
         return Instance_URL + "/frames/" + FramesIndex + "/rendered";
     }
 
+    getFrames()
+    {
+        return new Promise( async(resolve, reject) => {
+            
+            let resultList = [];
+            
+            for (let i = 0; i < this.FramesCount; i++)
+            {
+                let result = new Frame(this.Frames_URL_List[i])
+                resultList.push(DeepCopy(result));
+            }
+            resolve(resultList);
+        });
+    }
 
 }
