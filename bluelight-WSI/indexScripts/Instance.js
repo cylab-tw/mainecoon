@@ -15,6 +15,7 @@ class Instance
     {
         this.MetaData = await this.getMetaData();
         this.FramesCount = this.getFramesCount();
+        this.Frames_URL_List = await this.getFrames_URL_List();
     }
 
     async getMetaData()
@@ -46,5 +47,25 @@ class Instance
     {
         return this.MetaData.NumberOfFrames;
     }
+
+    getFrames_URL_List()
+    {
+        let resultList = [];
+        
+        for (let i = 0; i < this.FramesCount; i++)
+        {
+            let result = undefined;
+            result = this.getFrames_URL(this.Instance_URL, i+1);
+            resultList.push(DeepCopy(result));
+        }
+        
+        return resultList;
+    }
+
+    getFrames_URL(Instance_URL, FramesIndex)
+    {
+        return Instance_URL + "/frames/" + FramesIndex + "/rendered";
+    }
+
 
 }
