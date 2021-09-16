@@ -15,6 +15,7 @@ class Study
         this.MetaData = await this.getMetaData();
         this.combine_Series_URL();
         this.combine_Series_MetaData_URL();
+        this.Series = await this.getSeries();
     }
 
     async getMetaData()
@@ -67,5 +68,16 @@ class Study
     combine_Series_MetaData_URL()
     {
         this.Series_MetaData_URL = this.Series_URL + "/metadata";
+    }
+
+    getSeries()
+    {
+        return new Promise( async(resolve, reject) => {
+            let result = {};
+            let tempResult = new Series(this.Series_URL, this.Series_MetaData_URL);
+            await tempResult.init();
+            result = DeepCopy(tempResult);
+            resolve(result);
+        }); 
     }
 }
