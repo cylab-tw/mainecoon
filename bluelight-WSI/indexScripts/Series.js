@@ -18,6 +18,7 @@ class Series
         this.Instances_URL_List = this.getInstances_URL_List();
         this.Instances_MetaData_URL_List = this.getInstances_MetaData_URL_List();
         this.Instances = await this.getInstances();
+        this.sortInstancesByNumberOfFrames();
     }
 
     async getMetaData() //目前只抓取 SOPInstanceUID 以達成抓取 Instances 的目的
@@ -104,6 +105,18 @@ class Series
             }
             resolve(resultList);
         }); 
+    }
+
+    sortInstancesByNumberOfFrames()
+    {
+        for (let i = 0; i < this.Instances.length - 1; i++)
+		    for (let j = 0; j < this.Instances.length - 1 - i; j++)
+			    if (this.Instances[j].MetaData.NumberOfFrames > this.Instances[j + 1].MetaData.NumberOfFrames) 
+                {
+                    let temp = this.Instances[j];
+                    this.Instances[j] = this.Instances[j + 1];
+                    this.Instances[j + 1] = temp;
+			    }
     }
 
 }
