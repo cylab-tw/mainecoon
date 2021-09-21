@@ -13,5 +13,6 @@ window.onload = async function()
     console.log(Patient);
 
     MyViewer = new Viewer(ViewerElementID, Patient);
-
+    MyViewer.init();
+    console.log(MyViewer);
 }
