@@ -1,7 +1,7 @@
 var WSIS = undefined;
 var Patient = undefined;
 var MyViewer = undefined;
-const ViewerElementID = "viewer";
+const ViewerElementID = "MyViewer";
 
 window.onload = async function()
 {
