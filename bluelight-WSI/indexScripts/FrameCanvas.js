@@ -17,7 +17,6 @@ class FrameCanvas
         let FatherElement = document.getElementById(this.FatherElementID);
         let element = document.createElement('CANVAS');
         element.id = this.ID;
-        element.style.display = "none";
         FatherElement.appendChild(element);
     }
 }
