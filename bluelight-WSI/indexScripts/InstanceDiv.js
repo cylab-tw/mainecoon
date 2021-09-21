@@ -1,14 +1,15 @@
 class InstanceDiv
 {
-    constructor(FatherElementID, ID, Instance)
+    constructor(FatherElementID, ID, Instance, isSurface)
     {   
         this.FatherElementID = FatherElementID;
         this.ID = ID;
         this.Instance = Instance;
         this.FrameCanvas = [];
+        this.isSurface = isSurface;
     }
 
-    init()
+    async init()
     {
         //創造自己
         this.Create();
@@ -22,7 +23,9 @@ class InstanceDiv
         let FatherElement = document.getElementById(this.FatherElementID);
         let element = document.createElement('DIV');
         element.id = this.ID;
-        element.style.display = "none";
+        element.style.display = this.isSurface ? "" : "none";
+        element.newMousePointX = 0;
+        element.newMousePointY = 0;
         FatherElement.appendChild(element);
     }
 
