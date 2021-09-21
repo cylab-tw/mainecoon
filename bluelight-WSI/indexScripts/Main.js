@@ -16,3 +16,4 @@ window.onload = async function()
     MyViewer.init();
     console.log(MyViewer);
 }
+
