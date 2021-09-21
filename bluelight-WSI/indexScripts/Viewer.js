@@ -17,7 +17,7 @@ class Viewer
     {
         let Instances = this.DicomFile.Study.Series.Instances;
         let InstanceLength = Instances.length;
-        
+        InstanceLength = 4;
         for (let i = 0; i < InstanceLength; i++)
         {
             let tempInstanceDivID = "InstanceDiv" + i;
