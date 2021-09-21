@@ -91,7 +91,7 @@ class Instance
             
             for (let i = 0; i < this.FramesCount; i++)
             {
-                let result = new Frame(this.Frames_URL_List[i])
+                let result = new Frame(this.Frames_URL_List[i], this.MetaData.Rows, this.MetaData.Columns);
                 resultList.push(DeepCopy(result));
             }
             resolve(resultList);
