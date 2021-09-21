@@ -22,7 +22,7 @@ class Viewer
         {
             let tempInstanceDivID = "InstanceDiv" + i;
             let tempInstanceDiv = new InstanceDiv(this.ViewerElementID, tempInstanceDivID, Instances[i]);
-            tempInstanceDiv.Create();
+            tempInstanceDiv.init();
             this.InstanceDivs.push(DeepCopy(tempInstanceDiv));
         }
     }
