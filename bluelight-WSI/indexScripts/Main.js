@@ -1,6 +1,7 @@
 var WSIS = undefined;
 var Patient = undefined;
-var Viewer = undefined;
+var MyViewer = undefined;
+const ViewerElementID = "viewer";
 
 window.onload = async function()
 {
@@ -10,4 +11,7 @@ window.onload = async function()
     Patient = new DicomFile(WSIS);
     await Patient.init();
     console.log(Patient);
+
+    MyViewer = new Viewer(ViewerElementID, Patient);
+
 }
