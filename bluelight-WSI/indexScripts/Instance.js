@@ -8,6 +8,8 @@ class Instance
         this.Frames_URL_List = undefined;
         this.MetaData = {};
         this.Frames = undefined;
+        this.WidthCountOfFrame = undefined;
+        this.HeightCountOfFrame = undefined;
     }
 
     async init()
@@ -16,6 +18,8 @@ class Instance
         this.FramesCount = this.getFramesCount();
         this.Frames_URL_List = await this.getFrames_URL_List();
         this.Frames = await this.getFrames();
+        this.WidthCountOfFrame = this.getWidthCountOfFrame();
+        this.HeightCountOfFrame = this.getHeightCountOfFrame();
     }
 
     async getMetaData()
@@ -96,6 +100,16 @@ class Instance
             }
             resolve(resultList);
         });
+    }
+
+    getWidthCountOfFrame()
+    {
+        return Math.ceil(this.MetaData.TotalPixelMatrixRows / this.MetaData.Rows);
+    }
+    
+    getHeightCountOfFrame()
+    {
+        return Math.ceil(this.MetaData.TotalPixelMatrixColumns / this.MetaData.Columns);
     }
 
 }
