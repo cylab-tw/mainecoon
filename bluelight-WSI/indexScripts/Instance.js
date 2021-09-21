@@ -36,7 +36,9 @@ class Instance
                 tempMetaData.Columns = response["00280011"].Value[0];                       //每張小圖的高
                 tempMetaData.ImagedVolumeWidth = response["00480001"].Value[0];             //每幀中Row方向的距離
                 tempMetaData.ImagedVolumeHeight = response["00480002"].Value[0];            //每幀中Column方向的距離
-
+                tempMetaData.XOffset = response["00480008"].Value[0]["0040072A"].Value[0];  //在座標系統中X座標偏移的毫米單位量
+                tempMetaData.YOffset = response["00480008"].Value[0]["0040073A"].Value[0];  //在座標系統中Y座標偏移的毫米單位量
+                
                 try
                 {
                     tempMetaData.TotalPixelMatrixColumns = response["00480006"].Value[0];   //總高
