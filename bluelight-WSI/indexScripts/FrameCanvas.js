@@ -23,6 +23,10 @@ class FrameCanvas
         //element.height = this.Frame.height;
         element.width = 50;
         element.height = 50;
+        element.style.position = "absolute";
+        element.style.transform = "translate(" + testx + "px" + "," + testy + "px" + ")";
+        testx = testx + element.width;
+        testy = testy + element.height;
         let ctx = element.getContext("2d");
         img.onload = function()
         {

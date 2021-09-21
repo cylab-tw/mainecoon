@@ -34,6 +34,8 @@ class Viewer
     {
         this.setOnClick();
         this.setOnMouseWheel();
+        setViewerOnMouseDown();
+        setViewerOnMouseUp();
     }
 
     setOnClick()
@@ -46,42 +48,7 @@ class Viewer
 
     setOnMouseWheel()
     {   
-        let CurrentDivIndex = this.CurrentDivIndex;
-        let InstanceDivs = this.InstanceDivs;
-        let InstanceDivLength = InstanceDivs.length;
-        let MaxDivIndex = InstanceDivLength - 1;
-        let MinDivIndex = 0;
-
-        document.getElementById(ViewerElementID).onmousewheel = function(e)
-        {
-            if (e.deltaY > 0)
-            {    
-                if (CurrentDivIndex != MinDivIndex) 
-                {
-                    CurrentDivIndex--;
-
-                    for (let i = 0; i < InstanceDivLength; i++)
-                    {
-                        document.getElementById(InstanceDivs[i].ID).style.display = "none";
-                    }
-
-                    document.getElementById(InstanceDivs[CurrentDivIndex].ID).style.display = "";
-                }
-            }
-            else if (e.deltaY < 0)
-            {
-                if (CurrentDivIndex != MaxDivIndex) 
-                {
-                    CurrentDivIndex++;
-
-                    for (let i = 0; i < InstanceDivLength; i++)
-                    {
-                        document.getElementById(InstanceDivs[i].ID).style.display = "none";
-                    }
-
-                    document.getElementById(InstanceDivs[CurrentDivIndex].ID).style.display = "";
-                }
-            }
-        }
+        setViewerOnMouseWheel();
     }
 }
+
