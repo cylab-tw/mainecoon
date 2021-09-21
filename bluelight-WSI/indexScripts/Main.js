@@ -1,9 +1,13 @@
+var WSIS = undefined;
+var Patient = undefined;
+var Viewer = undefined;
+
 window.onload = async function()
 {
-    let WSIS = new WSIServer();
+    WSIS = new WSIServer();
     await WSIS.init();
 
-    let Patient = new DicomFile(WSIS);
+    Patient = new DicomFile(WSIS);
     await Patient.init();
     console.log(Patient);
 }
