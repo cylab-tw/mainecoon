@@ -19,14 +19,17 @@ class FrameCanvas
         let element = document.createElement('CANVAS');
         let img = new Image();
         element.id = this.ID;
-        element.width = this.Frame.width;
-        element.height = this.Frame.height;
+        //element.width = this.Frame.width;
+        //element.height = this.Frame.height;
+        element.width = 50;
+        element.height = 50;
         let ctx = element.getContext("2d");
         img.onload = function()
         {
             ctx.drawImage(img, 0, 0, element.width, element.height);
         }
-        img.src = this.Frame.Frame_URL;
+        //img.src = this.Frame.Frame_URL;
+        img.src = "https://cdn-icons-png.flaticon.com/512/104/104645.png";
         FatherElement.appendChild(element);
     }
 
