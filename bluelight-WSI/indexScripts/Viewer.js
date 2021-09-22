@@ -24,9 +24,9 @@ class Viewer
         InstanceLength = 4;
         for (let i = 0; i < InstanceLength; i++)
         {
-            let isSuface = i==0 ? true : false;
+            let isSurface = i==0 ? true : false;
             let tempInstanceDivID = "InstanceDiv" + i;
-            let tempInstanceDiv = new InstanceDiv(this.ViewerElementID, tempInstanceDivID, Instances[i], isSuface);
+            let tempInstanceDiv = new InstanceDiv(this.ViewerElementID, tempInstanceDivID, Instances[i], isSurface);
             tempInstanceDiv.init();
             this.InstanceDivs.push(DeepCopy(tempInstanceDiv));
         }
