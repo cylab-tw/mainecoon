@@ -4,7 +4,7 @@ function WSImove(e)
     if (MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].isMouseDown) 
     {
         const dx = e.pageX - MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseX;
-        const dy = e.pageY - MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseY
+        const dy = e.pageY - MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseY;
         let CurrentDivID = MyViewer.InstanceDivs[MyViewer.CurrentDivIndex].ID;
         document.getElementById(CurrentDivID).style.transform = "translate(" + (MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].offsetX + dx) + "px," + (MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].offsetY + dy) + "px)";        
     }
