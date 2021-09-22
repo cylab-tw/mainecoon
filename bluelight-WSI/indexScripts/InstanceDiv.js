@@ -1,21 +1,26 @@
 class InstanceDiv
 {
-    constructor(FatherElementID, ID, Instance, isSurface)
+    constructor(FatherElementID, ID, Instance, isSurface, dynamic_Mode)
     {   
         this.FatherElementID = FatherElementID;
         this.ID = ID;
         this.Instance = Instance;
         this.FrameCanvas = [];
         this.isSurface = isSurface;
+        this.Width = 0;
+        this.Height = 0;
+        this.dynamic_Mode = dynamic_Mode;
     }
 
     async init()
     {
         //創造自己
         this.Create();
+        this.Width = this.getWidth();
+        this.Height = this.getHeight();
 
         //讀有幾張 Frame 並創造出 Canvas
-        await this.CreateFrameCanvas();
+        if (dynamic_Mode == false) await this.CreateFrameCanvas();
     }
 
     Create()
@@ -28,6 +33,18 @@ class InstanceDiv
         element.newMousePointY = 0;
         FatherElement.appendChild(element);
     }
+
+    getWidth()
+    {
+        return this.Instance.WidthCountOfFrame * this.Instance.MetaData.Columns;
+    }
+
+    getHeight()
+    {
+        return this.Instance.HeightCountOfFrame * this.Instance.MetaData.Rows;
+    }
+
+
 
     async CreateFrameCanvas()
     {

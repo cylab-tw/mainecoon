@@ -1,12 +1,13 @@
 class Viewer
 {
-    constructor(ViewerElementID, DicomFile)
+    constructor(ViewerElementID, DicomFile, dynamic_Mode)
     {
         this.ViewerElementID = ViewerElementID;
         this.DicomFile = DicomFile;
         this.InstanceDivs = [];
         this.CurrentDivIndex = 0;
         this.MouseToolVariables = [];
+        this.dynamic_Mode = dynamic_Mode;
     }
 
     init()
@@ -21,12 +22,11 @@ class Viewer
     {
         let Instances = this.DicomFile.Study.Series.Instances;
         let InstanceLength = Instances.length;
-        InstanceLength = 6;
         for (let i = 0; i < InstanceLength; i++)
         {
             let isSurface = i==0 ? true : false;
             let tempInstanceDivID = "InstanceDiv" + i;
-            let tempInstanceDiv = new InstanceDiv(this.ViewerElementID, tempInstanceDivID, Instances[i], isSurface);
+            let tempInstanceDiv = new InstanceDiv(this.ViewerElementID, tempInstanceDivID, Instances[i], isSurface, dynamic_Mode);
             tempInstanceDiv.init();
             this.InstanceDivs.push(DeepCopy(tempInstanceDiv));
         }
@@ -47,6 +47,67 @@ class Viewer
         setViewerOnMouseWheel();
         setViewerOnMouseDown();
         setViewerOnMouseUp();
+    }
+
+    getShowingCanvas()
+    {
+        
+        let CurrentDivID = this.InstanceDivs[this.CurrentDivIndex].ID;
+        let result = {"CurrentDivID" : CurrentDivID,
+                      "CurrentDivIndex" : this.CurrentDivIndex,
+                      "ShowingCanvas" : []}
+
+        let div = document.getElementById(CurrentDivID);
+        let transformMartix = window.getComputedStyle(div).transform;
+        let divTransformX = 0;
+        let divTransformY = 0;
+        if (transformMartix != "none")
+        {
+            let martixValue = transformMartix.match(/matrix.*\((.+)\)/)[1].split(",");
+            //console.log("(" + martixValue[4] + "," + martixValue[5] + ")");
+            divTransformX = martixValue[4]; //可視區域向右    divTransformX   -值越大   想像整個div在移動就很合理了
+            divTransformY = martixValue[5]; //可視區域向下    divTransformY   -值越大   想像整個div在移動就很合理了
+        }
+
+        let FrameHeight = this.InstanceDivs[this.CurrentDivIndex].Instance.MetaData.Rows;
+        let FrameWidth = this.InstanceDivs[this.CurrentDivIndex].Instance.MetaData.Columns;
+
+        let preLoadingImageRangeParameter = 2;
+
+        let preLoadingHeight = FrameHeight * preLoadingImageRangeParameter;
+        let preLoadingWidth = FrameWidth * preLoadingImageRangeParameter;
+
+        let XRange = {"min" : -divTransformX - preLoadingWidth, "max" : -divTransformX + preLoadingWidth};
+        let YRange = {"min" : -divTransformY - preLoadingHeight, "max" : -divTransformY + preLoadingHeight};
+
+        let CurrentDivFrameMap = this.InstanceDivs[this.CurrentDivIndex].Instance.FramesMap
+        
+        for (let i = 0; i < CurrentDivFrameMap.length; i++)
+        {
+            if (XRange.min <= CurrentDivFrameMap[i].StartXpoint && CurrentDivFrameMap[i].StartXpoint <= XRange.max)
+            {
+                if (YRange.min <= CurrentDivFrameMap[i].StartYpoint && CurrentDivFrameMap[i].StartYpoint <= YRange.max)
+                {
+                    let Number = CurrentDivFrameMap[i].ID - 1;
+                    let tempShowingCanvas = {"FrameCanvasID": CurrentDivID + "_" + "FrameCanvas" + Number, 
+                                             "FrameCanvasNumber": Number};
+                    result.ShowingCanvas.push(DeepCopy(tempShowingCanvas));
+                    //console.log(CurrentDivID + "_" + "FrameCanvas" + Number);
+                }
+            }
+        }
+
+        for (let i = 0; i < result.ShowingCanvas.length; i++)
+        {
+            if (document.getElementById(result.ShowingCanvas[i].FrameCanvasID) == undefined)
+            {
+                let Instances = this.DicomFile.Study.Series.Instances;
+                let tempFrameCanvas = new FrameCanvas(result.CurrentDivID, result.ShowingCanvas[i].FrameCanvasID, Instances[result.CurrentDivIndex].Frames[result.ShowingCanvas[i].FrameCanvasNumber]);
+                tempFrameCanvas.init();
+            }
+        }
+
+        return result;
     }
 
 }
