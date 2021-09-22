@@ -38,8 +38,8 @@ class Instance
                 let tempMetaData = {};
 
                 tempMetaData.NumberOfFrames = response["00280008"].Value[0];                //有幾張Frames
-                tempMetaData.Rows = response["00280010"].Value[0];                          //每張小圖的寬
-                tempMetaData.Columns = response["00280011"].Value[0];                       //每張小圖的高
+                tempMetaData.Rows = response["00280010"].Value[0];                          //每張小圖的高
+                tempMetaData.Columns = response["00280011"].Value[0];                       //每張小圖的寬
                 tempMetaData.ImagedVolumeWidth = response["00480001"].Value[0];             //每幀中Row方向的距離
                 tempMetaData.ImagedVolumeHeight = response["00480002"].Value[0];            //每幀中Column方向的距離
                 tempMetaData.XOffset = response["00480008"].Value[0]["0040072A"].Value[0];  //在座標系統中X座標偏移的毫米單位量
@@ -47,15 +47,15 @@ class Instance
                 
                 try
                 {
-                    tempMetaData.TotalPixelMatrixColumns = response["00480006"].Value[0];   //總高
-                    tempMetaData.TotalPixelMatrixRows = response["00480007"].Value[0];      //總寬
+                    tempMetaData.TotalPixelMatrixColumns = response["00480006"].Value[0];   //總寬
+                    tempMetaData.TotalPixelMatrixRows = response["00480007"].Value[0];      //總高
                 }
                 catch(e)
                 {
                     if(tempMetaData.NumberOfFrames == 1)
                     {
-                        tempMetaData.TotalPixelMatrixColumns = tempMetaData.Columns;        //總高 = 每張小圖的高
-                        tempMetaData.TotalPixelMatrixRows = tempMetaData.Rows;              //總寬 = 每張小圖的寬
+                        tempMetaData.TotalPixelMatrixColumns = tempMetaData.Columns;        //總寬 = 每張小圖的寬
+                        tempMetaData.TotalPixelMatrixRows = tempMetaData.Rows;              //總高 = 每張小圖的高
                     }
                 }
 
@@ -113,12 +113,12 @@ class Instance
 
     getWidthCountOfFrame()
     {
-        return Math.ceil(this.MetaData.TotalPixelMatrixRows / this.MetaData.Rows);
+        return Math.ceil(this.MetaData.TotalPixelMatrixColumns / this.MetaData.Columns);
     }
     
     getHeightCountOfFrame()
     {
-        return Math.ceil(this.MetaData.TotalPixelMatrixColumns / this.MetaData.Columns);
+        return Math.ceil(this.MetaData.TotalPixelMatrixRows / this.MetaData.Rows);
     }
 
 }

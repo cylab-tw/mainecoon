@@ -44,23 +44,10 @@ class Viewer
 
     setMouseEvent()
     {
-        this.setOnClick();
-        this.setOnMouseWheel();
+        setViewerOnMouseWheel();
         setViewerOnMouseDown();
         setViewerOnMouseUp();
     }
 
-    setOnClick()
-    {
-        document.getElementById(ViewerElementID).onclick = function()
-        {
-            console.log("你有在Viewer點了一下囉");
-        }
-    }
-
-    setOnMouseWheel()
-    {   
-        setViewerOnMouseWheel();
-    }
 }
 

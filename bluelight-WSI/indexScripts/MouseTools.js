@@ -5,7 +5,6 @@ function WSImove(e)
     {
         const dx = e.pageX - MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseX;
         const dy = e.pageY - MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseY
-        console.log(MyViewer.CurrentDivIndex);
         let CurrentDivID = MyViewer.InstanceDivs[MyViewer.CurrentDivIndex].ID;
         document.getElementById(CurrentDivID).style.transform = "translate(" + (MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].offsetX + dx) + "px," + (MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].offsetY + dy) + "px)";        
     }
@@ -33,7 +32,6 @@ function setViewerOnMouseDown()
         MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].isMouseDown = true;
         MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseX = e.pageX;
         MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseY = e.pageY;
-        console.log("你按下滑鼠了\n mouseX="+MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseX+"\nmouseY="+MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseY);
         document.getElementById(ViewerElementID).addEventListener('mousemove', WSImove);
     }
 }
