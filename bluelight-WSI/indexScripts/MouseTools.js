@@ -1,19 +1,13 @@
-var isMouseDown = false;
-let mouseX = 0;
-let mouseY = 0;
-let offsetX = 0;
-let offsetY = 0;
 
 function WSImove(e)
 {
-    console.log("你按後正在滑動滑鼠了");
-    if (isMouseDown) 
+    if (MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].isMouseDown) 
     {
-        const dx = e.pageX - mouseX
-        const dy = e.pageY - mouseY
+        const dx = e.pageX - MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseX;
+        const dy = e.pageY - MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseY
         console.log(MyViewer.CurrentDivIndex);
         let CurrentDivID = MyViewer.InstanceDivs[MyViewer.CurrentDivIndex].ID;
-        document.getElementById(CurrentDivID).style.transform = `translate(${offsetX + dx}px,${offsetY + dy}px)`;
+        document.getElementById(CurrentDivID).style.transform = "translate(" + (MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].offsetX + dx) + "px," + (MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].offsetY + dy) + "px)";        
     }
 }
 
@@ -21,13 +15,13 @@ function setViewerOnMouseUp()
 {
     document.getElementById(ViewerElementID).onmouseup = function(e)
     {
-        if (isMouseDown) 
+        if (MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].isMouseDown) 
         {
-            offsetX += e.pageX - mouseX;
-            offsetY += e.pageY - mouseY;
+            MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].offsetX += e.pageX - MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseX;
+            MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].offsetY += e.pageY - MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseY;
         }
         
-        isMouseDown = false;
+        MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].isMouseDown = false;
         document.getElementById(ViewerElementID).removeEventListener("mousemove", WSImove);
     }
 }
@@ -36,10 +30,10 @@ function setViewerOnMouseDown()
 {
     document.getElementById(ViewerElementID).onmousedown = function(e)
     {
-        isMouseDown = true;
-        mouseX = e.pageX;
-        mouseY = e.pageY;
-        console.log("你按下滑鼠了\n mouseX="+mouseX+"\nmouseY="+mouseY);
+        MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].isMouseDown = true;
+        MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseX = e.pageX;
+        MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseY = e.pageY;
+        console.log("你按下滑鼠了\n mouseX="+MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseX+"\nmouseY="+MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseY);
         document.getElementById(ViewerElementID).addEventListener('mousemove', WSImove);
     }
 }
