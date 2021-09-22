@@ -6,6 +6,7 @@ class Viewer
         this.DicomFile = DicomFile;
         this.InstanceDivs = [];
         this.CurrentDivIndex = 0;
+        this.MouseToolVariables = [];
     }
 
     init()
@@ -13,6 +14,7 @@ class Viewer
         //讀有幾層 Instance 並創造出 Div
         this.CreateInstanceDivs();
         this.setMouseEvent();
+        this.CreateMouseToolVariables();
     }
 
     CreateInstanceDivs()
@@ -27,6 +29,16 @@ class Viewer
             let tempInstanceDiv = new InstanceDiv(this.ViewerElementID, tempInstanceDivID, Instances[i], isSuface);
             tempInstanceDiv.init();
             this.InstanceDivs.push(DeepCopy(tempInstanceDiv));
+        }
+    }
+
+    CreateMouseToolVariables()
+    {
+        let InstanceLength = this.InstanceDivs.length;
+        for (let i = 0; i < InstanceLength; i++)
+        {
+            let tempMouseToolVariables = new MouseToolVariables();
+            this.MouseToolVariables.push(DeepCopy(tempMouseToolVariables));
         }
     }
 
