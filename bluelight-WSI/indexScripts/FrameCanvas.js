@@ -10,7 +10,6 @@ class FrameCanvas
     init()
     {
         this.Create();
-
     }
 
     Create()
@@ -19,12 +18,10 @@ class FrameCanvas
         let element = document.createElement('CANVAS');
         let img = new Image();
         element.id = this.ID;
-        //element.width = this.Frame.width;
-        //element.height = this.Frame.height;
-        element.width = 50;
-        element.height = 50;
+        element.width = this.Frame.width;
+        element.height = this.Frame.height;
         element.style.position = "absolute";
-        element.style.transform = "translate(" + testx + "px" + "," + testy + "px" + ")";
+        element.style.transform = "translate(" + this.Frame.FrameAddress.StartXpoint + "px" + "," + this.Frame.FrameAddress.StartYpoint + "px" + ")";
         testx = testx + element.width;
         testy = testy + element.height;
         let ctx = element.getContext("2d");
@@ -32,8 +29,8 @@ class FrameCanvas
         {
             ctx.drawImage(img, 0, 0, element.width, element.height);
         }
-        //img.src = this.Frame.Frame_URL;
-        img.src = "https://cdn-icons-png.flaticon.com/512/104/104645.png";
+        img.src = this.Frame.Frame_URL;
+        //img.src = "https://cdn-icons-png.flaticon.com/512/104/104645.png";
         FatherElement.appendChild(element);
     }
 
