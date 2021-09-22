@@ -3,9 +3,6 @@ var Patient = undefined;
 var MyViewer = undefined;
 const ViewerElementID = "MyViewer";
 
-var testx = 0;
-var testy = 0;
-
 window.onload = async function()
 {
     WSIS = new WSIServer();
@@ -19,4 +16,5 @@ window.onload = async function()
     MyViewer.init();
     console.log(MyViewer);
 }
+
 
