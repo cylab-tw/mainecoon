@@ -10,6 +10,7 @@ class Instance
         this.Frames = undefined;
         this.WidthCountOfFrame = undefined;
         this.HeightCountOfFrame = undefined;
+        this.FramesMap = undefined;
     }
 
     async init()
@@ -20,6 +21,7 @@ class Instance
         this.Frames = await this.getFrames();
         this.WidthCountOfFrame = this.getWidthCountOfFrame();
         this.HeightCountOfFrame = this.getHeightCountOfFrame();
+        this.FramesMap = this.getFramesMap();
     }
 
     async getMetaData()
@@ -61,6 +63,13 @@ class Instance
                 resolve(MetaData);
             }
         });
+    }
+
+    getFramesMap()
+    {
+        let tempFramesMap = new FramesMap(this.FramesCount, this.WidthCountOfFrame, this.HeightCountOfFrame, this.MetaData.Rows, this.MetaData.Columns);
+        let result = tempFramesMap.getFramesMap();
+        return result;
     }
 
     getFramesCount()
