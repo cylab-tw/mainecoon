@@ -18,10 +18,10 @@ class Instance
         this.MetaData = await this.getMetaData();
         this.FramesCount = this.getFramesCount();
         this.Frames_URL_List = await this.getFrames_URL_List();
-        this.Frames = await this.getFrames();
         this.WidthCountOfFrame = this.getWidthCountOfFrame();
         this.HeightCountOfFrame = this.getHeightCountOfFrame();
         this.FramesMap = this.getFramesMap();
+        this.Frames = await this.getFrames();
     }
 
     async getMetaData()
@@ -104,7 +104,7 @@ class Instance
             
             for (let i = 0; i < this.FramesCount; i++)
             {
-                let result = new Frame(this.Frames_URL_List[i], this.MetaData.Rows, this.MetaData.Columns);
+                let result = new Frame(this.Frames_URL_List[i], this.MetaData.Rows, this.MetaData.Columns, this.FramesMap[i]);
                 resultList.push(DeepCopy(result));
             }
             resolve(resultList);
