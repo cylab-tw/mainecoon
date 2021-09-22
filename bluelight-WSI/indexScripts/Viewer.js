@@ -72,7 +72,7 @@ class Viewer
         let FrameHeight = this.InstanceDivs[this.CurrentDivIndex].Instance.MetaData.Rows;
         let FrameWidth = this.InstanceDivs[this.CurrentDivIndex].Instance.MetaData.Columns;
 
-        let preLoadingImageRangeParameter = 2;
+        let preLoadingImageRangeParameter = 3;
 
         let preLoadingHeight = FrameHeight * preLoadingImageRangeParameter;
         let preLoadingWidth = FrameWidth * preLoadingImageRangeParameter;
@@ -82,6 +82,8 @@ class Viewer
 
         let CurrentDivFrameMap = this.InstanceDivs[this.CurrentDivIndex].Instance.FramesMap
         
+
+        //找出我所設定的可視區域範圍內的Canvas
         for (let i = 0; i < CurrentDivFrameMap.length; i++)
         {
             if (XRange.min <= CurrentDivFrameMap[i].StartXpoint && CurrentDivFrameMap[i].StartXpoint <= XRange.max)
@@ -97,6 +99,7 @@ class Viewer
             }
         }
 
+        //將找出的Canvas進行實體化
         for (let i = 0; i < result.ShowingCanvas.length; i++)
         {
             if (document.getElementById(result.ShowingCanvas[i].FrameCanvasID) == undefined)
