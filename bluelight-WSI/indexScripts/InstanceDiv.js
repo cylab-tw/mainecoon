@@ -15,7 +15,7 @@ class InstanceDiv
         this.Create();
 
         //讀有幾張 Frame 並創造出 Canvas
-        this.CreateFrameCanvas();
+        await this.CreateFrameCanvas();
     }
 
     Create()
@@ -29,17 +29,36 @@ class InstanceDiv
         FatherElement.appendChild(element);
     }
 
-    CreateFrameCanvas()
+    async CreateFrameCanvas()
     {
         let Frames = this.Instance.Frames;
         let FramesLength = Frames.length;
+        
 
-        for (let i = 0; i < FramesLength; i++)
+        //每50個停下來一下
+        let needAmount = FramesLength
+        let loadedAmount = 0;
+        let oneBatchNeedAmount = 50;
+        let lastBatchNeedAmount = needAmount % oneBatchNeedAmount;
+    
+        for (let i = 0; i < needAmount; i++)
         {
-            let tempFrameCanvasID = this.ID + "_" + "FrameCanvas" + i;
-            let tempFrameCanvas = new FrameCanvas(this.ID, tempFrameCanvasID, Frames[i]);
-            tempFrameCanvas.init();
-            this.FrameCanvas.push(DeepCopy(tempFrameCanvas));
+            this.CreateSingleFrameCanvas(i);
+            if ( i != 0 && i % oneBatchNeedAmount == 0)
+            {
+                //console.log("每完成50個，等待5秒鐘。");
+                loadedAmount += 50;
+                await sleep(5000);
+            }
         }
+        //console.log("還有"+ lastBatchNeedAmount +"個沒完成，現在完成。");
+    }
+
+    CreateSingleFrameCanvas(Number)
+    {
+        let tempFrameCanvasID = this.ID + "_" + "FrameCanvas" + Number;
+        let tempFrameCanvas = new FrameCanvas(this.ID, tempFrameCanvasID, this.Instance.Frames[Number]);
+        tempFrameCanvas.init();
+        this.FrameCanvas.push(DeepCopy(tempFrameCanvas));
     }
 }

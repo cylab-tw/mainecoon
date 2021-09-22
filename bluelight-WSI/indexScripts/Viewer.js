@@ -21,7 +21,7 @@ class Viewer
     {
         let Instances = this.DicomFile.Study.Series.Instances;
         let InstanceLength = Instances.length;
-        InstanceLength = 4;
+        InstanceLength = 6;
         for (let i = 0; i < InstanceLength; i++)
         {
             let isSurface = i==0 ? true : false;

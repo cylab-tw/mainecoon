@@ -22,15 +22,12 @@ class FrameCanvas
         element.height = this.Frame.height;
         element.style.position = "absolute";
         element.style.transform = "translate(" + this.Frame.FrameAddress.StartXpoint + "px" + "," + this.Frame.FrameAddress.StartYpoint + "px" + ")";
-        testx = testx + element.width;
-        testy = testy + element.height;
         let ctx = element.getContext("2d");
         img.onload = function()
         {
             ctx.drawImage(img, 0, 0, element.width, element.height);
         }
         img.src = this.Frame.Frame_URL;
-        //img.src = "https://cdn-icons-png.flaticon.com/512/104/104645.png";
         FatherElement.appendChild(element);
     }
 
