@@ -20,7 +20,7 @@ window.onload = async function()
     
     if (dynamic_Mode == true)
     {
-        var timer = setInterval(function () {MyViewer.getShowingCanvas()});
+        var timer = setInterval(function () {MyViewer.loadShowingCanvas()});
     }
     
 }
