@@ -69,17 +69,13 @@ class Viewer
             divTransformY = martixValue[5]; //可視區域向下    divTransformY   -值越大   想像整個div在移動就很合理了
         }
 
-        let FrameHeight = this.InstanceDivs[this.CurrentDivIndex].Instance.MetaData.Rows;
-        let FrameWidth = this.InstanceDivs[this.CurrentDivIndex].Instance.MetaData.Columns;
-
-        let preLoadingImageRangeParameter = 3;
-
-        let preLoadingHeight = FrameHeight * preLoadingImageRangeParameter;
-        let preLoadingWidth = FrameWidth * preLoadingImageRangeParameter;
+        let MyViewerElement = document.getElementById(this.ViewerElementID);
+        let preLoadingHeight = MyViewerElement.clientHeight;
+        let preLoadingWidth = MyViewerElement.clientWidth;
 
         let XRange = {"min" : -divTransformX - preLoadingWidth, "max" : -divTransformX + preLoadingWidth};
         let YRange = {"min" : -divTransformY - preLoadingHeight, "max" : -divTransformY + preLoadingHeight};
-
+        
         let CurrentDivFrameMap = this.InstanceDivs[this.CurrentDivIndex].Instance.FramesMap
         
 
@@ -107,6 +103,7 @@ class Viewer
                 let Instances = this.DicomFile.Study.Series.Instances;
                 let tempFrameCanvas = new FrameCanvas(result.CurrentDivID, result.ShowingCanvas[i].FrameCanvasID, Instances[result.CurrentDivIndex].Frames[result.ShowingCanvas[i].FrameCanvasNumber]);
                 tempFrameCanvas.init();
+                this.InstanceDivs[result.CurrentDivIndex].FrameCanvas.push(DeepCopy(tempFrameCanvas));
             }
         }
 
