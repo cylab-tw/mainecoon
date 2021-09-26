@@ -49,7 +49,7 @@ class Viewer
         setViewerOnMouseUp();
     }
 
-    getShowingCanvas()
+    loadShowingCanvas()
     {
         
         let CurrentDivID = this.InstanceDivs[this.CurrentDivIndex].ID;
