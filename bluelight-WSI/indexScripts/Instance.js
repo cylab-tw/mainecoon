@@ -40,8 +40,8 @@ class Instance
                 tempMetaData.NumberOfFrames = response["00280008"].Value[0];                //有幾張Frames
                 tempMetaData.Rows = response["00280010"].Value[0];                          //每張小圖的高
                 tempMetaData.Columns = response["00280011"].Value[0];                       //每張小圖的寬
-                tempMetaData.ImagedVolumeWidth = response["00480001"].Value[0];             //每幀中Row方向的距離
-                tempMetaData.ImagedVolumeHeight = response["00480002"].Value[0];            //每幀中Column方向的距離
+                tempMetaData.ImagedVolumeWidth = response["00480001"].Value[0];             //每幀中Row方向的距離，寬度每1毫米多少幀
+                tempMetaData.ImagedVolumeHeight = response["00480002"].Value[0];            //每幀中Column方向的距離，高度每1毫米多少幀
                 tempMetaData.XOffset = response["00480008"].Value[0]["0040072A"].Value[0];  //在座標系統中X座標偏移的毫米單位量
                 tempMetaData.YOffset = response["00480008"].Value[0]["0040073A"].Value[0];  //在座標系統中Y座標偏移的毫米單位量
                 

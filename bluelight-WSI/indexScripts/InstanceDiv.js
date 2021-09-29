@@ -10,6 +10,8 @@ class InstanceDiv
         this.Width = 0;
         this.Height = 0;
         this.dynamic_Mode = dynamic_Mode;
+        this.divTransformX = 0;
+        this.divTransformY = 0;
     }
 
     async init()
@@ -29,6 +31,7 @@ class InstanceDiv
         let element = document.createElement('DIV');
         element.id = this.ID;
         element.style.display = this.isSurface ? "" : "none";
+        element.style.transform = "translate(" + this.divTransformX +"px, " + this.divTransformY + "px)";
         element.newMousePointX = 0;
         element.newMousePointY = 0;
         FatherElement.appendChild(element);

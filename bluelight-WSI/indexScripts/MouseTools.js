@@ -18,6 +18,16 @@ function setViewerOnMouseUp()
         {
             MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].offsetX += e.pageX - MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseX;
             MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].offsetY += e.pageY - MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseY;
+
+            //更新每個 Div 的偏移值
+            let CurrentDivID = MyViewer.InstanceDivs[MyViewer.CurrentDivIndex].ID;
+            let div = document.getElementById(CurrentDivID);
+            let transformMartix = window.getComputedStyle(div).transform;
+            let martixValue = transformMartix.match(/matrix.*\((.+)\)/)[1].split(",");
+            let divTransformX = martixValue[4];
+            let divTransformY = martixValue[5];
+            MyViewer.InstanceDivs[MyViewer.CurrentDivIndex].divTransformX = divTransformX;
+            MyViewer.InstanceDivs[MyViewer.CurrentDivIndex].divTransformY = divTransformY;
         }
         
         MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].isMouseDown = false;
@@ -32,6 +42,8 @@ function setViewerOnMouseDown()
         MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].isMouseDown = true;
         MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseX = e.pageX;
         MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseY = e.pageY;
+        //console.log(e.pageX + ", " + e.pageY);
+        //console.log(MyViewer.MouseToolVariables);
         document.getElementById(ViewerElementID).addEventListener('mousemove', WSImove);
     }
 }
@@ -44,7 +56,10 @@ function setViewerOnMouseWheel()
         let InstanceDivLength = InstanceDivs.length;
         let MaxDivIndex = InstanceDivLength - 1;
         let MinDivIndex = 0;
-
+        
+        MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetX = e.offsetX; //滾輪觸發事件時，在容器內相差左上角的地方幾個像素點的X軸絕對值 onmousewheel_Container_AbsOffsetX
+        MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetY = e.offsetY; //滾輪觸發事件時，在容器內相差左上角的地方幾個像素點的Y軸絕對值 onmousewheel_Container_AbsOffsetY
+        
         if (e.deltaY > 0)
         {    
             if (MyViewer.CurrentDivIndex != MinDivIndex) 
@@ -63,8 +78,9 @@ function setViewerOnMouseWheel()
         {
             if (MyViewer.CurrentDivIndex != MaxDivIndex) 
             {
+                keepSamePostion_Zoom_in();
                 MyViewer.CurrentDivIndex++;
-
+                
                 for (let i = 0; i < InstanceDivLength; i++)
                 {
                     document.getElementById(InstanceDivs[i].ID).style.display = "none";
@@ -74,4 +90,24 @@ function setViewerOnMouseWheel()
             }
         }
     }
+}
+
+
+
+function keepSamePostion_Zoom_in()
+{
+    let nowInstanceDiv = MyViewer.InstanceDivs[MyViewer.CurrentDivIndex];
+    let nextInstanceDiv = MyViewer.InstanceDivs[MyViewer.CurrentDivIndex + 1];
+    
+    let Xmagnification = nextInstanceDiv.Instance.MetaData.TotalPixelMatrixColumns / nowInstanceDiv.Instance.MetaData.TotalPixelMatrixColumns;
+    let Ymagnification = nextInstanceDiv.Instance.MetaData.TotalPixelMatrixRows / nowInstanceDiv.Instance.MetaData.TotalPixelMatrixRows;
+
+    let nowDivTransformX = nowInstanceDiv.divTransformX;
+    let nowDivTransformY = nowInstanceDiv.divTransformY;
+
+    let nextDivTransformX = nowDivTransformX * Xmagnification;
+    let nextDivTransformY = nowDivTransformY * Ymagnification;
+
+    document.getElementById(nextInstanceDiv.ID).style.transform = "translate(" + nextDivTransformX +"px, " + nextDivTransformY + "px)";
+
 }
