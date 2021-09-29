@@ -64,7 +64,6 @@ class Viewer
         if (transformMartix != "none")
         {
             let martixValue = transformMartix.match(/matrix.*\((.+)\)/)[1].split(",");
-            //console.log("(" + martixValue[4] + "," + martixValue[5] + ")");
             divTransformX = martixValue[4]; //可視區域向右    divTransformX   -值越大   想像整個div在移動就很合理了
             divTransformY = martixValue[5]; //可視區域向下    divTransformY   -值越大   想像整個div在移動就很合理了
         }
@@ -90,7 +89,6 @@ class Viewer
                     let tempShowingCanvas = {"FrameCanvasID": CurrentDivID + "_" + "FrameCanvas" + Number, 
                                              "FrameCanvasNumber": Number};
                     result.ShowingCanvas.push(DeepCopy(tempShowingCanvas));
-                    //console.log(CurrentDivID + "_" + "FrameCanvas" + Number);
                 }
             }
         }
