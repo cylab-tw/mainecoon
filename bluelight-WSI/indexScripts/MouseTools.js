@@ -108,13 +108,13 @@ function keepSamePostion_Zoom_in()
 
     let nextDivTransformX = nowDivTransformX * Xmagnification;
     let nextDivTransformY = nowDivTransformY * Ymagnification;
-
+    
     //放大定位點定位在鼠標
     let mouseOffsetX = MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetX;
     let mouseOffsetY = MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetY;
-    nextDivTransformX = nextDivTransformX - mouseOffsetX;
-    nextDivTransformY = nextDivTransformY - mouseOffsetY;
-
+    nextDivTransformX = nextDivTransformX - mouseOffsetX * Xmagnification + mouseOffsetX;
+    nextDivTransformY = nextDivTransformY - mouseOffsetY * Ymagnification + mouseOffsetY;
+    
     //更新下一層的 MouseToolVariables offset X Y 數值 
     MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex + 1].offsetX = nextDivTransformX;
     MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex + 1].offsetY = nextDivTransformY;
@@ -138,15 +138,15 @@ function keepSamePostion_Zoom_out()
     let nowDivTransformX = nowInstanceDiv.divTransformX;
     let nowDivTransformY = nowInstanceDiv.divTransformY;
 
-    let nextDivTransformX = nowDivTransformX * Xmagnification;
-    let nextDivTransformY = nowDivTransformY * Ymagnification;
+    let nextDivTransformX = nowDivTransformX;
+    let nextDivTransformY = nowDivTransformY;
 
     //縮小定位點定位在鼠標
     let mouseOffsetX = MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetX;
     let mouseOffsetY = MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetY;
-    nextDivTransformX = nextDivTransformX + mouseOffsetX*Xmagnification;
-    nextDivTransformY = nextDivTransformY + mouseOffsetY*Ymagnification;
-
+    nextDivTransformX = ((nextDivTransformX - mouseOffsetX) + (mouseOffsetX / Xmagnification)) * Xmagnification;
+    nextDivTransformY = ((nextDivTransformY - mouseOffsetY) + (mouseOffsetY / Ymagnification)) * Ymagnification;
+    
     //更新上一層的 MouseToolVariables offset X Y 數值
     MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex - 1].offsetX = nextDivTransformX;
     MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex - 1].offsetY = nextDivTransformY;
