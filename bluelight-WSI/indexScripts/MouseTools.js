@@ -59,8 +59,6 @@ function setViewerOnMouseWheel()
         MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetY = e.clientY - 100; //滾輪觸發事件時，在容器內相差左上角的地方幾個像素點的Y軸絕對值 onmousewheel_Container_AbsOffsetY
         //clientX Y 來自於觸發事件時，瀏覽器的可視區域由左上開始計算的距離，300來自於左邊元件，100來自於上頭的高度，有調整的話會影響到縮放定位。
         
-        console.log(e.clientX + ", " + e.clientY);
-        console.log(MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetX+ ", " +MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetY);
 
         if (e.deltaY > 0)
         {    
@@ -104,7 +102,7 @@ function keepSamePostion_Zoom_in()
     
     let Xmagnification = nextInstanceDiv.Instance.MetaData.TotalPixelMatrixColumns / nowInstanceDiv.Instance.MetaData.TotalPixelMatrixColumns;
     let Ymagnification = nextInstanceDiv.Instance.MetaData.TotalPixelMatrixRows / nowInstanceDiv.Instance.MetaData.TotalPixelMatrixRows;
-    console.log(Xmagnification + ", " + Ymagnification);
+
     let nowDivTransformX = nowInstanceDiv.divTransformX;
     let nowDivTransformY = nowInstanceDiv.divTransformY;
 
