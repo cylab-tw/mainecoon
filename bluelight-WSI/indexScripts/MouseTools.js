@@ -18,7 +18,7 @@ function setViewerOnMouseUp()
         {
             MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].offsetX += e.pageX - MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseX;
             MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].offsetY += e.pageY - MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseY;
-
+            
             //更新每個 Div 的偏移值
             let CurrentDivID = MyViewer.InstanceDivs[MyViewer.CurrentDivIndex].ID;
             let div = document.getElementById(CurrentDivID);
@@ -42,9 +42,6 @@ function setViewerOnMouseDown()
         MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].isMouseDown = true;
         MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseX = e.pageX;
         MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseY = e.pageY;
-        //console.log(e.pageX + ", " + e.pageY);
-        //console.log(e.offsetX + ", " + e.offsetY);
-        //console.log(MyViewer.MouseToolVariables);
         document.getElementById(ViewerElementID).addEventListener('mousemove', WSImove);
     }
 }
@@ -65,8 +62,9 @@ function setViewerOnMouseWheel()
         {    
             if (MyViewer.CurrentDivIndex != MinDivIndex) 
             {
+                keepSamePostion_Zoom_out();
                 MyViewer.CurrentDivIndex--;
-
+                
                 for (let i = 0; i < InstanceDivLength; i++)
                 {
                     document.getElementById(InstanceDivs[i].ID).style.display = "none";
@@ -86,7 +84,7 @@ function setViewerOnMouseWheel()
                 {
                     document.getElementById(InstanceDivs[i].ID).style.display = "none";
                 }
-
+                
                 document.getElementById(InstanceDivs[MyViewer.CurrentDivIndex].ID).style.display = "";
             }
         }
@@ -109,10 +107,40 @@ function keepSamePostion_Zoom_in()
     let nextDivTransformX = nowDivTransformX * Xmagnification;
     let nextDivTransformY = nowDivTransformY * Ymagnification;
 
-    //更新下一層的offset X Y 數值
+    //更新下一層的 MouseToolVariables offset X Y 數值 
     MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex + 1].offsetX = nextDivTransformX;
     MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex + 1].offsetY = nextDivTransformY;
 
-    document.getElementById(nextInstanceDiv.ID).style.transform = "translate(" + nextDivTransformX +"px, " + nextDivTransformY + "px)";
+    //更新下一層的 divTransform X Y 數值
+    MyViewer.InstanceDivs[MyViewer.CurrentDivIndex + 1].divTransformX = nextDivTransformX;
+    MyViewer.InstanceDivs[MyViewer.CurrentDivIndex + 1].divTransformY = nextDivTransformY;
 
+    document.getElementById(nextInstanceDiv.ID).style.transform = "translate(" + nextDivTransformX +"px, " + nextDivTransformY + "px)";
+    
+}
+
+function keepSamePostion_Zoom_out()
+{
+    let nowInstanceDiv = MyViewer.InstanceDivs[MyViewer.CurrentDivIndex];
+    let lastInstanceDiv = MyViewer.InstanceDivs[MyViewer.CurrentDivIndex - 1];
+    
+    let Xmagnification = lastInstanceDiv.Instance.MetaData.TotalPixelMatrixColumns / nowInstanceDiv.Instance.MetaData.TotalPixelMatrixColumns;
+    let Ymagnification = lastInstanceDiv.Instance.MetaData.TotalPixelMatrixRows / nowInstanceDiv.Instance.MetaData.TotalPixelMatrixRows;
+
+    let nowDivTransformX = nowInstanceDiv.divTransformX;
+    let nowDivTransformY = nowInstanceDiv.divTransformY;
+
+    let nextDivTransformX = nowDivTransformX * Xmagnification;
+    let nextDivTransformY = nowDivTransformY * Ymagnification;
+
+    //更新上一層的 MouseToolVariables offset X Y 數值
+    MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex - 1].offsetX = nextDivTransformX;
+    MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex - 1].offsetY = nextDivTransformY;
+
+    //更新上一層的 divTransform X Y 數值
+    MyViewer.InstanceDivs[MyViewer.CurrentDivIndex - 1].divTransformX = nextDivTransformX;
+    MyViewer.InstanceDivs[MyViewer.CurrentDivIndex - 1].divTransformY = nextDivTransformY;
+
+    document.getElementById(lastInstanceDiv.ID).style.transform = "translate(" + nextDivTransformX +"px, " + nextDivTransformY + "px)";
+    
 }
