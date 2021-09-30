@@ -55,9 +55,13 @@ function setViewerOnMouseWheel()
         let MaxDivIndex = InstanceDivLength - 1;
         let MinDivIndex = 0;
         
-        MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetX = e.offsetX; //滾輪觸發事件時，在容器內相差左上角的地方幾個像素點的X軸絕對值 onmousewheel_Container_AbsOffsetX
-        MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetY = e.offsetY; //滾輪觸發事件時，在容器內相差左上角的地方幾個像素點的Y軸絕對值 onmousewheel_Container_AbsOffsetY
+        MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetX = e.clientX - 300; //滾輪觸發事件時，在容器內相差左上角的地方幾個像素點的X軸絕對值 onmousewheel_Container_AbsOffsetX
+        MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetY = e.clientY - 100; //滾輪觸發事件時，在容器內相差左上角的地方幾個像素點的Y軸絕對值 onmousewheel_Container_AbsOffsetY
+        //clientX Y 來自於觸發事件時，瀏覽器的可視區域由左上開始計算的距離，300來自於左邊元件，100來自於上頭的高度，有調整的話會影響到縮放定位。
         
+        console.log(e.clientX + ", " + e.clientY);
+        console.log(MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetX+ ", " +MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetY);
+
         if (e.deltaY > 0)
         {    
             if (MyViewer.CurrentDivIndex != MinDivIndex) 
@@ -100,12 +104,18 @@ function keepSamePostion_Zoom_in()
     
     let Xmagnification = nextInstanceDiv.Instance.MetaData.TotalPixelMatrixColumns / nowInstanceDiv.Instance.MetaData.TotalPixelMatrixColumns;
     let Ymagnification = nextInstanceDiv.Instance.MetaData.TotalPixelMatrixRows / nowInstanceDiv.Instance.MetaData.TotalPixelMatrixRows;
-
+    console.log(Xmagnification + ", " + Ymagnification);
     let nowDivTransformX = nowInstanceDiv.divTransformX;
     let nowDivTransformY = nowInstanceDiv.divTransformY;
 
     let nextDivTransformX = nowDivTransformX * Xmagnification;
     let nextDivTransformY = nowDivTransformY * Ymagnification;
+
+    //放大定位點定位在鼠標
+    let mouseOffsetX = MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetX;
+    let mouseOffsetY = MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetY;
+    nextDivTransformX = nextDivTransformX - mouseOffsetX;
+    nextDivTransformY = nextDivTransformY - mouseOffsetY;
 
     //更新下一層的 MouseToolVariables offset X Y 數值 
     MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex + 1].offsetX = nextDivTransformX;
@@ -132,6 +142,12 @@ function keepSamePostion_Zoom_out()
 
     let nextDivTransformX = nowDivTransformX * Xmagnification;
     let nextDivTransformY = nowDivTransformY * Ymagnification;
+
+    //縮小定位點定位在鼠標
+    let mouseOffsetX = MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetX;
+    let mouseOffsetY = MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].onmousewheel_Container_AbsOffsetY;
+    nextDivTransformX = nextDivTransformX + mouseOffsetX*Xmagnification;
+    nextDivTransformY = nextDivTransformY + mouseOffsetY*Ymagnification;
 
     //更新上一層的 MouseToolVariables offset X Y 數值
     MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex - 1].offsetX = nextDivTransformX;
