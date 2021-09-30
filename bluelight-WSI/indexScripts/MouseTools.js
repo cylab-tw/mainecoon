@@ -43,6 +43,7 @@ function setViewerOnMouseDown()
         MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseX = e.pageX;
         MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseY = e.pageY;
         //console.log(e.pageX + ", " + e.pageY);
+        //console.log(e.offsetX + ", " + e.offsetY);
         //console.log(MyViewer.MouseToolVariables);
         document.getElementById(ViewerElementID).addEventListener('mousemove', WSImove);
     }
@@ -107,6 +108,10 @@ function keepSamePostion_Zoom_in()
 
     let nextDivTransformX = nowDivTransformX * Xmagnification;
     let nextDivTransformY = nowDivTransformY * Ymagnification;
+
+    //更新下一層的offset X Y 數值
+    MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex + 1].offsetX = nextDivTransformX;
+    MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex + 1].offsetY = nextDivTransformY;
 
     document.getElementById(nextInstanceDiv.ID).style.transform = "translate(" + nextDivTransformX +"px, " + nextDivTransformY + "px)";
 
