@@ -2,6 +2,7 @@ var WSIS = undefined;
 var Patient = undefined;
 var MyViewer = undefined;
 var MyLeftAside = undefined;
+var MyRightAside = undefined;
 const ViewerElementID = "MyViewer";
 const dynamic_Mode = true;
 
