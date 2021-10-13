@@ -24,8 +24,26 @@ body
 {
     display: flex;
     flex-direction: row;
-    background-color: khaki;
     z-index: 1;
+}
+
+.root-layout-content-aside
+{
+    background-color: white;
+}
+
+.root-layout-content-leftaside
+{
+    border-right-color: black;
+    border-right-width: 1px;
+    border-right-style: solid;
+}
+
+.root-layout-content-rightaside
+{
+    border-left-color: black;
+    border-left-width: 1px;
+    border-left-style: solid;
 }
 
 .root-layout-content-main

@@ -1,6 +1,7 @@
 var WSIS = undefined;
 var Patient = undefined;
 var MyViewer = undefined;
+var MyLeftAside = undefined;
 const ViewerElementID = "MyViewer";
 const dynamic_Mode = true;
 
@@ -22,7 +23,11 @@ window.onload = async function()
     {
         var timer = setInterval(function () {MyViewer.loadShowingCanvas()});
     }
-    
+
+    MyLeftAside = new LeftAside(Patient);
+    MyLeftAside.init();
 }
 
+
+        
 
