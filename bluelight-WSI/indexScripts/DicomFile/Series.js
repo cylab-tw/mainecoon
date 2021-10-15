@@ -39,6 +39,19 @@ class Series
                 {
                     let tempMetaData = {};
                     tempMetaData.SOPInstanceUID = response[i]["00080018"].Value[0];
+
+                    if (response[i].hasOwnProperty("00400560"))
+                    {
+                        tempMetaData.SpecimenDescriptionSequence = response[i]["00400560"].hasOwnProperty("Value") ? response[i]["00400560"].Value[0] : undefined;
+                    }
+                    
+                    if (response[i].hasOwnProperty("22000002") && response[i].hasOwnProperty("22000005"))
+                    {
+                        tempMetaData.LabelText = response[i]["22000002"].hasOwnProperty("Value") ? response[i]["22000002"].Value[0] : undefined;
+                        tempMetaData.BarcodeValue = response[i]["22000005"].hasOwnProperty("Value") ? response[i]["22000005"].Value[0] : undefined;
+                    }
+                    
+                    
                     tempMetaDataList.push(DeepCopy(tempMetaData));
                 }
 
