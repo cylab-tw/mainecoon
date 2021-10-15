@@ -49,13 +49,7 @@ class Series
                     {
                         tempMetaData.LabelText = response[i]["22000002"].hasOwnProperty("Value") ? response[i]["22000002"].Value[0] : undefined;
                         tempMetaData.BarcodeValue = response[i]["22000005"].hasOwnProperty("Value") ? response[i]["22000005"].Value[0] : undefined;
-                    }
-
-                    if (response[i].hasOwnProperty("00480102"))
-                    {
-                        tempMetaData.ImageOrientation = response[i]["00480102"].hasOwnProperty("Value") ? response[i]["00480102"].Value : undefined;
-                    }
-                    
+                    }                    
                     
                     tempMetaDataList.push(DeepCopy(tempMetaData));
                 }

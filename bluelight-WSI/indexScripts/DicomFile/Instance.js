@@ -59,6 +59,11 @@ class Instance
                     }
                 }
 
+                if (response.hasOwnProperty("00480102")) //圖片的翻轉參數
+                {
+                    tempMetaData.ImageOrientation = response["00480102"].hasOwnProperty("Value") ? response["00480102"].Value : undefined;
+                }
+
                 MetaData = DeepCopy(tempMetaData);
                 resolve(MetaData);
             }
