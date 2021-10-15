@@ -81,7 +81,7 @@ function setViewerOnMouseWheel()
             {
                 keepSamePostion_Zoom_in();
                 MyViewer.CurrentDivIndex++;
-                
+
                 for (let i = 0; i < InstanceDivLength; i++)
                 {
                     document.getElementById(InstanceDivs[i].ID).style.display = "none";

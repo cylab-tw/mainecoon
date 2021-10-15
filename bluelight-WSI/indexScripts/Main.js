@@ -15,20 +15,18 @@ window.onload = async function()
     await Patient.init();
     console.log(Patient);
 
+    MyLeftAside = new LeftAside(Patient);
+    MyLeftAside.init();
+
+    MyRightAside = new RightAside(Patient);
+    MyRightAside.init();
+
     MyViewer = new Viewer(ViewerElementID, Patient, dynamic_Mode);
     MyViewer.init();
     console.log(MyViewer);
 
-    
     if (dynamic_Mode == true)
     {
         var timer = setInterval(function () {MyViewer.loadShowingCanvas()});
-    }
-
-    MyLeftAside = new LeftAside(Patient);
-    MyLeftAside.init();
+    }   
 }
-
-
-        
-
