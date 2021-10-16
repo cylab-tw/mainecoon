@@ -8,6 +8,8 @@ class Viewer
         this.CurrentDivIndex = 0;
         this.MouseToolVariables = [];
         this.dynamic_Mode = dynamic_Mode;
+        this.OnlyShowImageTypeIsVolumeInstances = true;
+        this.Instances = this.OnlyShowImageTypeIsVolumeInstances == true ? this.DicomFile.Study.Series.ImageTypeIsVolumeInstances : this.DicomFile.Study.Series.Instances;
     }
 
     init()
@@ -20,7 +22,7 @@ class Viewer
 
     CreateInstanceDivs()
     {
-        let Instances = this.DicomFile.Study.Series.Instances;
+        let Instances = this.Instances;
         let InstanceLength = Instances.length;
         for (let i = 0; i < InstanceLength; i++)
         {
@@ -98,7 +100,7 @@ class Viewer
         {
             if (document.getElementById(result.ShowingCanvas[i].FrameCanvasID) == undefined)
             {
-                let Instances = this.DicomFile.Study.Series.Instances;
+                let Instances = this.Instances;
                 let tempFrameCanvas = new FrameCanvas(result.CurrentDivID, result.ShowingCanvas[i].FrameCanvasID, Instances[result.CurrentDivIndex].Frames[result.ShowingCanvas[i].FrameCanvasNumber]);
                 tempFrameCanvas.init();
                 this.InstanceDivs[result.CurrentDivIndex].FrameCanvas.push(DeepCopy(tempFrameCanvas));
