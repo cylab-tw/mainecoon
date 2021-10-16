@@ -32,6 +32,18 @@ class InstanceDiv
         element.id = this.ID;
         element.style.display = this.isSurface ? "" : "none";
         element.style.transform = "translate(" + this.divTransformX +"px, " + this.divTransformY + "px)";
+        
+        /*
+        //matrix(1, 0, 0, 1, 0, 0);
+        element.style.transform = "matrix("
+                                + this.Instance.MetaData.ImageOrientation[0] + "," 
+                                + this.Instance.MetaData.ImageOrientation[1] + ","
+                                + this.Instance.MetaData.ImageOrientation[2] + ","
+                                + this.Instance.MetaData.ImageOrientation[3] + "," 
+                                + this.Instance.MetaData.ImageOrientation[4] + ","
+                                + this.Instance.MetaData.ImageOrientation[5] + ")";
+        */
+
         element.newMousePointX = 0;
         element.newMousePointY = 0;
         FatherElement.appendChild(element);

@@ -7,6 +7,17 @@ function WSImove(e)
         const dy = e.pageY - MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].mouseY;
         let CurrentDivID = MyViewer.InstanceDivs[MyViewer.CurrentDivIndex].ID;
         document.getElementById(CurrentDivID).style.transform = "translate(" + (MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].offsetX + dx) + "px," + (MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].offsetY + dy) + "px)";        
+
+        /*
+        //matrix(1, 0, 0, 1, 0, 0);
+        document.getElementById(CurrentDivID).style.transform = "matrix("
+                                                              + MyViewer.InstanceDivs[MyViewer.CurrentDivIndex].Instance.MetaData.ImageOrientation[0] + "," 
+                                                              + MyViewer.InstanceDivs[MyViewer.CurrentDivIndex].Instance.MetaData.ImageOrientation[1] + ","
+                                                              + MyViewer.InstanceDivs[MyViewer.CurrentDivIndex].Instance.MetaData.ImageOrientation[2] + ","
+                                                              + MyViewer.InstanceDivs[MyViewer.CurrentDivIndex].Instance.MetaData.ImageOrientation[3] + "," 
+                                                              + (MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].offsetX + dx) + ","
+                                                              + (MyViewer.MouseToolVariables[MyViewer.CurrentDivIndex].offsetY + dy) + ")";
+        */
     }
 }
 
@@ -125,6 +136,17 @@ function keepSamePostion_Zoom_in()
 
     document.getElementById(nextInstanceDiv.ID).style.transform = "translate(" + nextDivTransformX +"px, " + nextDivTransformY + "px)";
     
+    /*
+    //matrix(1, 0, 0, 1, 0, 0);
+    document.getElementById(nextInstanceDiv.ID).style.transform = "matrix("
+                                                                + nextInstanceDiv.Instance.MetaData.ImageOrientation[0] + "," 
+                                                                + nextInstanceDiv.Instance.MetaData.ImageOrientation[1] + ","
+                                                                + nextInstanceDiv.Instance.MetaData.ImageOrientation[2] + ","
+                                                                + nextInstanceDiv.Instance.MetaData.ImageOrientation[3] + "," 
+                                                                + nextDivTransformX + ","
+                                                                + nextDivTransformY + ")";
+    */
+
 }
 
 function keepSamePostion_Zoom_out()
@@ -157,4 +179,14 @@ function keepSamePostion_Zoom_out()
 
     document.getElementById(lastInstanceDiv.ID).style.transform = "translate(" + nextDivTransformX +"px, " + nextDivTransformY + "px)";
     
+    /*
+    //matrix(1, 0, 0, 1, 0, 0);
+    document.getElementById(lastInstanceDiv.ID).style.transform = "matrix("
+                                                                + lastInstanceDiv.Instance.MetaData.ImageOrientation[0] + "," 
+                                                                + lastInstanceDiv.Instance.MetaData.ImageOrientation[1] + ","
+                                                                + lastInstanceDiv.Instance.MetaData.ImageOrientation[2] + ","
+                                                                + lastInstanceDiv.Instance.MetaData.ImageOrientation[3] + "," 
+                                                                + nextDivTransformX + ","
+                                                                + nextDivTransformY + ")";
+    */
 }
