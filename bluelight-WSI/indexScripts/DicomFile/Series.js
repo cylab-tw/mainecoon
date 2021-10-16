@@ -9,6 +9,7 @@ class Series
         this.Instances_MetaData_URL_List = undefined;
         this.MetaData = {};
         this.Instances = undefined;
+        this.ImageTypeIsVolumeInstances = undefined;
     }
 
     async init()
@@ -20,6 +21,7 @@ class Series
         this.Instances = await this.getInstances();
         this.sortInstancesByTotalPixel();
         this.sortInstancesByNumberOfFrames();
+        this.ImageTypeIsVolumeInstances = this.getImageTypeIsVolumeInstances();
     }
 
     async getMetaData() //目前只抓取 SOPInstanceUID 以達成抓取 Instances 的目的
@@ -149,6 +151,22 @@ class Series
                     this.Instances[j + 1] = temp;
 			    }
             }
+    }
+
+    getImageTypeIsVolumeInstances()
+    {
+        let result = [];
+        let tempInstances = this.Instances;
+
+        for (let i = 0; i < tempInstances.length; i++)
+        {
+            if (tempInstances[i].ImageType_isVolume == true)
+            {
+                result.push(DeepCopy(tempInstances[i]));
+            }
+        }
+
+        return result;
     }
 
 }
