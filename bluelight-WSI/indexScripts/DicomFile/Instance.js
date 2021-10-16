@@ -11,6 +11,8 @@ class Instance
         this.WidthCountOfFrame = undefined;
         this.HeightCountOfFrame = undefined;
         this.FramesMap = undefined;
+        this.ImageType_isLabel = false;
+        this.ImageType_isVolume = false;
     }
 
     async init()
@@ -22,6 +24,7 @@ class Instance
         this.HeightCountOfFrame = this.getHeightCountOfFrame();
         this.FramesMap = this.getFramesMap();
         this.Frames = await this.getFrames();
+        this.initImageType();
     }
 
     async getMetaData()
@@ -44,6 +47,8 @@ class Instance
                 tempMetaData.ImagedVolumeHeight = response["00480002"].Value[0];            //每幀中Column方向的距離，高度每1毫米多少幀
                 tempMetaData.XOffset = response["00480008"].Value[0]["0040072A"].Value[0];  //在座標系統中X座標偏移的毫米單位量
                 tempMetaData.YOffset = response["00480008"].Value[0]["0040073A"].Value[0];  //在座標系統中Y座標偏移的毫米單位量
+                
+                tempMetaData.ImageType = response["00080008"].Value;
                 
                 try
                 {
@@ -124,6 +129,24 @@ class Instance
     getHeightCountOfFrame()
     {
         return Math.ceil(this.MetaData.TotalPixelMatrixRows / this.MetaData.Rows);
+    }
+
+    initImageType()
+    {
+        let imageTypeList = this.MetaData.ImageType;
+
+        for(let i = 0; i < imageTypeList.length; i++)
+        {
+            if (imageTypeList[i] == "VOLUME")
+            {
+                this.ImageType_isVolume = true;
+            }
+            
+            if (imageTypeList[i] == "LABEL")
+            {
+                this.ImageType_isLabel = true;
+            }
+        }
     }
 
 }
