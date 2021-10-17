@@ -71,8 +71,8 @@ class Viewer
         }
 
         let MyViewerElement = document.getElementById(this.ViewerElementID);
-        let preLoadingHeight = MyViewerElement.clientHeight;
-        let preLoadingWidth = MyViewerElement.clientWidth;
+        let preLoadingHeight = MyViewerElement.clientHeight * 2;
+        let preLoadingWidth = MyViewerElement.clientWidth * 2;
 
         let XRange = {"min" : -divTransformX - preLoadingWidth, "max" : -divTransformX + preLoadingWidth};
         let YRange = {"min" : -divTransformY - preLoadingHeight, "max" : -divTransformY + preLoadingHeight};
