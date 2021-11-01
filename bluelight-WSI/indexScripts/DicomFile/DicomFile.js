@@ -56,7 +56,7 @@ class DicomFile
 
     combine_Study_URL()
     {
-        this.Study_URL = this.MetaData.RetrieveURL.Value[0];
+        this.Study_URL = this.WSIServer.API_URL + "/studies/" + this.MetaData.StudyInstanceUID.Value[0];
         this.Study_URL = httpAndHttpsReplaceByConfig(this.Study_URL, this.WSIServer.DICOMWebServersConfig["enableHTTPS"]);
     }
 

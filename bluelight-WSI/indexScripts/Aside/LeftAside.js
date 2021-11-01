@@ -43,10 +43,11 @@ class LeftAside
     {
         //Accession ID Date Time
         let metadata = this.DicomFile.Study.MetaData;
-        let Accession = metadata.AccessionNumber.hasOwnProperty("Value") ? metadata.AccessionNumber.Value[0] : "";
-        let ID = metadata.StudyID.hasOwnProperty("Value") ? metadata.StudyID.Value[0] : "";
-        let Date = metadata.StudyDate.hasOwnProperty("Value") ? DateFormat(metadata.StudyDate.Value[0]) : "";
-        let Time = metadata.StudyTime.hasOwnProperty("Value") ? TimeFormat(metadata.StudyTime.Value[0]) : "";
+        console.log(metadata);
+        let Accession = metadata.hasOwnProperty("AccessionNumber") && metadata.AccessionNumber.hasOwnProperty("Value") ? metadata.AccessionNumber.Value[0] : "";
+        let ID = metadata.hasOwnProperty("StudyID") && metadata.StudyID.hasOwnProperty("Value") ? metadata.StudyID.Value[0] : "";
+        let Date = metadata.hasOwnProperty("StudyDate") && metadata.StudyDate.hasOwnProperty("Value") ? DateFormat(metadata.StudyDate.Value[0]) : "";
+        let Time = metadata.hasOwnProperty("StudyTime") && metadata.StudyTime.hasOwnProperty("Value") ? TimeFormat(metadata.StudyTime.Value[0]) : "";
 
         let textContent =   "Accession: " + Accession + "\n" +
                             "ID: " + ID + "\n"+

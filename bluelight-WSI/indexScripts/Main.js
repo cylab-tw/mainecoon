@@ -10,6 +10,7 @@ window.onload = async function()
 {
     WSIS = new WSIServer();
     await WSIS.init();
+    console.log(WSIS);
 
     Patient = new DicomFile(WSIS);
     await Patient.init();
