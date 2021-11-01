@@ -5,8 +5,8 @@ class WSIServer
         this.Config = undefined;
         this.DICOMWebServersConfig = undefined;
         this.QIDO_URL = undefined;
-        this.DicomFile = undefined;
         this.API_URL = undefined;
+        this.WADOType = undefined;
     }
 
     async init()
@@ -22,6 +22,7 @@ class WSIServer
         let Config = await JCG.getConfig();
         this.Config = Config;
         this.DICOMWebServersConfig = this.Config["DICOMWebServersConfig"][0];
+        this.WADOType = this.DICOMWebServersConfig["WADO-RS/RUI"];
     }
 
     async combine_QIDO_URL()
@@ -60,6 +61,9 @@ class WSIServer
             + tempQIDOConfig.hostname + ":" 
             + tempQIDOConfig.port + "/" 
             + tempQIDOConfig.service 
+        
+        if (this.WADOType == "URI")
+            url += "wado" + "?" + "requestType=WADO";
         
         this.API_URL = url;
     }

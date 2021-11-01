@@ -43,7 +43,6 @@ class LeftAside
     {
         //Accession ID Date Time
         let metadata = this.DicomFile.Study.MetaData;
-        console.log(metadata);
         let Accession = metadata.hasOwnProperty("AccessionNumber") && metadata.AccessionNumber.hasOwnProperty("Value") ? metadata.AccessionNumber.Value[0] : "";
         let ID = metadata.hasOwnProperty("StudyID") && metadata.StudyID.hasOwnProperty("Value") ? metadata.StudyID.Value[0] : "";
         let Date = metadata.hasOwnProperty("StudyDate") && metadata.StudyDate.hasOwnProperty("Value") ? DateFormat(metadata.StudyDate.Value[0]) : "";
