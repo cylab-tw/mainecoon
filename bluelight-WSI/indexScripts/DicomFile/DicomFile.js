@@ -8,6 +8,7 @@ class DicomFile
         this.Study_MetaData_URL = undefined;
         this.MetaData = {};
         this.Study = undefined;
+        this.WADOType = this.WSIServer.WADOType;
     }
 
     async init()
@@ -56,13 +57,21 @@ class DicomFile
 
     combine_Study_URL()
     {
-        this.Study_URL = this.WSIServer.API_URL + "/studies/" + this.MetaData.StudyInstanceUID.Value[0];
+        if (this.WADOType == "RS")
+            this.Study_URL = this.WSIServer.API_URL + "/studies/" + this.MetaData.StudyInstanceUID.Value[0];
+        else if (this.WADOType == "URI")
+            this.Study_URL = this.WSIServer.API_URL + "&studyUID=" + this.MetaData.StudyInstanceUID.Value[0];
+        
         this.Study_URL = httpAndHttpsReplaceByConfig(this.Study_URL, this.WSIServer.DICOMWebServersConfig["enableHTTPS"]);
     }
 
     combine_Study_MetaData_URL()
     {
-        this.Study_MetaData_URL = this.Study_URL + "/series";
+        if (this.WADOType == "RS")
+            this.Study_MetaData_URL = this.Study_URL + "/series";
+        else if (this.WADOType == "URI")
+            this.Study_MetaData_URL = undefined;
+
         this.Study_MetaData_URL = httpAndHttpsReplaceByConfig(this.Study_MetaData_URL, this.WSIServer.DICOMWebServersConfig["enableHTTPS"]);
     }
 
