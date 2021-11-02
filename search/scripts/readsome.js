@@ -190,9 +190,15 @@ function readJson(url) {
     onloadList.pop();
     var DicomStudyResponse = request.response;
     //console.log(DicomStudyResponse);
-    if (DicomStudyResponse && DicomStudyResponse.length == 0)
+    if (DicomStudyResponse == undefined || (DicomStudyResponse && DicomStudyResponse.length == 0))
+    {
       getByid("loadingSpan").style.display = "none";
+      return;
+    }
+      
 
+
+    
     for (let series = 0; series < DicomStudyResponse.length; series++) {
       let SeriesUrl = "";
       if (ConfigLog.WADO.enableRetrieveURI == true) {
