@@ -21,7 +21,7 @@ class Series
         this.calInstancesCount();
         this.Instances_URL_List = this.getInstances_URL_List();
         this.Instances_MetaData_URL_List = this.getInstances_MetaData_URL_List();
-        this.WADOURI_URL_List = this.getInstances_WADOURI_URL_List();
+        this.WADOURI_URL_List = this.WADOType == "URI" ? this.getInstances_WADOURI_URL_List() : [];
         this.Instances = await this.getInstances();
         this.sortInstancesByTotalPixel();
         this.sortInstancesByNumberOfFrames();
