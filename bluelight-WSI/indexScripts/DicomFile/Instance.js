@@ -1,6 +1,6 @@
 class Instance
 {
-    constructor(Instance_URL, Instance_MetaData_URL)
+    constructor(Instance_URL, Instance_MetaData_URL, WADOType, WADOURI_URL)
     {
         this.Instance_URL = Instance_URL;
         this.Instance_MetaData_URL = Instance_MetaData_URL;
@@ -13,6 +13,8 @@ class Instance
         this.FramesMap = undefined;
         this.ImageType_isLabel = false;
         this.ImageType_isVolume = false;
+        this.WADOType = WADOType;
+        this.WADOURI_URL = WADOURI_URL;
     }
 
     async init()
@@ -94,16 +96,23 @@ class Instance
         for (let i = 0; i < this.FramesCount; i++)
         {
             let result = undefined;
-            result = this.getFrames_URL(this.Instance_URL, i+1);    //URL 的 index 從1開始
+            result = this.getFrames_URL(this.Instance_URL, i+1, this.WADOType, this.WADOURI_URL);    //URL 的 index 從1開始
             resultList.push(DeepCopy(result));
         }
         
         return resultList;
     }
 
-    getFrames_URL(Instance_URL, FramesIndex)
+    getFrames_URL(Instance_URL, FramesIndex, WADOType, WADOURI_URL)
     {
-        return Instance_URL + "/frames/" + FramesIndex + "/rendered";
+        let result = undefined;
+
+        if (WADOType == "URI")
+            result = WADOURI_URL + "&" + "frameNumber" + "=" + FramesIndex + "&" + "contentType=image/jpeg";
+        else
+            result = Instance_URL + "/frames/" + FramesIndex + "/rendered"
+
+        return result;
     }
 
     getFrames()

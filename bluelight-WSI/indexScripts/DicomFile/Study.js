@@ -1,6 +1,6 @@
 class Study
 {
-    constructor(Study_URL, Study_MetaData_URL)
+    constructor(Study_URL, Study_MetaData_URL, WADOType, WADOURI_URL)
     {
         this.Study_URL = Study_URL;
         this.Study_MetaData_URL = Study_MetaData_URL;
@@ -8,6 +8,8 @@ class Study
         this.Series_MetaData_URL = undefined;
         this.MetaData = {};
         this.Series = undefined;
+        this.WADOType = WADOType;
+        this.WADOURI_URL = WADOURI_URL;
     }
 
     async init()
@@ -15,6 +17,7 @@ class Study
         this.MetaData = await this.getMetaData();
         this.combine_Series_URL();
         this.combine_Series_MetaData_URL();
+        this.combine_WADOURI_URL();
         this.Series = await this.getSeries();
     }
 
@@ -70,11 +73,16 @@ class Study
         this.Series_MetaData_URL = this.Series_URL + "/metadata";
     }
 
+    combine_WADOURI_URL()
+    {
+        this.WADOURI_URL = this.WADOType == "URI" ? this.WADOURI_URL + "&seriesUID=" + this.MetaData.SeriesInstanceUID.Value[0] : undefined;
+    }
+
     getSeries()
     {
         return new Promise( async(resolve, reject) => {
             let result = {};
-            let tempResult = new Series(this.Series_URL, this.Series_MetaData_URL);
+            let tempResult = new Series(this.Series_URL, this.Series_MetaData_URL, this.WADOType, this.WADOURI_URL);
             await tempResult.init();
             result = DeepCopy(tempResult);
             resolve(result);

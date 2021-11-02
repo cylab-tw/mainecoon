@@ -1,6 +1,6 @@
 class Series
 {
-    constructor(Series_URL, Series_MetaData_URL)
+    constructor(Series_URL, Series_MetaData_URL, WADOType, WADOURI_URL)
     {
         this.Series_URL = Series_URL;
         this.Series_MetaData_URL = Series_MetaData_URL;
@@ -10,6 +10,9 @@ class Series
         this.MetaData = {};
         this.Instances = undefined;
         this.ImageTypeIsVolumeInstances = undefined;
+        this.WADOType = WADOType;
+        this.LastLayerWADOURI_URL = WADOURI_URL;
+        this.WADOURI_URL_List = undefined;
     }
 
     async init()
@@ -18,6 +21,7 @@ class Series
         this.calInstancesCount();
         this.Instances_URL_List = this.getInstances_URL_List();
         this.Instances_MetaData_URL_List = this.getInstances_MetaData_URL_List();
+        this.WADOURI_URL_List = this.getInstances_WADOURI_URL_List();
         this.Instances = await this.getInstances();
         this.sortInstancesByTotalPixel();
         this.sortInstancesByNumberOfFrames();
@@ -106,6 +110,27 @@ class Series
         return this.getInstances_URL(Series_URL, SOPInstanceUID) + "/metadata";
     }
 
+    getInstances_WADOURI_URL_List()
+    {
+        let resultList = [];
+
+        for (let i = 0; i < this.InstancesCount; i++)
+        {
+            let result = undefined;
+            result = this.WADOType == "URI" ? this.getInstances_WADOURI_URL(this.LastLayerWADOURI_URL, this.MetaData[i].SOPInstanceUID) : undefined;
+            resultList.push(DeepCopy(result));
+        }
+        
+        return resultList;
+    }
+
+    getInstances_WADOURI_URL(LastLayerWADOURI_URL, SOPInstanceUID)
+    {
+        return LastLayerWADOURI_URL + "&objectUID=" + SOPInstanceUID;
+    }
+
+
+
     getInstances()
     {
         return new Promise( async(resolve, reject) => {
@@ -114,7 +139,7 @@ class Series
             
             for (let i = 0; i < this.InstancesCount; i++)
             {
-                let result = new Instance(this.Instances_URL_List[i], this.Instances_MetaData_URL_List[i]);
+                let result = new Instance(this.Instances_URL_List[i], this.Instances_MetaData_URL_List[i], this.WADOType, this.WADOURI_URL_List[i]);
                 await result.init();
                 resultList.push(DeepCopy(result));
             }
