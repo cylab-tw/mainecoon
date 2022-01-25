@@ -4,7 +4,7 @@ var MyViewer = undefined;
 var MyLeftAside = undefined;
 var MyRightAside = undefined;
 const ViewerElementID = "MyViewer";
-const dynamic_Mode = true;
+
 
 window.onload = async function()
 {
@@ -22,12 +22,7 @@ window.onload = async function()
     MyRightAside = new RightAside(Patient);
     MyRightAside.init();
 
-    MyViewer = new Viewer(ViewerElementID, Patient, dynamic_Mode);
-    MyViewer.init();
-    console.log(MyViewer);
-
-    if (dynamic_Mode == true)
-    {
-        var timer = setInterval(function () {MyViewer.loadShowingCanvas()});
-    }   
+    // MyViewer = new Viewer(ViewerElementID, Patient, dynamic_Mode);
+    // MyViewer.init();
+    // console.log(MyViewer); 
 }
