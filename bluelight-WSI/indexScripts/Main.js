@@ -22,6 +22,21 @@ window.onload = async function()
     MyRightAside = new RightAside(Patient);
     MyRightAside.init();
 
+
+
+
+
+
+    
+    let JCG = new JsonConfigGetter("../data/testOpenSeadragonImageInfo.json");
+    let info = await JCG.getConfig();
+
+    MyViewer = new OpenSeadragon({
+        id: ViewerElementID,
+        showNavigationControl: false,
+        tileSources: info
+      });
+
     // MyViewer = new Viewer(ViewerElementID, Patient, dynamic_Mode);
     // MyViewer.init();
     // console.log(MyViewer); 
