@@ -9,6 +9,8 @@ class OpenSeadragonConfiger
         //OpenSeadragon Part
         this.ViewerHtmlID = ViewerHtmlID;
         this.showNavigationControl = false;
+        this.showNavigator = true;
+        this.navigatorId = "NavigatorDiv";
         this.squareTileSize = undefined;
         this.minLevel = undefined;
         this.maxLevel = undefined;
@@ -103,6 +105,8 @@ class OpenSeadragonConfiger
         {
             id : this.ViewerHtmlID,
             showNavigationControl: this.showNavigationControl,
+            showNavigator :  this.showNavigator,
+            navigatorId : this.navigatorId,
             tileSources: 
             {
                 height : this.height,
@@ -117,7 +121,8 @@ class OpenSeadragonConfiger
                     //             "x = " + x + "\n" + 
                     //             "y = " + y + "\n" + 
                     //             "widthImageCount = " + widthImageCount + "\n" + 
-                    //             "x + y * widthImageCount = " + (x + y * widthImageCount) + "\n");
+                    //             "x + y * widthImageCount = " + (x + y * widthImageCount) + "\n" +
+                    //             "URL = " + ImageTypeIsVolumeInstances[level].Frames_URL_List[x + y * widthImageCount]);
                     // console.log(ImageTypeIsVolumeInstances[level]);
                     return ImageTypeIsVolumeInstances[level].Frames_URL_List[x + y * widthImageCount];
                 }

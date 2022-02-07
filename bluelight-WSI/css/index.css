@@ -37,6 +37,18 @@ body
     border-right-color: black;
     border-right-width: 1px;
     border-right-style: solid;
+    position: relative;
+}
+
+.root-layout-content-leftaside-navigatordiv
+{
+    background-color: gray;
+    position: absolute !important;
+    bottom: 0px; 
+    right: 0px;
+    border-top-color: black;
+    border-top-width: 1px;
+    border-top-style: solid;
 }
 
 .root-layout-content-rightaside
