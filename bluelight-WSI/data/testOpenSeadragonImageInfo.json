@@ -1,0 +1,54 @@
+{
+  "profile": [
+    "http://iiif.io/api/image/2/level2.json",
+    {
+      "supports": [
+        "canonicalLinkHeader",
+        "profileLinkHeader",
+        "mirroring",
+        "rotationArbitrary",
+        "sizeAboveFull",
+        "regionSquare"
+      ],
+      "qualities": ["default", "bitonal", "gray", "color"],
+      "formats": ["jpg", "png", "gif", "webp"]
+    }
+  ],
+  "tiles": [
+    {
+      "width": 1024,
+      "scaleFactors": [1, 2, 4, 8, 16, 32]
+    }
+  ],
+  "protocol": "http://iiif.io/api/image",
+  "sizes": [
+    {
+      "width": 164,
+      "height": 225
+    },
+    {
+      "width": 328,
+      "height": 450
+    },
+    {
+      "width": 655,
+      "height": 900
+    },
+    {
+      "width": 1309,
+      "height": 1800
+    },
+    {
+      "width": 2617,
+      "height": 3600
+    },
+    {
+      "width": 5233,
+      "height": 7200
+    }
+  ],
+  "height": 7200,
+  "width": 5233,
+  "@context": "http://iiif.io/api/image/2/context.json",
+  "@id": "https://libimages1.princeton.edu/loris/pudl0001%2F4609321%2Fs42%2F00000001.jp2"
+}
