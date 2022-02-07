@@ -26,4 +26,5 @@ window.onload = async function()
     MyViewerConfig = new OpenSeadragonConfiger(Patient, ViewerElementID);
     await MyViewerConfig.init();
     MyViewer = new OpenSeadragon(MyViewerConfig.getConfig());
+    console.log(MyViewerConfig.getConfig());
 }
