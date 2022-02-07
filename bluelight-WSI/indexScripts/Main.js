@@ -1,5 +1,6 @@
 var WSIS = undefined;
 var Patient = undefined;
+var MyViewerConfig = undefined;
 var MyViewer = undefined;
 var MyLeftAside = undefined;
 var MyRightAside = undefined;
@@ -22,22 +23,7 @@ window.onload = async function()
     MyRightAside = new RightAside(Patient);
     MyRightAside.init();
 
-
-
-
-
-
-    
-    let JCG = new JsonConfigGetter("../data/testOpenSeadragonImageInfo.json");
-    let info = await JCG.getConfig();
-
-    MyViewer = new OpenSeadragon({
-        id: ViewerElementID,
-        showNavigationControl: false,
-        tileSources: info
-      });
-
-    // MyViewer = new Viewer(ViewerElementID, Patient, dynamic_Mode);
-    // MyViewer.init();
-    // console.log(MyViewer); 
+    MyViewerConfig = new OpenSeadragonConfiger(Patient, ViewerElementID);
+    await MyViewerConfig.init();
+    MyViewer = new OpenSeadragon(MyViewerConfig.getConfig());
 }
