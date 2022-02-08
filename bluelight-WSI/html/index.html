@@ -5,6 +5,9 @@
         <meta content="IE=edge" http-equiv="X-UA-Compatible">
         <link rel="stylesheet" type="text/css" href="../css/index.css">
 
+        <!-- OpenSeadragon -->
+        <script src="../indexScripts/OpenSeadragon/openseadragon-bin-3.0.0/openseadragon.min.js"></script>
+
         <!-- Bootstrap -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
@@ -21,18 +24,15 @@
         <script src="../indexScripts/DicomFile/Series.js"></script>
         <script src="../indexScripts/DicomFile/Instance.js"></script>
         <script src="../indexScripts/DicomFile/Frame.js"></script>
-
-        <script src="../indexScripts/Viewer/Viewer.js"></script>
-        <script src="../indexScripts/Viewer/InstanceDiv.js"></script>
-        <script src="../indexScripts/Viewer/FrameCanvas.js"></script>
-        <script src="../indexScripts/Viewer/MouseTools.js"></script>
-        <script src="../indexScripts/Viewer/MouseToolVariables.js"></script>
-        <script src="../indexScripts/Viewer/FramesMap.js"></script>
+        <script src="../indexScripts/DicomFile/FramesMap.js"></script>
 
         <script src="../indexScripts/Aside/Menu.js"></script>
         <script src="../indexScripts/Aside/Card.js"></script>
         <script src="../indexScripts/Aside/LeftAside.js"></script>
         <script src="../indexScripts/Aside/RightAside.js"></script>
+
+        <script src="../indexScripts/OpenSeadragon/OpenSeadragonConfiger.js"></script>
+
     </head>
 
     <body onmousewheel="/*return false;*/" style="margin: 0%;">
@@ -44,7 +44,9 @@
                 <main class="root-layout-content" style="width: 100%; height: 90%;">
                     <section class="root-layout-content-section" style="width: 100%; height: 100%;" >
                         <aside id="LeftAside" class="root-layout-content-aside root-layout-content-leftaside" style="max-width: 300px; min-width: 300px; width: 300px; height: 100%;">
-
+                            <div id="NavigatorDiv" class="root-layout-content-aside root-layout-content-leftaside-navigatordiv" style="max-width: 300px; min-width: 300px; width: 300px; height: 20%;">
+                                
+                            </div>
                         </aside>
                         <main id="MyViewer"  class="root-layout-content-main" style="width: 100%; height: 100%; overflow: hidden;">
 
