@@ -21,6 +21,8 @@ class LeftAside
     {
         //ID Name Gender Birthday
         let metadata = this.DicomFile.MetaData;
+        if (metadata == undefined) return;
+
         let ID = metadata.PatientID.hasOwnProperty("Value") ? metadata.PatientID.Value[0] : "";
         let Name = metadata.PatientName.hasOwnProperty("Value") ? metadata.PatientName.Value[0].Alphabetic : "";
         let Gender = metadata.PatientSex.hasOwnProperty("Value") ? metadata.PatientSex.Value[0] : "";
@@ -43,6 +45,8 @@ class LeftAside
     {
         //Accession ID Date Time
         let metadata = this.DicomFile.Study.MetaData;
+        if (metadata == undefined) return;
+
         let Accession = metadata.hasOwnProperty("AccessionNumber") && metadata.AccessionNumber.hasOwnProperty("Value") ? metadata.AccessionNumber.Value[0] : "";
         let ID = metadata.hasOwnProperty("StudyID") && metadata.StudyID.hasOwnProperty("Value") ? metadata.StudyID.Value[0] : "";
         let Date = metadata.hasOwnProperty("StudyDate") && metadata.StudyDate.hasOwnProperty("Value") ? DateFormat(metadata.StudyDate.Value[0]) : "";
