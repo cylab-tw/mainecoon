@@ -21,6 +21,7 @@ class RightAside
     {
         //LabelText BarcodeValue
         let metadata = this.DicomFile.Study.Series.MetaData[0];
+        if (metadata == undefined) return;
 
         let LabelText = metadata.hasOwnProperty("LabelText") ? metadata.LabelText : "";
         let BarcodeValue = metadata.hasOwnProperty("BarcodeValue") ? metadata.BarcodeValue : "";
@@ -39,6 +40,7 @@ class RightAside
     {
         //AnatomicStructure 解剖位置
         let metadata = this.DicomFile.Study.Series.MetaData[0].SpecimenDescriptionSequence;
+        if (metadata == undefined) return;
 
         let AnatomicStructure = "";
         if (metadata.hasOwnProperty("00082228") && metadata["00082228"].Value[0].hasOwnProperty("00080104"))
