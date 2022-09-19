@@ -23,6 +23,10 @@
 ### supported the display of the kinds of markups and annotations
 * ANN: [Supplement 222: Microscopy Bulk Simple Annotations Storage SOP Class](https://www.dicomstandard.org/news-dir/progress/docs/sups/sup222.pdf)
 
+### Structured Report
+* Display DICOM Structured Report
+* Display DICOM Supplement 219 - JSON Representation of DICOM Structured Reports. Referenced standard: [DICOM Sup 219](https://www.dicomstandard.org/News-dir/ftsup/docs/sups/Sup219.pdf)
+
 ## Supported library
 * BlueLight Viewer uses several oepn source libraries as folowing:
   - <a href="https://github.com/taye/interact.js">OpenSeadragon</a> for move, zoom, switch series.
