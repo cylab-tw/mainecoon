@@ -11,7 +11,7 @@
             "QIDO": "dicom-web",
             "WADO": "dicom-web",
             "STOW": "stow",
-            "enableRetrieveURI": false,
+            "enableRetrieveURI": true,
             "includefield": false,
             "target": "../../bluelight-WSI/html/index.html",
             "token": ""
@@ -27,7 +27,7 @@
             "QIDO": "dicom-web",
             "WADO": "dicom-web",
             "STOW": "stow",
-            "enableRetrieveURI": false,
+            "enableRetrieveURI": true,
             "includefield": false,
             "target": "../../bluelight-WSI/html/index.html",
             "token": ""

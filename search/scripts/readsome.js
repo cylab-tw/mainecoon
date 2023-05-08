@@ -144,6 +144,7 @@ function readConfigJson(url, onLosdSerch) {
 
     config.WADO = {};
     tempConfig = config.WADO;
+    
     tempDicomResponse = DicomResponse["DICOMWebServersConfig"][0];
     tempConfig.hostname = tempDicomResponse["hostname"];
     tempConfig.https = tempDicomResponse["enableHTTPS"] == true ? "https" : "http";
@@ -198,11 +199,11 @@ function readJson(url) {
       
 
 
-    
     for (let series = 0; series < DicomStudyResponse.length; series++) {
       let SeriesUrl = "";
       if (ConfigLog.WADO.enableRetrieveURI == true) {
         SeriesUrl = originWADOUrl + DicomStudyResponse[series]["0020000D"].Value[0] + "/series/";
+        console.log(SeriesUrl)
       } else {
         SeriesUrl = DicomStudyResponse[series]["00081190"].Value[0] + "/series";
       }
