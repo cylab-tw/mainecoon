@@ -3,6 +3,8 @@
 
 <a href="https://cylab-tw.github.io/mainecoon/search/html/start.html"><strong>Live DEMO</strong></a>&ensp;&ensp;&ensp;
 
+<a href="https://mainecoon.dicom.tw/"><strong>Live DEMO (New Version)</strong></a>&ensp;&ensp;&ensp;
+
 ## Install
 * Put all files into any directory in the static directory on any HTTP server.
 
@@ -22,10 +24,6 @@
 
 ### supported the display of the kinds of markups and annotations
 * ANN: [Supplement 222: Microscopy Bulk Simple Annotations Storage SOP Class](https://www.dicomstandard.org/news-dir/progress/docs/sups/sup222.pdf)
-
-### Structured Report
-* Display DICOM Structured Report
-* Display DICOM Supplement 219 - JSON Representation of DICOM Structured Reports. Referenced standard: [DICOM Sup 219](https://www.dicomstandard.org/News-dir/ftsup/docs/sups/Sup219.pdf)
 
 ## Supported library
 * BlueLight Viewer uses several oepn source libraries as folowing:
