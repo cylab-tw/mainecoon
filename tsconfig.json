@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist/",
+        "noImplicitAny": true,
+        "module": "es6",
+        "target": "es6",
+        "jsx": "react",
+        "allowJs": true,
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "baseUrl": "./src",
+        "paths": {
+            "Slices": ["slices/*"],
+            "Hook": ["hook.tsx"],
+            "Pages": ["pages/*"],
+            "Middleware": ["middleware.ts"],
+            "Store": ["store.ts"],
+            "Routes": ["routes.tsx"],
+            "Components": ["components/*"],
+            "Configs": ["configs/*"]
+        }
+    }
+}

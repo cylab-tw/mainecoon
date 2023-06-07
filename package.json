@@ -1,0 +1,74 @@
+{
+  "name": "mainecoon",
+  "version": "0.1.0",
+  "description": "<h1>Mainecoon Web-based Digital Pathology Viewer</h1>\r <p><strong>Mainecoon</strong> is a browser-based whole slide image (WSI) viewer is primarily maintained by the <a href=\"https://cylab.dicom.tw/\">Imaging Informatics Labs</a>. It is a pure single-page application (SPA), lightweight, and using only JavaScript and HTML5 technologies so as to deploy it on any HTTP server easily (just put it in HTTP server). It supports rendering DICOM WSI as well asd its annotation encoded ANN which is a new DICOM object to display annotation on a WSI. Mainecoon supports  to connect to medical image archives which support <a href=\"https://www.dicomstandard.org/dicomweb/\">DICOMweb</a>.",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack",
+    "_build": "webpack-dashboard -- webpack",
+    "dev": "webpack serve",
+    "_dev": "webpack-dashboard -- webpack serve",
+    "commit": "npx cz",
+    "release": "npx standard-version",
+    "release-major": "npx standard-version --release-as major",
+    "release-minor": "npx standard-version --release-as minor",
+    "release-patch": "npx standard-version --release-as patch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.dicom.tw/JieuTang/mainecoon.git"
+  },
+  "keywords": [
+    "DICOM"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.18.10",
+    "@babel/preset-env": "^7.18.10",
+    "@babel/preset-react": "^7.18.6",
+    "@commitlint/cli": "^17.0.3",
+    "@commitlint/config-conventional": "^17.0.3",
+    "@commitlint/cz-commitlint": "^17.0.3",
+    "@reduxjs/toolkit": "^1.8.3",
+    "@types/lodash": "^4.14.182",
+    "@types/react": "^18.0.15",
+    "@types/react-dom": "^18.0.6",
+    "autoprefixer": "^10.4.7",
+    "axios": "^1.3.5",
+    "babel-loader": "^8.2.5",
+    "bootstrap": "^5.2.0",
+    "clean-webpack-plugin": "^4.0.0",
+    "commitizen": "^4.2.5",
+    "css-loader": "^6.7.1",
+    "csy-dicomweb-qido-rs": "^0.3.3",
+    "csy-dicomweb-wado-rs-uri": "^0.5.6",
+    "cz-conventional-changelog": "^3.3.0",
+    "dicom-parser": "^1.8.13",
+    "html-webpack-plugin": "^5.5.0",
+    "husky": "^8.0.1",
+    "lodash": "^4.17.21",
+    "mini-css-extract-plugin": "^2.6.1",
+    "ol": "^6.15.1",
+    "openseadragon": "^3.1.0",
+    "postcss": "^8.4.14",
+    "postcss-loader": "^7.0.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^8.0.2",
+    "react-router-dom": "^6.3.0",
+    "sass": "^1.53.0",
+    "sass-loader": "^13.0.2",
+    "ts-loader": "^9.3.1",
+    "typescript": "^4.7.4",
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-dashboard": "^3.3.7",
+    "webpack-dev-server": "^4.9.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

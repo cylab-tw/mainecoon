@@ -1,0 +1,18 @@
+module.exports = {
+    QIDO: {
+        enableHTTPS: false,
+        hostname: "test.dicom.tw",
+        port: "443",
+        pathname: "/dicomwebqido",
+        Token: "jf9403vunt140fny4r981fnyr" || null
+    },
+    WADO: {
+        enableHTTPS: false,
+        hostname: "test.dicom.tw",
+        port: "443",
+        RUI_pathname: "/dicomwadouri",
+        RS_pathname: "/dicomwebwado",
+        Mode: "rs" || "uri",
+        Token: "3u902jvtur40h1fcyr48392fjy349r" || null
+    }
+}
