@@ -11,7 +11,7 @@ import _, { StringIterator } from "lodash";
 
 import Header from "Components/Header";
 import MicroscopyViewer from "./components/microscopyViewer";
-
+import RightAside from "./components/rightAside";
 
 
 
@@ -21,10 +21,6 @@ const WSIViewer: React.FunctionComponent = () => {
     const parameters = useParams();
     const parameter1Name: string = "studyInstanceUID";
     const studyInstanceUID: string = _.has(parameters, parameter1Name) ? _.get(parameters, parameter1Name) : null;
-    const parameter2Name: string = "seriesInstanceUID";
-    const seriesInstanceUID: string = _.has(parameters, parameter2Name) ? _.get(parameters, parameter2Name) : null;
-    const parameter3Name: string = "modalityAttribute";
-    const modalityAttribute: string = _.has(parameters, parameter3Name) ? _.get(parameters, parameter3Name) : null;
 
 
     // 監聽 wadoSlice & 過濾出 SM 的 Series
@@ -37,6 +33,15 @@ const WSIViewer: React.FunctionComponent = () => {
         const modalityAttribute: string = _.first(_.get(_.get(metadata, "00080060"), "Value")); //00080060
         return _.isEqual(modalityAttribute, "SM");
     }));
+    const smSeriesInstanceUID: string = smSeriesResult?.uid;
+
+    // 取得 ANN 的 Series Instance UID
+    const annSeriesResult = _.first(_.filter(seriesResults, (seriesResult) => { 
+        const metadata: object = _.first(seriesResult.metadata);
+        const modalityAttribute: string = _.first(_.get(_.get(metadata, "00080060"), "Value")); //00080060
+        return _.isEqual(modalityAttribute, "ANN");
+    }));
+    const annSeriesInstanceUID: string = annSeriesResult?.uid;
 
 
     // 監聽 pyramidSlice 
@@ -65,7 +70,7 @@ const WSIViewer: React.FunctionComponent = () => {
 
     // 取得指定的 Annotation 的 Series
     const specificAnnotaionSeries = _.filter(annotationsSeriesResults, (annotationsSeriesResult) => {
-        return _.isEqual(annotationsSeriesResult.uid, seriesInstanceUID);
+        return _.isEqual(annotationsSeriesResult.uid, annSeriesInstanceUID);
     })
 
     const isSuccessAnnotaionStatus = _.isEqual(pyramidSliceReducer.annotaionStatus, "Success");
@@ -109,7 +114,10 @@ const WSIViewer: React.FunctionComponent = () => {
                     )
                 }
                 {
-                    (isSuccessAnnotaionStatus) && <MicroscopyViewer studyInstanceUID={studyInstanceUID} seriesInstanceUID={seriesInstanceUID} />
+                    (isSuccessAnnotaionStatus) && <MicroscopyViewer />
+                }
+                {
+                    (isSuccessAnnotaionStatus) && <RightAside seriesInstanceUID={smSeriesInstanceUID} />
                 }
             </div>
         </div>

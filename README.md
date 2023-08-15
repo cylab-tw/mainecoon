@@ -5,6 +5,9 @@
 
 <a href="https://mainecoon.dicom.tw/"><strong>Live DEMO (New Version)</strong></a>&ensp;&ensp;&ensp;
 
+<a href="https://mainecoon.dicom.tw/#/WSIViwerByStudy/1.3.46.670589.45.1.1.4993912214784.1.5436.1538560373543"><strong>Live DEMO (With Only StudyInstanceUID_Amy)</strong></a>&ensp;&ensp;&ensp;
+<a href="https://mainecoon.dicom.tw/#/WSIViwerByStudy/2.16.840.1.113995.3.110.3.0.10118.2000002.278819.649182"><strong>Live DEMO (With Only StudyInstanceUID_Roche)</strong></a>&ensp;&ensp;&ensp;
+
 ## Install
 * Put all files into any directory in the static directory on any HTTP server.
 
