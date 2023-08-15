@@ -5,7 +5,9 @@ import NotFound from "Pages/notFound";
 import Main from "Pages/Main";
 
 import WSIViewerOpenLayers from "Pages/WsiViewerOpenLayers";
-import WSIViewerWithReport from "Pages/WsiViewerWithReport"
+import WSIViewerWithReport from "Pages/WsiViewerWithReport";
+import WSIViwerByStudy from "Pages/WsiViewerByStudy";
+import Header from "Components/Header";
 
 const routes: RouteObject[] = [
   {
@@ -22,7 +24,7 @@ const routes: RouteObject[] = [
     path: "/home",
     element: <Home />,
     children: [],
-  }, 
+  },
   {
     path: "/WSIViewerOpenLayers/:studyInstanceUID/:seriesInstanceUID/:modalityAttribute",
     element: <WSIViewerOpenLayers />,
@@ -31,6 +33,11 @@ const routes: RouteObject[] = [
   {
     path: "/WSIViewerWithReport/:studyInstanceUID/:seriesInstanceUID/:modalityAttribute",
     element: <WSIViewerWithReport />,
+    children: [],
+  },
+  {
+    path: "/WSIViwerByStudy/:studyInstanceUID",
+    element: <WSIViwerByStudy />,
     children: [],
   },
 ];
