@@ -141,7 +141,7 @@ function microscopyViewer(props) {
         });
 
 
-        const layers = [wsiLayer, debugLayer, ...annVectorLayers, vector];
+        const layers = [wsiLayer, ...annVectorLayers, vector];
 
         const map = new Map({
             target: viewerID,
