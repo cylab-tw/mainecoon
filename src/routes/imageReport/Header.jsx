@@ -1,11 +1,12 @@
 import React from "react";
-import mainecoon from "../assests/mainecoon.png";
+import mainecoon from "../../assests/mainecoon.png"
 import { Link } from 'react-router-dom';
 
-const Header = () => {
+const ImagePageHeader = () => {
+
     return <>
         <div className="m-0 p-0">
-            <div className="bg-gradient-to-r from-green-400 via-green-200 to-blue-200 text-white p-1">
+            <div className=" text-white bg-green-400 p-1 ">
                 <div className="flex flex-row">
                     <Link to="/search" className={"w-16 h-16 flex flex-column justify-center items-center ml-3 mt-2"}>
                         <img src={mainecoon} alt="maincoon"/>
@@ -19,4 +20,4 @@ const Header = () => {
     </>
 };
 
-export default Header;
+export default ImagePageHeader;

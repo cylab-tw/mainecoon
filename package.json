@@ -20,6 +20,7 @@
   ],
   "license": "ISC",
   "dependencies": {
+    "@iconify/react": "^4.1.1",
     "@reduxjs/toolkit": "^2.2.3",
     "caniuse-lite": "^1.0.30001615",
     "csy-dicomweb-qido-rs": "^0.3.3",
@@ -49,7 +50,7 @@
     "eslint-plugin-react-refresh": "^0.4.3",
     "postcss": "^8.4.28",
     "tailwindcss": "^3.3.3",
-    "vite": "^4.4.5"
+    "vite": "^5.2.11"
   },
   "type": "module"
 }

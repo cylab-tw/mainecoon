@@ -75,7 +75,6 @@ const fetchDicomJson = async (input, fetcher = fetch) => {
     const response = await fetcher(toDicomWebUrl(input));
     if (!response.ok) {
         // 在這裡處理錯誤
-
     }
 
     if (response.status === 204) {
