@@ -1,7 +1,8 @@
 import SearchPageHeader from "../search/SearchPageHeader.jsx"
-import React, {useCallback, useContext, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {SearchResultList} from "../search/SearchResultList.jsx";
 import {firstQuery} from "../../lib/search/index.js";
+import {Icon} from "@iconify/react";
 
 
 const Main = () => {
@@ -49,7 +50,7 @@ const Main = () => {
     const handleNextPageChangeMessage = () => {
         console.log("pageLimit2", pageLimit)
         console.log("pageOffset2", pageOffset)
-        const newPageOffset = pageOffset + pageLimit
+        const newPageOffset = Number(pageOffset) + Number(pageLimit)
         if (newPageOffset < 0) {
             setPageOffset(0)
             return
@@ -58,7 +59,28 @@ const Main = () => {
         }
     }
 
-    console.log("112315645646465")
+    useEffect(() => {
+        setState({
+            ...state,
+            parameter: {
+                ...state.parameter,
+                limit: pageLimit || 10,
+                offset: pageOffset || 0
+            }
+        })
+    }, [pageOffset, pageLimit]);
+
+    const [handlePrePageChange, setHandlePrePageChange] = useState(true);
+    const [handleNextPageChang, setHandleNextPageChange] = useState(true);
+    useEffect( () => {
+        const { limit, offset } = state.parameter;
+        setHandlePrePageChange(offset > 0)
+        firstQuery({...state.parameter,limit:1,offset:limit + offset}).then(({ result } ) => {
+            setHandleNextPageChange(result.length > 0)
+        })
+        // const hasNextResult = hasNext(state.parameter);
+        // hasNextResult.then((A12)=>(console.log("hasNextResult", A12)))
+    }, [state]);
 
 
 
@@ -68,11 +90,12 @@ const Main = () => {
                           // pageLimit={pageLimit}
                           // pageOffset={pageOffset}
         />
-        <div className="overflow-y-auto max-w-full border-2 h-full">
+        <div className="max-w-full">
             {/*style={{scrollbarWidth: 'none', 'msOverflowStyle': 'none'}}>*/}
-            <div className="flex h-full border-2 flex-cols-2">
-                <div className="flex flex-row w-full justify-center">
-                    <div className=" right-6 mt-2 absolute">
+            <div className="flex h-full flex-col m-3 gap-3">
+                    <div className="flex items-center justify-center">
+                        <button className="shadow-2xl w-9 flex justify-center items-center shadow-black m-2 rounded-md px-2 bg-green-400 text-white h-9 disabled:bg-gray-200" onClick={handlePrePageChangeMessage} disabled={!handlePrePageChange}><Icon icon="el:chevron-left" /></button>
+                        <p className="px-3">Limit:</p>
                         <input
                             type="number"
                             min="1"
@@ -82,23 +105,49 @@ const Main = () => {
                             placeholder={"Page Limit"}
                             onChange={handlePageLimit}
                         />
+                        <p className="px-3">Offset:</p>
                         <input
                             type="number"
                             min="1"
                             name={"offset"}
                             value={pageOffset}
-                            className="w-28 h-9 border-2 text-center border-gray-200 rounded-lg"
+                            className="w-28 h-9 border-2 text-center border-gray-200 rounded-lg mr-3"
                             placeholder={"Page Offset"}
                             onChange={handlePageLimit}
                         />
-                        <button className="shadow-2xl w-20 shadow-black m-2 rounded-md px-2 bg-green-400 text-white p-1" onClick={handlePrePageChangeMessage}>pre</button>
-                        <button className="shadow-2xl w-20 shadow-black m-2 rounded-md px-2 bg-green-400 text-white p-1" onClick={handleNextPageChangeMessage}>next</button>
+                        <button className="shadow-2xl w-9 flex justify-center items-center shadow-black m-2 rounded-md px-2 bg-green-400 text-white h-9 disabled:bg-gray-200" onClick={handleNextPageChangeMessage} disabled={!handleNextPageChang}><Icon icon="el:chevron-right" /></button>
                     </div>
 
-                    <div className="flex flex-column border-2  w-full mt-14 mr-4 ml-4 mb-4 rounded-xl shadow-2xl overflow-x-hidden overflow-y-auto">
+
+                    <div className="flex flex-column rounded-xl overflow-hidden shadow-lg border-2 ">
                         <SearchResultList state={state}/>
                     </div>
-                </div>
+                    <div className=" flex items-center justify-center mb-3">
+                        <button className="shadow-2xl w-9  flex justify-center items-center shadow-black m-2 rounded-md px-2 bg-green-400 text-white h-9 disabled:bg-gray-200" onClick={handlePrePageChangeMessage} disabled={!handlePrePageChange}><Icon icon="el:chevron-left" /></button>
+                        <p className="px-3">Limit:</p>
+                        <input
+                            type="number"
+                            min="1"
+                            name={"limit"}
+                            value={pageLimit}
+                            className="w-28 h-9 border-2 text-center border-gray-200 rounded-lg mr-3"
+                            placeholder={"Page Limit"}
+                            onChange={handlePageLimit}
+                        />
+                        <p className="px-3">Offset:</p>
+                        <input
+                            type="number"
+                            min="1"
+                            name={"offset"}
+                            value={pageOffset}
+                            className="w-28 h-9 border-2 text-center border-gray-200 rounded-lg mr-3"
+                            placeholder={"Page Offset"}
+                            onChange={handlePageLimit}
+                        />
+                        <button className="shadow-2xl w-9  flex justify-center items-center shadow-black m-2 rounded-md px-2 bg-green-400 text-white h-9 disabled:bg-gray-200" onClick={handleNextPageChangeMessage} disabled={!handleNextPageChang}><Icon icon="el:chevron-right" /></button>
+                    </div>
+
+
             </div>
         </div>
     </>

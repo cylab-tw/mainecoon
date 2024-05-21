@@ -67,7 +67,12 @@ const hasNext = (parameter) => {
     if (parameter.StudyDate) searchParams.set(QIDO_RS_Response.StudyDate, parameter.StudyDate);
 
 
-    const fetchNext = fetch(`${combineUrl}/studies?limit=${parameter.limit}&offset=${parameter.offset + parameter.limit}`)
+    const fetchNext = fetch(`${combineUrl}/studies?limit=${1}&offset=${parameter.offset + parameter.limit}`,{
+        mode: 'cors',
+        headers: {
+            'Access-Control-Allow-Origin':'*'
+        }
+    })
     return fetchNext
 }
 export {firstQuery,combineUrl,hasNext}

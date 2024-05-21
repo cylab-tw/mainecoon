@@ -26,25 +26,32 @@ const SearchResultList = ({state}) => {
     useEffect( () => {
         setIsLoading(true);
         firstQuery(state.parameter).then(({ result } ) => {
-            console.log("result", result)
             setResults(Array.isArray(result) ? result : [])
             setIsLoading(false);
             return result
         })
-        const hasNextResult = hasNext(state.parameter);
+        const { limit, offset } = state.parameter;
+        firstQuery({...state.parameter,limit:1,offset:limit + offset}).then(({ result } ) => {
+            console.log("offset", limit + offset)
+            console.log("result", result)
+
+        })
+        // const hasNextResult = hasNext(state.parameter);
+        // hasNextResult.then((A12)=>(console.log("hasNextResult", A12)))
     }, [state]);
+
 
     return (
         <>
             {/*-ms-overflow-style*/}
-            <div className="flex-fill h-0 w-full "
+            <div className="flex-fill  w-full "
                  onScroll={onScroll}
                  ref={searchResultListRef}
                  style={{scrollbarWidth: 'thin', 'msOverflowStyle': 'none'}}>
 
                     <div className="w-full">
 
-                        <table className="w-full mr-2 rounded-t-xl overflow-hidden">
+                        <table className="w-full mr-2">
                             <thead>
                             <tr className="h-12">
                                 <td className="p-2 font-bold bg-green-400 rounded-lt-xl text-white">PatientID</td>
@@ -53,8 +60,9 @@ const SearchResultList = ({state}) => {
                                 <td className="p-2 font-bold bg-green-400 text-white">Sex</td>
                                 <td className="p-2 font-bold bg-green-400 text-white">Accession Number</td>
                                 <td className="p-2 font-bold bg-green-400 text-white">Study Date</td>
-                                <td className="p-2 font-bold bg-green-400 text-white">SM&emsp;</td>
-                                <td className="p-2 font-bold bg-green-400 text-white">ANN&nbsp;</td>
+                                <td className="p-2 font-bold bg-green-400 text-white">Preview</td>
+                                {/*<td className="p-2 font-bold bg-green-400 text-white">SM&emsp;</td>*/}
+                                {/*<td className="p-2 font-bold bg-green-400 text-white">ANN&nbsp;</td>*/}
                             </tr>
                             </thead>
                             <tbody>
