@@ -1,6 +1,16 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import 'ol/ol.css';
-import {defaults as defaultControls, OverviewMap,ScaleLine,FullScreen,Rotate,ZoomSlider,ZoomToExtent,Zoom,Attribution} from 'ol/control';
+import {
+    defaults as defaultControls,
+    OverviewMap,
+    ScaleLine,
+    FullScreen,
+    Rotate,
+    ZoomSlider,
+    ZoomToExtent,
+    Zoom,
+    Attribution
+} from 'ol/control';
 import {Map} from 'ol';
 import MousePosition from 'ol/control/MousePosition.js';
 import TileLayer from 'ol/layer/Tile';
@@ -9,10 +19,593 @@ import VectorSource from 'ol/source/Vector';
 import {computeAnnotationFeatures} from '../../../lib/microscopy-viewers/annotation';
 import {computePyramidInfo} from '../../../lib/microscopy-viewers/pyramid';
 import PropTypes from 'prop-types';
+import {Link} from "react-router-dom";
+import mainecoon from "../../../assests/mainecoon.png"
+import {Icon} from "@iconify/react";
+import {QIDO_RS_Response} from "../../../lib/search/QIDO_RS.jsx";
+import _ from "lodash";
+import {DragPan, Draw, PinchZoom} from "ol/interaction";
+import Feature from "ol/Feature";
+import Point from "ol/geom/Point";
+import Polygon from "ol/geom/Polygon";
+import LineString from "ol/geom/LineString";
+import {toast} from "react-toastify";
 
-const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations}) => {
+
+const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, drawType, save}) => {
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState(undefined);
+
+    // const [seriesUid, setSeriesUid] = SeriesUid;
+
+
+    const [data, setData] = useState([]);
+
+    const fetchDetails = async () => {
+        try {
+            const response = await fetch(`https://ditto.dicom.tw/dicom-web/studies?ModalitiesInStudy=SM&StudyInstanceUID=${studyUid}`);
+            const data = await response.json();
+            setData(data)
+            console.log('data02313', data);
+        } catch (e) {
+            console.log('error', e)
+        }
+    }
+
+    useEffect(() => {
+        fetchDetails();
+    }, []);
+
+    let touch = false;
+    let currentFeature = null;
+    const [isDrawingEllipse, setIsDrawingEllipse] = useState(false);
+    const [ellipseCenter, setEllipseCenter] = useState(null);
+    const [ellipsePreview, setEllipsePreview] = useState(null);
+    const [isDrawingRectangle, setIsDrawingRectangle] = useState(false);
+    const [rectangleCenter, setRectangleCenter] = useState(null);
+    const [rectanglePreview, setRectanglePreview] = useState(null);
+    const drawInteractionRef = useRef(null);
+    const currentFeatureCoords = [];
+    const sourceRef = useRef(new VectorSource({wrapX: false}));
+    const drawnShapesStack = useRef([]);
+    const savedEllipsesSourceRef = useRef(new VectorSource({wrapX: false}));
+    const savedRectangleSourceRef = useRef(new VectorSource({wrapX: false}));
+    const [newAnnSeries, setNewAnnSeries] = useState(false);
+    const [newAnnAccession, setNewAnnAccession] = useState(false);
+    const [accessionNumber, setAccessionNumber] = useState('');
+    const enableDragPan = () => {
+        if (mapRef.current) {
+            //函数獲取地圖的所有交互（Interactions）。交互包括拖拽、缩放、旋轉等。
+            const interactions = mapRef.current.getInteractions();
+            const dragPan = interactions.getArray().find(interaction => interaction instanceof DragPan);
+            if (dragPan) dragPan.setActive(true);
+            const pinchZoom = interactions.getArray().find(interaction => interaction instanceof PinchZoom);
+            if (pinchZoom) pinchZoom.setActive(true);
+        }
+    };
+
+    useEffect(() => {
+        if (drawType) {
+            if (!mapRef.current) return;
+            disableDragPan();
+
+            // 如果当前正在绘制椭圆，则处理椭圆的结束逻辑
+            if (isDrawingEllipse) {
+                setIsDrawingEllipse(false);
+                if (ellipsePreview) {
+                    ellipsePreview.setGeometry(null);
+                    sourceRef.current.removeFeature(ellipsePreview);
+                    setEllipsePreview(null);
+                }
+                setEllipseCenter(null);
+            } else if (isDrawingRectangle) {
+                setIsDrawingRectangle(false);
+                if (rectanglePreview) {
+                    rectanglePreview.setGeometry(null);
+                    sourceRef.current.removeFeature(rectanglePreview);
+                    setRectanglePreview(null);
+                }
+                setRectangleCenter(null);
+            }
+
+            // 移除当前的绘图交互（如果存在）
+            if (drawInteractionRef.current) {
+                mapRef.current.removeInteraction(drawInteractionRef.current);
+                drawInteractionRef.current = null;
+            }
+
+            // 对于椭圆，设置相关状态以启用特殊的椭圆绘图逻辑
+            if (drawType === 'Ellipse') {
+                setIsDrawingEllipse(true);
+            } else if (drawType === 'Rectangle') {
+                setIsDrawingRectangle(true);
+            } else if (drawType === 'Polygon') {
+                const drawInteraction = new Draw({
+                    source: sourceRef.current,
+                    type: drawType, // 使用选定的绘图类型
+                });
+                console.log('drawInteraction', drawInteraction)
+                mapRef.current.addInteraction(drawInteraction);
+                drawnShapesStack.current.push(drawType);
+                drawInteractionRef.current = drawInteraction;
+            }
+
+            const moveHandler = (evt) => {
+                if (touch) {
+                    return
+                }
+                evt.preventDefault();
+
+                if (!currentFeature) {
+                    currentFeature = new Feature();
+                    sourceRef.current.addFeature(currentFeature);
+                }
+                if (evt.dragging) {
+                    if (drawType === 'Point') {
+                        currentFeature.setGeometry(new Point(evt.coordinate));
+                        currentFeature = null;
+                    } else if (drawType === 'LineString') {
+                        console.log(currentFeature)
+                        currentFeatureCoords.push(evt.coordinate);
+                        currentFeature.setGeometry(new LineString(currentFeatureCoords));
+                    }
+                }
+            }
+
+            const mouseUpHandler = (evt) => {
+                if (drawType === 'LineString' && currentFeatureCoords.length > 1) {
+                    console.log('currentFeatureCoords', [currentFeatureCoords])
+                    currentFeature = null;
+                    currentFeatureCoords.length = 0;
+                }
+            }
+
+            mapRef.current.on('pointermove', moveHandler);
+            mapRef.current.on('pointerup', mouseUpHandler);
+
+            if (currentFeature) {
+                currentFeature = null;
+                currentFeatureCoords.length = 0;
+            }
+
+            return () => {
+                mapRef.current.un('pointermove', moveHandler);
+                mapRef.current.un('pointerup', mouseUpHandler);
+            };
+
+        } else if (drawType === null) {
+            enableDragPan();
+            // 2. 取消當前的繪圖操作
+            if (drawInteractionRef.current) {
+                currentFeature = null;
+                currentFeatureCoords.length = 0;
+                mapRef.current.removeInteraction(drawInteractionRef.current);
+                drawInteractionRef.current = null; // 移除繪圖交互引用
+            }
+        }
+    }, [drawType]);
+
+
+    useEffect(() => {
+        if (!mapRef.current || !sourceRef.current) return;
+
+        // 如果正在绘制椭圆，添加事件监听
+        if (isDrawingEllipse) {
+            const newEllipsePreview = new Feature();
+            setEllipsePreview(newEllipsePreview);
+            sourceRef.current.addFeature(newEllipsePreview);
+
+            const clickHandler = (event) => {
+                if (!ellipseCenter) {
+                    setEllipseCenter(event.coordinate);
+                } else {
+                    const radiusX = calculateRadius(event.coordinate, ellipseCenter);
+                    const radiusY = radiusX / 2; // 假设Y轴半径为X轴的一半
+                    const ellipseCoords = createEllipse(ellipseCenter, radiusX, radiusY);
+                    console.log('[ellipseCoords]', [ellipseCoords])
+                    newEllipsePreview.setGeometry(new Polygon([ellipseCoords]));
+                    setIsDrawingEllipse(false); // 结束绘制
+                    setEllipseCenter(null);
+                }
+            };
+
+            const moveHandler = (event) => {
+                if (ellipseCenter) {
+                    const radiusX = calculateRadius(event.coordinate, ellipseCenter);
+                    const radiusY = radiusX / 2; // 同上
+                    const ellipseCoords = createEllipse(ellipseCenter, radiusX, radiusY);
+                    newEllipsePreview.setGeometry(new Polygon([ellipseCoords]));
+                }
+            };
+
+            mapRef.current.on('singleclick', clickHandler);
+            mapRef.current.on('pointermove', moveHandler);
+            return () => {
+                mapRef.current.un('singleclick', clickHandler);
+                mapRef.current.un('pointermove', moveHandler);
+                sourceRef.current.removeFeature(newEllipsePreview);
+            };
+        }
+
+
+        if (!isDrawingEllipse && ellipsePreview) {
+            savedEllipsesSourceRef.current.addFeature(new Feature(ellipsePreview.getGeometry())); // 將橢圓添加到保存圖層
+            drawnShapesStack.current.push('ELLIPSE');
+            ellipsePreview.setGeometry(null); // 清除預覽圖層中的橢圓
+            sourceRef.current.removeFeature(ellipsePreview); // 從原來的圖層中移除
+            setEllipsePreview(null); // 重置預覽Feature
+        }
+    }, [isDrawingEllipse, ellipseCenter]);
+
+    useEffect(() => {
+        // 如果正在绘制椭圆，添加事件监听
+        if (isDrawingRectangle) {
+            const newRectanglePreview = new Feature();
+            setRectanglePreview(newRectanglePreview);
+            sourceRef.current.addFeature(newRectanglePreview);
+            const clickHandler = (event) => {
+                if (!rectangleCenter) {
+                    setRectangleCenter(event.coordinate);
+                } else {
+                    const radiusX = calculateRadius(event.coordinate, rectangleCenter);
+                    const radiusY = radiusX / 2; // 假设Y轴半径为X轴的一半
+                    const rectangleCoords = createRectangle(rectangleCenter, radiusX, radiusY);
+                    newRectanglePreview.setGeometry(new Polygon([rectangleCoords]));
+                    setIsDrawingRectangle(false); // 结束绘制
+                    setRectangleCenter(null); // 重置中心
+                }
+            };
+
+            const moveHandler = (event) => {
+                if (rectangleCenter) {
+                    const radiusX = calculateRadius(event.coordinate, rectangleCenter);
+                    const radiusY = radiusX / 2; // 同上
+                    const rectangleCoords = createRectangle(rectangleCenter, radiusX, radiusY);
+                    newRectanglePreview.setGeometry(new Polygon([rectangleCoords]));
+                }
+            };
+
+            mapRef.current.on('singleclick', clickHandler);
+            mapRef.current.on('pointermove', moveHandler);
+
+            return () => {
+                mapRef.current.un('singleclick', clickHandler);
+                mapRef.current.un('pointermove', moveHandler);
+                sourceRef.current.removeFeature(newRectanglePreview);
+            };
+        }
+        if (!isDrawingRectangle && rectanglePreview) {
+            savedRectangleSourceRef.current.addFeature(new Feature(rectanglePreview.getGeometry())); // 將橢圓添加到保存圖層
+            drawnShapesStack.current.push('RECTANGLE');
+            rectanglePreview.setGeometry(null); // 清除預覽圖層中的橢圓
+            sourceRef.current.removeFeature(rectanglePreview); // 從原來的圖層中移除
+            setRectanglePreview(null); // 重置預覽Feature
+        }
+    }, [isDrawingRectangle, rectangleCenter]);
+
+
+    function undoFeature() {
+        let features = sourceRef.current.getFeatures();
+        switch (drawnShapesStack.current.pop()) {
+            case 'ELLIPSE':
+                features = savedEllipsesSourceRef.current.getFeatures();
+                if (features.length > 0) {
+                    const lastFeature = features[features.length - 1];
+                    savedEllipsesSourceRef.current.removeFeature(lastFeature);
+                }
+                break;
+            case 'RECTANGLE':
+                features = savedRectangleSourceRef.current.getFeatures();
+                if (features.length > 0) {
+                    const lastFeature = features[features.length - 1];
+                    savedRectangleSourceRef.current.removeFeature(lastFeature);
+                }
+                break;
+            default:
+                if (features.length > 0) {
+                    const lastFeature = features[features.length - 1];
+                    sourceRef.current.removeFeature(lastFeature);
+                    console.log('lastFeature', lastFeature)
+                    if (drawType && currentFeature) {
+                        currentFeature = new Feature();
+                        sourceRef.current.addFeature(currentFeature);
+                        currentFeatureCoords.length = 0;
+                    }
+                }
+        }
+    }
+
+    function calculateRadius(coord1, coord2) {
+        return Math.sqrt(Math.pow(coord1[0] - coord2[0], 2) + Math.pow(coord1[1] - coord2[1], 2));
+    }
+
+    function createRectangle(center, width, height, rotation = 0) {
+        let halfWidth = width / 2;
+        let halfHeight = height / 2;
+        let cosRotation = Math.cos(rotation);
+        let sinRotation = Math.sin(rotation);
+
+        let topLeft = [
+            center[0] - halfWidth * cosRotation - halfHeight * sinRotation,
+            center[1] - halfWidth * sinRotation + halfHeight * cosRotation
+        ];
+
+        let topRight = [
+            center[0] + halfWidth * cosRotation - halfHeight * sinRotation,
+            center[1] + halfWidth * sinRotation + halfHeight * cosRotation
+        ];
+
+        let bottomRight = [
+            center[0] + halfWidth * cosRotation + halfHeight * sinRotation,
+            center[1] + halfWidth * sinRotation - halfHeight * cosRotation
+        ];
+
+        let bottomLeft = [
+            center[0] - halfWidth * cosRotation + halfHeight * sinRotation,
+            center[1] - halfWidth * sinRotation - halfHeight * cosRotation
+        ];
+
+        return [topLeft, topRight, bottomRight, bottomLeft]; // 確保長方形閉合
+    }
+
+
+    // Define formatCoordinate function
+    const formatCoordinate = (coord) => {
+        return `(${coord[0].toFixed(1)}, ${coord[1].toFixed(1)})`;
+    };
+
+
+    function createEllipse(center, semiMajor, semiMinor, rotation = 0, sides = 50) {
+        let angleStep = (2 * Math.PI) / sides;
+        let coords = [];
+
+        for (let i = 0; i < sides; i++) {
+            let angle = i * angleStep;
+            let x = center[0] + semiMajor * Math.cos(angle) * Math.cos(rotation) - semiMinor * Math.sin(angle) * Math.sin(rotation);
+            let y = center[1] + semiMajor * Math.cos(angle) * Math.sin(rotation) + semiMinor * Math.sin(angle) * Math.cos(rotation);
+            coords.push([x, y]);
+        }
+        coords.push(coords[0]); // Ensure the ellipse is closed
+
+        return coords;
+    }
+
+    useEffect(() => {
+        if (save === false) return;
+        const features = sourceRef.current.getFeatures();
+
+        function CustomShape(type, feature) {
+            this.type = type;
+            this.feature = feature;
+        }
+
+        const rectanglesFeatures = savedRectangleSourceRef.current.getFeatures();
+        features.push(...rectanglesFeatures.map(feature => new CustomShape('RECTANGLE', feature)));
+
+        const ellipsesFeatures = savedEllipsesSourceRef.current.getFeatures();
+        features.push(...ellipsesFeatures.map(feature => new CustomShape('ELLIPSE', feature)));
+
+        // 转换为JSON格式
+        const savedAnnotations = features.map(feature => {
+            let type = null;
+            let coordinates = [];
+
+            if (feature instanceof CustomShape) {
+                type = feature.type;
+                feature = feature.feature;
+            }
+
+            // 获取几何类型和坐标
+            const geometry = feature.getGeometry();
+            if (geometry instanceof Point) {
+                type = "POINT";
+                coordinates.push(formatCoordinate(geometry.getCoordinates()));
+            } else if (geometry instanceof Polygon) {
+                type ??= "POLYGON";
+                coordinates = geometry.getCoordinates()[0].map(coord => formatCoordinate(coord));
+                if (type === 'ELLIPSE') {
+                    coordinates = calculateExtremityPoints(coordinates);
+                }
+            } else if (geometry instanceof LineString) {
+                type = "POLYLINE";
+                coordinates = geometry.getCoordinates().map(coord => formatCoordinate(coord));
+            }
+
+            return {type, coordinates};
+        }).filter(annotation => annotation.type !== null); // 过滤掉 type 为 null 的情况
+
+        const groupedAnnotations = Object.values(savedAnnotations.reduce((acc, curr) => {
+            if (acc[curr.type]) {
+                acc[curr.type].coordinates = acc[curr.type].coordinates.concat(curr.coordinates);
+            } else {
+                acc[curr.type] = {type: curr.type, coordinates: curr.coordinates};
+            }
+            return acc;
+        }, {}));
+
+        console.log('Grouped Annotations:', groupedAnnotations);
+
+        function extractStudyAndSeriesIdsFromUrl(url) {
+            const parsedUrl = new URLSearchParams(url.substring(url.indexOf('?')));
+            const studyUid = parsedUrl.get('studyUid');
+            const seriesUid = parsedUrl.get('seriesUid');
+
+            return {studyUid, seriesUid};
+        }
+
+        const currentUrl = window.location.href;
+        const ids = extractStudyAndSeriesIdsFromUrl(currentUrl);
+        if (ids) {
+            const studyUid = ids.studyUid;
+            const seriesUid = ids.seriesUid;
+            console.log('studyUid', studyUid)
+            console.log('seriesUid', seriesUid)
+            const formattedData = {
+                NewAnnSeries: newAnnSeries ? "true" : "false",
+                OldAnnSeriesOID: seriesUid,
+                NewAnnAccession: newAnnAccession ? "true" : "false",
+                AccessionNumber: accessionNumber,
+                data: savedAnnotations // 原有的转换逻辑
+            };
+
+            console.log('Formatted Data:', formattedData);
+            // 使用 formattedData 作为请求体
+            fetch(`http://localhost:3251/api/SaveAnnData/studies/${studyUid}/series/${seriesUid}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formattedData)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                        toast.error("发生未知错误")
+                    }
+                    toast.success("上傳成功")
+                    // setTimeout(() => {
+                    //     window.location.href = '/';
+                    // }, 3000);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('API response:', data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        } else {
+            console.error("Failed to extract study and series IDs from URL");
+            toast.error("发生未知错误")
+        }
+    }, [save]);
+
+
+    const toggleSwitch1 = () => {
+        setNewAnnAccession(!newAnnAccession);
+    };
+
+    const disableDragPan = () => {
+        if (mapRef.current) {
+            //函数獲取地圖的所有交互（Interactions）。交互包括拖拽。
+            const interactions = mapRef.current.getInteractions();
+            //DragPan 是 OpenLayers 中負責處理地圖拖拽行為
+            const dragPan = interactions.getArray().find(interaction => interaction instanceof DragPan);
+            // const pinchZoom = interactions.getArray().find(interaction => interaction instanceof PinchZoom);
+            // if (pinchZoom) pinchZoom.setActive(false);
+            if (dragPan) dragPan.setActive(false);
+        }
+    };
+
+    const saveAnnotations = () => {
+        const features = sourceRef.current.getFeatures();
+
+        function CustomShape(type, feature) {
+            this.type = type;
+            this.feature = feature;
+        }
+
+        const rectanglesFeatures = savedRectangleSourceRef.current.getFeatures();
+        features.push(...rectanglesFeatures.map(feature => new CustomShape('RECTANGLE', feature)));
+
+        const ellipsesFeatures = savedEllipsesSourceRef.current.getFeatures();
+        features.push(...ellipsesFeatures.map(feature => new CustomShape('ELLIPSE', feature)));
+
+        // 转换为JSON格式
+        const savedAnnotations = features.map(feature => {
+            let type = null;
+            let coordinates = [];
+
+            if (feature instanceof CustomShape) {
+                type = feature.type;
+                feature = feature.feature;
+            }
+
+            // 获取几何类型和坐标
+            const geometry = feature.getGeometry();
+            if (geometry instanceof Point) {
+                type = "POINT";
+                coordinates.push(formatCoordinate(geometry.getCoordinates()));
+            } else if (geometry instanceof Polygon) {
+                type ??= "POLYGON";
+                coordinates = geometry.getCoordinates()[0].map(coord => formatCoordinate(coord));
+                if (type === 'ELLIPSE') {
+                    coordinates = calculateExtremityPoints(coordinates);
+                }
+            } else if (geometry instanceof LineString) {
+                type = "POLYLINE";
+                coordinates = geometry.getCoordinates().map(coord => formatCoordinate(coord));
+            }
+
+            return {type, coordinates};
+        }).filter(annotation => annotation.type !== null); // 过滤掉 type 为 null 的情况
+
+        const groupedAnnotations = Object.values(savedAnnotations.reduce((acc, curr) => {
+            if (acc[curr.type]) {
+                acc[curr.type].coordinates = acc[curr.type].coordinates.concat(curr.coordinates);
+            } else {
+                acc[curr.type] = {type: curr.type, coordinates: curr.coordinates};
+            }
+            return acc;
+        }, {}));
+
+        console.log('Grouped Annotations:', groupedAnnotations);
+
+        function extractStudyAndSeriesIdsFromUrl(url) {
+            const parsedUrl = new URL(url);
+            const studyUid = parsedUrl.searchParams.get('studyUid');
+            const seriesUid = parsedUrl.searchParams.get('seriesUid');
+
+            return {studyUid, seriesUid};
+        }
+
+        const currentUrl = window.location.href;
+        const ids = extractStudyAndSeriesIdsFromUrl(currentUrl);
+        if (ids) {
+            const studyUid = ids.studyUid;
+            const seriesUid = ids.seriesUid;
+            const formattedData = {
+                NewAnnSeries: newAnnSeries ? "true" : "false",
+                OldAnnSeriesOID: seriesUid,
+                NewAnnAccession: newAnnAccession ? "true" : "false",
+                AccessionNumber: accessionNumber,
+                data: savedAnnotations // 原有的转换逻辑
+            };
+
+            console.log('Formatted Data:', formattedData);
+            // 使用 formattedData 作为请求体
+            fetch(`http://localhost:3251/api/SaveAnnData/studies/${studyUid}/series/${seriesUid}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formattedData)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                        toast.error("發生未知錯誤")
+                    }
+                    toast.success("上傳成功")
+                    // setTimeout(() => {
+                    //     window.location.href = '/';
+                    // }, 3000);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('API response:', data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        } else {
+            console.error("Failed to extract study and series IDs from URL");
+            toast.error("發生未知錯誤")
+        }
+    };
+
+
+    const mapRef = useRef(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -28,8 +621,14 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations}) =
                     computePyramidInfo(baseUrl, studyUid, seriesUid, images);
 
                 document.getElementById(ViewerID).innerHTML = '';
-
-                let map = new Map({
+                const vector = new VectorLayer({source: sourceRef.current});
+                const savedEllipsesLayer = new VectorLayer({
+                    source: savedEllipsesSourceRef.current,
+                });
+                const savedRectangleLayer = new VectorLayer({
+                    source: savedRectangleSourceRef.current,
+                });
+                mapRef.current = new Map({
                     controls: defaultControls().extend([
                         new MousePosition({
                             coordinateFormat: (c) => (c ? `${c[0].toFixed(2)}, ${-c[1].toFixed(2)}` : ''),
@@ -56,7 +655,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations}) =
                     ]),
                     // target: 'map',
                     target: ViewerID,
-                    layers: [layer],
+                    layers: [layer, vector, savedEllipsesLayer, savedRectangleLayer],
                     view,
                 });
 
@@ -68,7 +667,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations}) =
                         console.log('features:', features);
                         if (features.length > 0) {
                             const source = new VectorSource({features});
-                            map.addLayer(new VectorLayer({source, extent}));
+                            mapRef.current.addLayer(new VectorLayer({source, extent}));
                         }
                     })
                     .catch((error) => {
@@ -77,22 +676,21 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations}) =
                     })
                     .finally(() => setLoading(false));
 
-                map.getView().fit(extent, {size: map.getSize()});
+                mapRef.current.getView().fit(extent, {size: mapRef.current.getSize()});
             } catch (error) {
                 setErrorMessage('Unexpected error occurred.');
                 setLoading(false);
                 console.error('error:', error);
             }
         };
-        //     fetchData();
-        // }, [baseUrl, studyUid, seriesUid, images, annotations]);
         if (images) fetchData();
         console.log('images:', images);
     }, [images, annotations]);
 
     return (
-        <div className={`relative w-full grow ${loading ? 'loading' : ''}`}>
-            <div id="ViewerID" className="h-full w-full" />
+        // <div className={`relative w-full flex grow ${loading ? 'loading' : ''}`}>
+        <>
+            <div id="ViewerID" className="h-full w-full"/>
             <div
                 className={`absolute inset-0 z-10 flex items-center justify-center bg-black/40 ${!loading ? 'hidden' : ''}`}>
                 <span className="loader border-green-500"/>
@@ -101,9 +699,57 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations}) =
                 className={`absolute inset-0 z-10 flex items-center justify-center bg-black/40 ${!errorMessage ? 'hidden' : ''}`}>
                 <p>{errorMessage}</p>
             </div>
-        </div>
+        </>
+        // </div>
     );
 };
+
+function calculateExtremityPoints(coordinates) {
+    const points = coordinates.map(coord => coord.replace(/[()]/g, '').split(',').map(Number));
+
+    // Encapsulated helper function to estimate the center of the ellipse
+    function estimateCenter(points) {
+        let sumX = 0, sumY = 0;
+
+        points.forEach(point => {
+            sumX += point[0];
+            sumY += point[1];
+        });
+
+        return [sumX / points.length, sumY / points.length];
+    }
+
+    // Encapsulated helper function to calculate the distance between two points
+    function distance(point1, point2) {
+        return Math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2);
+    }
+
+    // Estimate the center of the ellipse
+    const center = estimateCenter(points);
+
+    // Find the farthest and closest points to the center to estimate the axes
+    let maxDist = 0;
+    let minDist = Infinity;
+    points.forEach(point => {
+        const dist = distance(center, point);
+        if (dist > maxDist) maxDist = dist;
+        if (dist < minDist) minDist = dist;
+    });
+
+    // Assuming the farthest point approximates the semi-major axis
+    // and the closest point approximates the semi-minor axis
+    const semiMajorAxisLength = maxDist;
+    const semiMinorAxisLength = minDist;
+
+    // Calculate extremity points without considering rotation
+    // A more complex fitting method would be required to handle rotation properly
+    const extremities = {
+        majorAxis: [[center[0] - semiMajorAxisLength, center[1]], [center[0] + semiMajorAxisLength, center[1]]],
+        minorAxis: [[center[0], center[1] - semiMinorAxisLength], [center[0], center[1] + semiMinorAxisLength]]
+    };
+
+    return [...extremities.majorAxis, ...extremities.minorAxis].map(point => `(${point[0]}, ${point[1]})`);
+}
 
 MicroscopyViewer.propTypes = {
     // baseUrl: PropTypes.string.isRequired,

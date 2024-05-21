@@ -5,6 +5,7 @@ import {firstQuery} from "../../lib/search/index.js";
 import {Icon} from "@iconify/react";
 
 
+
 const Main = () => {
     const [state, setState] = useState({
         config: {},
@@ -78,8 +79,6 @@ const Main = () => {
         firstQuery({...state.parameter,limit:1,offset:limit + offset}).then(({ result } ) => {
             setHandleNextPageChange(result.length > 0)
         })
-        // const hasNextResult = hasNext(state.parameter);
-        // hasNextResult.then((A12)=>(console.log("hasNextResult", A12)))
     }, [state]);
 
 

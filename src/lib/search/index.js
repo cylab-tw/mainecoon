@@ -13,7 +13,6 @@ function getQidorsConfig() {
         port: qidorsConfig.port,
         token: qidorsConfig.Token
     }
-
     return result;
 }
 

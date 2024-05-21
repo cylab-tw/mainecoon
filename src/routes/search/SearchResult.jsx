@@ -22,17 +22,23 @@ const SearchResult = ({qidorsSingleStudy, onMessageChange}) => {
         return metadataValue !== undefined && metadataValue.length > 0 ? metadataValue[0] : defaultValue;
     }
 
+    function formatDate(inputDate) {
+        const year = inputDate.substring(0, 4);
+        const month = inputDate.substring(4, 6);
+        const day = inputDate.substring(6, 8);
+        return `${year}-${month}-${day}`;
+    }
+
     const navigate = useNavigate();
     function OnClick() {
         const studyInstanceUID = getQidorsSingleStudyMetadataValue(qidorsSingleStudy, QIDO_RS_Response.StudyInstanceUID, "StudyInstanceUID, NotFound");
         console.log("onClick");
-        // window.location.href = `/image/${studyInstanceUID}`;
-        navigate(`../image/${studyInstanceUID}`);
+        // navigate(`../image/${studyInstanceUID}`);
+        navigate(`../viewer/NTUNHS?studyUid=${studyInstanceUID}`);
     }
 
     let X = 0
     let Y = 0
-
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -63,11 +69,9 @@ const SearchResult = ({qidorsSingleStudy, onMessageChange}) => {
         return `${year}/${month}/${day}`;
     }
 
-
     return (
         <>
             <tr className=" m-2 hover:bg-gray-100 cursor-pointer group" key={patientID} onClick={OnClick}>
-                {/*<div className="contents flex-column px-3 h-28 align-middle" onClick={OnClick}>*/}
                     <td className="border-2 border-l-0 group-first:border-t-0 p-2.5 group-last:border-b-0">{patientID?.length ? patientID : "NotFound"}</td>
                     <td className="border-2 group-first:border-t-0 p-2.5 group-last:border-b-0">{patientName?.length ? patientName : "NotFound"}</td>
                     <td className="border-2 w-1/12 p-2.5 text-center group-first:border-t-0 group-last:border-b-0">{patientBirthDate?.length ? changeDateFormat(patientBirthDate) : ""}</td>
@@ -106,9 +110,6 @@ const SearchResult = ({qidorsSingleStudy, onMessageChange}) => {
                     <td className="border-2 w-1/12 p-2.5 text-center border-r-0 group-first:border-t-0 group-last:border-b-0 space-y-3">
                         {SM?.map((seriesUid) => <img key={seriesUid} src ={toDicomWebUrl({baseUrl:combineUrl,studyUid:StudyInstanceUID,seriesUid,pathname:"/thumbnail"})} />)}
                     </td>
-                    {/*<td className="border-2 text-center w-10 p-2.5 ">{SM ? SM : "NotFound"}</td>*/}
-                    {/*<td className="border-2 text-center w-10 p-2.5">{ANN ? ANN : "NotFound"}</td>*/}
-                {/*</div>*/}
             </tr>
         </>
     );
