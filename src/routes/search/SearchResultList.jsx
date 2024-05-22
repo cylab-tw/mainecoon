@@ -61,8 +61,8 @@ const SearchResultList = ({state}) => {
                                 <td className="p-2 font-bold bg-green-400 text-white">Accession Number</td>
                                 <td className="p-2 font-bold bg-green-400 text-white">Study Date</td>
                                 <td className="p-2 font-bold bg-green-400 text-white">Preview</td>
-                                {/*<td className="p-2 font-bold bg-green-400 text-white">SM&emsp;</td>*/}
-                                {/*<td className="p-2 font-bold bg-green-400 text-white">ANN&nbsp;</td>*/}
+                                <td className="p-2 font-bold bg-green-400 text-white">SM&emsp;</td>
+                                <td className="p-2 font-bold bg-green-400 text-white">ANN&nbsp;</td>
                             </tr>
                             </thead>
                             <tbody>
