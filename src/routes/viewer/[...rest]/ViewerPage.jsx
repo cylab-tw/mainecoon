@@ -18,7 +18,6 @@ const ViewerPage = () => {
         const studyUid = searchParams.get('studyUid');
         // const seriesUid = searchParams.get('seriesUid');
         const [seriesUid, setSeriesUid] = useState('');
-
         const [baseUrl, setBaseUrl] = useState('');
         const [images, setImages] = useState([]);
         const [annotations, setAnnotations] = useState([]);
@@ -50,7 +49,6 @@ const ViewerPage = () => {
                         const response = await fetch(`${combineUrl}/studies?ModalitiesInStudy=SM&StudyInstanceUID=${studyUid}`);
                         const data = await response.json();
                         setData(data)
-                        // console.log('data0521', data);
                     } catch (e) {
                         console.log('error', e)
                     }
@@ -58,14 +56,11 @@ const ViewerPage = () => {
 
                 const fetchMetadata = async () => {
                     try {
-                        // const result = await querySeries(studyUid);
                         const result = await fetch(`${combineUrl}/studies/${studyUid}/series`)
                         if (result) {
                             const data = await result.json();
                             console.log('WadoSeries:', data);
-                            // setWadoSeries(Array.from(new Set(result.Series)));
                             setWadoSeries(data);
-                            // setSeriesUid(result.Series.map((series) => series.SeriesInstanceUID));
                         }
                     } catch (error) {
                         console.error('Error fetching metadata:', error);
@@ -84,24 +79,18 @@ const ViewerPage = () => {
         {
             wadoSeries.map((series) => {
                     const element = series
-                    //console.log("metadata****", element)
                     const modalityAttribute = element?.['00080060']?.Value ?? null;
                     if (modalityAttribute == "SM") {
                         const metadataSM = element?.['0020000E']?.Value ?? null
-                        //console.log("metadataSM", metadataSM)
                         smSeries.push(metadataSM)
                         const value = element?.['00280008']?.Value ?? null
                         const numberOfFrames = value != null ? value.toString() : null;
                         everySeries_numberOfFramesList.push(numberOfFrames);
                     } else if (modalityAttribute == "ANN") {
-                        // const fliterMetadata = metadata.filter((element) => element[0]?.['00081115']?.Value?.['0002000E'].Value[0] != seriesUid)
-                        // console.log("fliterMetadata", fliterMetadata)
-                        const fliterMetadata = element?.['0']?.['00081115']?.Value?.['0002000E'].Value[0] != seriesUid;
-                        //console.log("fliterMetadata", fliterMetadata)
+                        // const fliterMetadata = element?.['0']?.['00081115']?.Value?.['0002000E'].Value[0] != seriesUid;
                         const metadataANN = element?.['0020000E']?.Value ?? null
                         annSeries.push(metadataANN)
                     }
-                    // console.log("everySeries_numberOfFramesList", everySeries_numberOfFramesList)
                 }
             )
         }
@@ -111,12 +100,10 @@ const ViewerPage = () => {
 
         useEffect(() => {
             const fetchData = async () => {
-                //console.log('ViewerPage test')
-                if (studyUid == null || seriesUid == null) {
-                    return;
-                }
-                //console.log("studyUid", studyUid)
-                //console.log("seriesUid", seriesUid)
+                if (studyUid === null || seriesUid === null || studyUid === "" || seriesUid === "") return;
+
+                console.log("studyUid", studyUid)
+                console.log("seriesUid", seriesUid)
                 const baseUrl = getDicomwebUrl(server);
                 setBaseUrl(baseUrl);
 
@@ -182,10 +169,9 @@ const ViewerPage = () => {
 
         function navigateTo(e) {
             const value = e.target.value
-            //console.log("value", value)
+            console.log("value", value)
             setSeriesUid(value)
             setSmSeriesUid(value)
-            //console.log("切換")
         }
 
         //console.log("smSeriesUid", smSeriesUid)

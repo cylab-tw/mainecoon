@@ -202,11 +202,11 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
                     setEllipseCenter(event.coordinate);
                 } else {
                     const radiusX = calculateRadius(event.coordinate, ellipseCenter);
-                    const radiusY = radiusX / 2; // 假设Y轴半径为X轴的一半
+                    const radiusY = radiusX / 2; // 假設Y轴半径为X轴的一半
                     const ellipseCoords = createEllipse(ellipseCenter, radiusX, radiusY);
                     console.log('[ellipseCoords]',[ellipseCoords])
                     newEllipsePreview.setGeometry(new Polygon([ellipseCoords]));
-                    setIsDrawingEllipse(false); // 结束绘制
+                    setIsDrawingEllipse(false); // 结束繪製
                     setEllipseCenter(null);
                 }
             };
@@ -252,6 +252,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
                     const radiusX = calculateRadius(event.coordinate, rectangleCenter);
                     const radiusY = radiusX / 2; // 假设Y轴半径为X轴的一半
                     const rectangleCoords = createRectangle(rectangleCenter, radiusX, radiusY);
+                    console.log('[rectangleCoords]',[rectangleCoords])
                     newRectanglePreview.setGeometry(new Polygon([rectangleCoords]));
                     setIsDrawingRectangle(false); // 结束绘制
                     setRectangleCenter(null); // 重置中心
@@ -413,12 +414,25 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
                 let coords = geometry.getCoordinates()[0].map(coord => formatCoordinate(coord));
                 if (type === 'ELLIPSE') {
                     coords = calculateExtremityPoints(coords);
+                    console.log("coords00000",coords)
+                    const points = coords.map(coord =>  coord.replace(/[()]/g, '').split(',').map(Number));
+                    console.log("points",points)
+                    // 修改 y 轴坐标
+                    coordinates = points.map(coord => {
+                        console.log("coord1111",coord)
+                        coord[1] *= -1;
+                        return formatCoordinate(coord);
+                    });
+                }else{
+                    // 修改 y 轴坐标
+                    coordinates = coords.map(coord => {
+                        console.log("coord1111",coord)
+                        coord[1] *= -1;
+                        return formatCoordinate(coord);
+                    });
                 }
-                // 修改 y 轴坐标
-                coordinates = coords.map(coord => {
-                    coord[1] *= -1;
-                    return formatCoordinate(coord);
-                });
+
+
             } else if (geometry instanceof LineString) {
                 type = "POLYLINE";
                 coordinates = geometry.getCoordinates().map(coord => {
@@ -465,6 +479,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
                 AccessionNumber: accessionNumber,
                 data: savedAnnotations0 // 原有的转换逻辑
             };
+            console.log("savedAnnotations0",savedAnnotations0)
 
             console.log('Formatted Data:', formattedData);
             // 使用 formattedData 作为请求体
@@ -556,12 +571,21 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
                 let coords = geometry.getCoordinates()[0].map(coord => formatCoordinate(coord));
                 if (type === 'ELLIPSE') {
                     coords = calculateExtremityPoints(coords);
+                    const points = coords.map(coord =>  coord.replace(/[()]/g, '').split(',').map(Number));
+                    console.log("points",points)
+                    // 修改 y 轴坐标
+                    coordinates = points.map(coord => {
+                        coord[1] *= -1;
+                        return coord;
+                    });
+                }else{
+                    // 修改 y 轴坐标
+                    coordinates = coords.map(coord => {
+                        coord[1] *= -1;
+                        return coord;
+                    });
                 }
-                // 修改 y 轴坐标
-                coordinates = coords.map(coord => {
-                    coord[1] *= -1;
-                    return coord;
-                });
+
             } else if (geometry instanceof LineString) {
                 type = "POLYLINE";
                 coordinates = geometry.getCoordinates().map(coord => {
@@ -748,8 +772,10 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
 };
 
 function calculateExtremityPoints(coordinates) {
-    const points = coordinates.map(coord => coord.replace(/[()]/g, '').split(',').map(Number));
-
+    // const points = coordinates.map(coord => coord.replace(/[()]/g, '').split(',').map(Number));
+    console.log("coordinates",coordinates)
+    const points = coordinates
+    console.log("points",points)
     // Encapsulated helper function to estimate the center of the ellipse
     function estimateCenter(points) {
         let sumX = 0, sumY = 0;
