@@ -57,7 +57,7 @@ const combineUrl = (() => {
 })()
 
 const hasNext = (parameter) => {
-    console.log("parameter", parameter)
+    //console.log("parameter", parameter)
     const searchParams = new URLSearchParams({ [QIDO_RS_Response.ModalitiesInStudy]: 'SM' });
     if (parameter.PatientID) searchParams.set(QIDO_RS_Response.PatientID, parameter.PatientID);
     if (parameter.PatientName) searchParams.set(QIDO_RS_Response.PatientName, parameter.PatientName);

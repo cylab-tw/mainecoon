@@ -93,7 +93,7 @@ const calculateEllipsePoints = (points) => {
 export const computeAnnotationFeatures = async (annotations, resolutions) => {
     const features = [];
 
-    if (!annotations) {
+    if (annotations.length === 0) {
         return [];
     }
 
@@ -108,9 +108,16 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
             points = decodeCoordinatesData(multipartDecode(await response.arrayBuffer()), pointsData.vr);
         }
 
-        const referencedResolution = resolutions.find(res => res.instanceUID === instanceUID)?.resolution;
+        let referencedResolution = resolutions.find((res) => res.instanceUID === instanceUID)?.resolution;
+        if (!referencedResolution) {
+            referencedResolution = resolutions[resolutions.length - 1].resolution;
+            console.warn(`The referenced instance "${instanceUID}" could not be found, using the highest resolution.`);
+        }
 
-        points = points?.map(point => point * referencedResolution);
+        console.log(referencedResolution);
+        console.log(resolutions);
+
+        points = points?.map((point) => point * referencedResolution);
 
         if (indexesData) {
             if (indexesData.inlineBinary) {
@@ -121,62 +128,69 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
             }
         }
 
-        indexes = indexes?.map(index => index - 1);
+        // Decrement indexes by 1 to match the 0-based index
+        indexes = indexes?.map((index) => index - 1);
 
         if (!points || points.length === 0) {
             continue;
         }
 
         const coordinates = [];
+        let hasNegativeCoordinates = false;
+
         for (let i = 0; i < points.length; i += 2) {
+            const [x, y] = [points[i], points[i + 1]];
+            if (x < 0 || y < 0) hasNegativeCoordinates = true;
             coordinates.push([points[i], -points[i + 1]]);
         }
 
-        console.log(coordinates)
-        console.log(coordinates)
+        if (hasNegativeCoordinates) {
+            console.warn('Detected negative coordinates, some annotations may be out of bounds.');
+        }
 
         if ((graphicType === 'POLYLINE' || graphicType === 'POLYGON') && !indexes) {
-            console.warn('Missing indexes data for graphic type:', graphicType);
+            console.warn('Missing indexes data for graphic type: ', graphicType);
             continue;
         }
 
         switch (graphicType) {
             case 'POINT':
-                features.push(new Feature(new MultiPoint(coordinates)));
+                features.push(new Feature({ geometry: new MultiPoint(coordinates) }));
                 break;
             case 'POLYLINE':
-                indexes.forEach((start, i) => {
-                    const end = indexes[i + 1] || coordinates.length;
-                    const lineCoordinates = coordinates.slice(start, end);
-                    if (lineCoordinates.length > 1) {
-                        features.push(new Feature(new LineString(lineCoordinates)));
+                for (let i = 0; i < indexes.length; i++) {
+                    const coord = coordinates.slice(indexes[i], indexes[i + 1] || coordinates.length);
+                    if (coord && coord.length > 1) {
+                        features.push(new Feature({ geometry: new LineString(coord) }));
                     }
-                });
+                }
                 break;
             case 'POLYGON':
-                indexes.forEach((start, i) => {
-                    const end = indexes[i + 1] || coordinates.length;
-                    const polygonCoordinates = coordinates.slice(start, end).concat([coordinates[start]]);
-                    if (polygonCoordinates.length > 1) {
-                        features.push(new Feature(new Polygon([polygonCoordinates])));
+                for (let i = 0; i < indexes.length; i++) {
+                    const start = Math.floor(indexes[i] / 2);
+                    const end = Math.floor(indexes[i + 1] / 2) || coordinates.length;
+                    const coord = coordinates.slice(start, end).concat([coordinates[start]]);
+                    if (coord && coord.length > 1) {
+                        features.push(new Feature({ geometry: new Polygon([coord]) }));
+                        console.log(coord.shift(), coord.pop());
                     }
-                });
+                }
                 break;
             case 'ELLIPSE':
                 for (let i = 0; i < coordinates.length; i += 4) {
-                    const ellipsePoints = calculateEllipsePoints(coordinates.slice(i, i + 4));
-                    features.push(new Feature(new Polygon([ellipsePoints])));
+                    const coord = calculateEllipsePoints(coordinates.slice(i, i + 4));
+                    const polygon = new Polygon([coord]);
+                    features.push(new Feature({ geometry: polygon }));
                 }
                 break;
             case 'RECTANGLE':
                 for (let i = 0; i < coordinates.length; i += 4) {
-                    const rectanglePoints = coordinates.slice(i, i + 4).concat([coordinates[i]]);
-                    features.push(new Feature(new Polygon([rectanglePoints])));
+                    const polygon = new Polygon([coordinates.slice(i, i + 4).concat([coordinates[i]])]);
+                    features.push(new Feature({ geometry: polygon }));
                 }
                 break;
             default:
-                console.error('Unrecognized graphic type:', graphicType);
-                break;
+                console.error('Unrecognized graphic type: ', graphicType);
         }
     }
 

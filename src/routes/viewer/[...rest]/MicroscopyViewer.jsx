@@ -655,7 +655,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
     const mapRef = useRef(null);
     useEffect(() => {
         const fetchData = async () => {
-            console.log('MicroscopyViewertest')
             if (images.length === 0) {
                 setLoading(false);
                 setErrorMessage('No images found.');
@@ -705,12 +704,12 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
                     view,
                 });
 
-                console.log('annotations:', annotations);
+                // console.log('annotations:', annotations);
 
 
                 computeAnnotationFeatures(annotations, resolutions)
                     .then((features) => {
-                        console.log('features:', features);
+                        // console.log('features:', features);
                         if (features.length > 0) {
                             const source = new VectorSource({features});
                             mapRef.current.addLayer(new VectorLayer({source, extent}));
@@ -730,7 +729,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
             }
         };
         if (images) fetchData();
-        console.log('images:', images);
+        //console.log('images:', images);
     }, [images, annotations]);
 
     return (

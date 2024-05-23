@@ -245,7 +245,7 @@ export const computePyramidInfo = (baseUrl, studyUid, seriesUid, images) => {
         sizes: pyramidGridSizes,
         tileSizes: pyramidTileSizes,
     });
-    console.log('extent',extent)
+    //console.log('extent',extent)
 
     const layer = new TileLayer({
         source: new XYZ({
@@ -273,8 +273,8 @@ export const computePyramidInfo = (baseUrl, studyUid, seriesUid, images) => {
         visible: true,
         useInterimTilesOnError: false,
     });
-    console.log('pyramidResolutions:', pyramidResolutions);
-    console.log('pyramidTileSizes:', pyramidTileSizes);
+    //console.log('pyramidResolutions:', pyramidResolutions);
+    //console.log('pyramidTileSizes:', pyramidTileSizes);
 
     const view = new View({
         center: getCenter(extent),

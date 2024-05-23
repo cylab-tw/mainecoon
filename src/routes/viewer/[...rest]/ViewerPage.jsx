@@ -84,11 +84,11 @@ const ViewerPage = () => {
         {
             wadoSeries.map((series) => {
                     const element = series
-                    console.log("metadata****", element)
+                    //console.log("metadata****", element)
                     const modalityAttribute = element?.['00080060']?.Value ?? null;
                     if (modalityAttribute == "SM") {
                         const metadataSM = element?.['0020000E']?.Value ?? null
-                        console.log("metadataSM", metadataSM)
+                        //console.log("metadataSM", metadataSM)
                         smSeries.push(metadataSM)
                         const value = element?.['00280008']?.Value ?? null
                         const numberOfFrames = value != null ? value.toString() : null;
@@ -97,7 +97,7 @@ const ViewerPage = () => {
                         // const fliterMetadata = metadata.filter((element) => element[0]?.['00081115']?.Value?.['0002000E'].Value[0] != seriesUid)
                         // console.log("fliterMetadata", fliterMetadata)
                         const fliterMetadata = element?.['0']?.['00081115']?.Value?.['0002000E'].Value[0] != seriesUid;
-                        console.log("fliterMetadata", fliterMetadata)
+                        //console.log("fliterMetadata", fliterMetadata)
                         const metadataANN = element?.['0020000E']?.Value ?? null
                         annSeries.push(metadataANN)
                     }
@@ -111,12 +111,12 @@ const ViewerPage = () => {
 
         useEffect(() => {
             const fetchData = async () => {
-                console.log('ViewerPage test')
+                //console.log('ViewerPage test')
                 if (studyUid == null || seriesUid == null) {
                     return;
                 }
-                console.log("studyUid", studyUid)
-                console.log("seriesUid", seriesUid)
+                //console.log("studyUid", studyUid)
+                //console.log("seriesUid", seriesUid)
                 const baseUrl = getDicomwebUrl(server);
                 setBaseUrl(baseUrl);
 
@@ -129,6 +129,7 @@ const ViewerPage = () => {
                 if (series?.modality === 'ANN') {
                     const annotations = await getAnnotations(baseUrl, studyUid, seriesUid);
                     setAnnotations(annotations);
+                    console.log(getAnnotations(baseUrl, studyUid, seriesUid));
                 }
             };
 
@@ -181,13 +182,13 @@ const ViewerPage = () => {
 
         function navigateTo(e) {
             const value = e.target.value
-            console.log("value", value)
+            //console.log("value", value)
             setSeriesUid(value)
             setSmSeriesUid(value)
-            console.log("切換")
+            //console.log("切換")
         }
 
-        console.log("smSeriesUid", smSeriesUid)
+        //console.log("smSeriesUid", smSeriesUid)
 
         const updateDrawType = (e, type) => {
 

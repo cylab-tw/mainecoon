@@ -107,7 +107,7 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
     const dicomJson = await fetchDicomJson({ baseUrl, studyUid, seriesUid, pathname: '/instances' });
     const instanceUids = dicomJson.map(instance => instance[DicomTags.SOPInstanceUID]?.Value?.[0]);
     const metadata = (await Promise.all(instanceUids.map(instanceUid => fetchDicomJson({ baseUrl, studyUid, seriesUid, instanceUid, pathname: '/metadata' })))).flat();
-    console.log(metadata)
+    // console.log(metadata)
     const instances = metadata.flatMap(metadata => {
         const modality = metadata[DicomTags.Modality]?.Value?.[0];
         const referencedSeriesSequence = metadata[DicomTags.ReferencedSeriesSequence]?.Value?.[0];
@@ -122,6 +122,8 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
             const graphicType = annotation[DicomTags.GraphicType]?.Value?.[0];
             const hasIndexes = graphicType === 'POLYLINE' || graphicType === 'POLYGON';
 
+
+
             if (modality === 'ANN') {
                 return {
                     modality,
@@ -135,7 +137,9 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
                         ...(indexes.BulkDataURI ? { uri: indexes.BulkDataURI } : { inlineBinary: indexes.InlineBinary }),
                     } : {},
                     graphicType,
+
                 };
+
             }
         });
     });

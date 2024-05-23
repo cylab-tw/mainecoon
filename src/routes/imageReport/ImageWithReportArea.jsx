@@ -66,7 +66,7 @@ const ImageWithReportArea = () => {
     const params = useParams();
     const id = params.id
     const imagesReports = useRef(null);
-    console.log("studyInstanceUID",id);
+    //console.log("studyInstanceUID",id);
     return (
         <div ref={imagesReports} className="bg-opacity-25 h-full overflow-auto flex flex-col flex-grow">
             <div>
