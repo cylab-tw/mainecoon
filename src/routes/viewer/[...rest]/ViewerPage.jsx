@@ -27,8 +27,8 @@ const ViewerPage = () => {
         const [isRightOpen, setIsRightOpen] = useState(true);
         const [wadoSeries, setWadoSeries] = useState([]);
         const [annSeriesUid, setAnnSeriesUid] = useState([]);
-        let smSeries = []
-        let annSeries = []
+        let smAccessionNumber = []
+        let annAccessionNumber = []
         const [drawType, setDrawType] = useState([]);
         const [save, setSave] = useState(false);
         // const [metadata, setMetadata] = useState([]);
@@ -81,15 +81,15 @@ const ViewerPage = () => {
                     const element = series
                     const modalityAttribute = element?.['00080060']?.Value ?? null;
                     if (modalityAttribute == "SM") {
-                        const metadataSM = element?.['0020000E']?.Value ?? null
-                        smSeries.push(metadataSM)
+                        const metadataSM = element?.['00080050']?.Value ?? null
+                        smAccessionNumber.push(metadataSM)
                         const value = element?.['00280008']?.Value ?? null
                         const numberOfFrames = value != null ? value.toString() : null;
                         everySeries_numberOfFramesList.push(numberOfFrames);
                     } else if (modalityAttribute == "ANN") {
                         // const fliterMetadata = element?.['0']?.['00081115']?.Value?.['0002000E'].Value[0] != seriesUid;
-                        const metadataANN = element?.['0020000E']?.Value ?? null
-                        annSeries.push(metadataANN)
+                        const metadataANN = element?.['00080050']?.Value ?? null
+                        annAccessionNumber.push(metadataANN)
                     }
                 }
             )
@@ -346,8 +346,8 @@ const ViewerPage = () => {
                                     </div>
                                     <div className="bg-green-50">
                                         <div className="p-1.5 ">
-                                            {smSeries.map((series) => (
-                                                <button className="text-lg mt-2 p-1.5 hover:bg-green-100" key={series}
+                                            {smAccessionNumber.map((series) => (
+                                                <button className="text-lg w-full mt-2 p-1.5 hover:bg-green-100" key={series}
                                                         onClick={(e) => navigateTo(e)}
                                                         value={series}>{series}</button>
                                             ))}
@@ -380,8 +380,6 @@ const ViewerPage = () => {
                         drawType={drawType}
                         save={save}
                         className="grow"
-
-
                     />
                     {isRightOpen ? (
                         <>
@@ -441,8 +439,8 @@ const ViewerPage = () => {
                                     </div>
                                     <div className="bg-green-50">
                                         <div className="p-1.5 ">
-                                            {annSeries.map((series) => (
-                                                <button className="text-lg mt-2 p-1.5 hover:bg-green-100" key={series}
+                                            {annAccessionNumber.map((series) => (
+                                                <button className="text-lg w-full mt-2 p-1.5 hover:bg-green-100" key={series}
                                                         onClick={(e) => navigateTo(e)}
                                                         value={series}>{series}</button>
                                             ))}
