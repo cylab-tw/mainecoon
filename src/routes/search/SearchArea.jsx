@@ -84,69 +84,43 @@ const Main = () => {
 
 
     return <>
-        <SearchPageHeader initialState={{state, setState}}
-                          // onMessageChange={handleStateChange}
-                          // pageLimit={pageLimit}
-                          // pageOffset={pageOffset}
-        />
-        <div className="max-w-full">
-            {/*style={{scrollbarWidth: 'none', 'msOverflowStyle': 'none'}}>*/}
-            <div className="flex h-full flex-col m-3 gap-3">
-                    <div className="flex items-center justify-center">
-                        <button className="shadow-2xl w-9 flex justify-center items-center shadow-black m-2 rounded-md px-2 bg-green-400 text-white h-9 disabled:bg-gray-200" onClick={handlePrePageChangeMessage} disabled={!handlePrePageChange}><Icon icon="el:chevron-left" /></button>
-                        <p className="px-3">Limit:</p>
-                        <input
-                            type="number"
-                            min="1"
-                            name={"limit"}
-                            value={pageLimit}
-                            className="w-28 h-9 border-2 text-center border-gray-200 rounded-lg mr-3"
-                            placeholder={"Page Limit"}
-                            onChange={handlePageLimit}
-                        />
-                        <p className="px-3">Offset:</p>
-                        <input
-                            type="number"
-                            min="1"
-                            name={"offset"}
-                            value={pageOffset}
-                            className="w-28 h-9 border-2 text-center border-gray-200 rounded-lg mr-3"
-                            placeholder={"Page Offset"}
-                            onChange={handlePageLimit}
-                        />
-                        <button className="shadow-2xl w-9 flex justify-center items-center shadow-black m-2 rounded-md px-2 bg-green-400 text-white h-9 disabled:bg-gray-200" onClick={handleNextPageChangeMessage} disabled={!handleNextPageChang}><Icon icon="el:chevron-right" /></button>
-                    </div>
 
-
-                    <div className="flex flex-column rounded-xl overflow-hidden shadow-lg border-2 ">
-                        <SearchResultList state={state}/>
-                    </div>
-                    <div className=" flex items-center justify-center mb-3">
-                        <button className="shadow-2xl w-9  flex justify-center items-center shadow-black m-2 rounded-md px-2 bg-green-400 text-white h-9 disabled:bg-gray-200" onClick={handlePrePageChangeMessage} disabled={!handlePrePageChange}><Icon icon="el:chevron-left" /></button>
-                        <p className="px-3">Limit:</p>
-                        <input
-                            type="number"
-                            min="1"
-                            name={"limit"}
-                            value={pageLimit}
-                            className="w-28 h-9 border-2 text-center border-gray-200 rounded-lg mr-3"
-                            placeholder={"Page Limit"}
-                            onChange={handlePageLimit}
-                        />
-                        <p className="px-3">Offset:</p>
-                        <input
-                            type="number"
-                            min="1"
-                            name={"offset"}
-                            value={pageOffset}
-                            className="w-28 h-9 border-2 text-center border-gray-200 rounded-lg mr-3"
-                            placeholder={"Page Offset"}
-                            onChange={handlePageLimit}
-                        />
-                        <button className="shadow-2xl w-9  flex justify-center items-center shadow-black m-2 rounded-md px-2 bg-green-400 text-white h-9 disabled:bg-gray-200" onClick={handleNextPageChangeMessage} disabled={!handleNextPageChang}><Icon icon="el:chevron-right" /></button>
-                    </div>
-
-
+        <div className="max-w-full h-full">
+            <SearchPageHeader initialState={{state, setState}}/>
+            <div className="flex flex-col m-3 gap-3 w-full">
+                <div className="flex-grow-0 flex-column h-[81.5vh] rounded-xl overflow-auto shadow-lg border-2 ">
+                    <SearchResultList state={state}/>
+                </div>
+            </div>
+            <div className="bg-gray-200 sticky bottom-0  h-16 flex items-center justify-center">
+                <button
+                    className="shadow-2xl w-9  flex justify-center items-center shadow-black m-2 rounded-md px-2 bg-green-600/80 text-white h-9 disabled:bg-gray-200"
+                    onClick={handlePrePageChangeMessage} disabled={!handlePrePageChange}><Icon icon="el:chevron-left"/>
+                </button>
+                <p className="px-3">Limit:</p>
+                <input
+                    type="number"
+                    min="1"
+                    name={"limit"}
+                    value={pageLimit}
+                    className="w-28 h-9 border-2 text-center border-gray-200 rounded-lg mr-3"
+                    placeholder={"Page Limit"}
+                    onChange={handlePageLimit}
+                />
+                <p className="px-3">Offset:</p>
+                <input
+                    type="number"
+                    min="1"
+                    name={"offset"}
+                    value={pageOffset}
+                    className="w-28 h-9 border-2 text-center border-gray-200 rounded-lg mr-3"
+                    placeholder={"Page Offset"}
+                    onChange={handlePageLimit}
+                />
+                <button
+                    className="shadow-2xl w-9  flex justify-center items-center shadow-black m-2 rounded-md px-2 bg-green-600/80 text-white h-9 disabled:bg-gray-200"
+                    onClick={handleNextPageChangeMessage} disabled={!handleNextPageChang}><Icon
+                    icon="el:chevron-right"/></button>
             </div>
         </div>
     </>

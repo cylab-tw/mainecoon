@@ -44,25 +44,23 @@ const SearchResultList = ({state}) => {
     return (
         <>
             {/*-ms-overflow-style*/}
-            <div className="flex-fill  w-full "
+            <div className="flex-grow w-full"
                  onScroll={onScroll}
                  ref={searchResultListRef}
-                 style={{scrollbarWidth: 'thin', 'msOverflowStyle': 'none'}}>
-
+            >
                     <div className="w-full">
-
                         <table className="w-full mr-2">
-                            <thead>
+                            <thead className="sticky top-0">
                             <tr className="h-12">
-                                <td className="p-2 font-bold bg-green-400 rounded-lt-xl text-white">PatientID</td>
-                                <td className="p-2 font-bold bg-green-400 text-white">Name</td>
-                                <td className="p-2 font-bold bg-green-400 text-white">BirthDate</td>
-                                <td className="p-2 font-bold bg-green-400 text-white">Sex</td>
-                                <td className="p-2 font-bold bg-green-400 text-white">Accession Number</td>
-                                <td className="p-2 font-bold bg-green-400 text-white">Study Date</td>
-                                <td className="p-2 font-bold bg-green-400 text-white">Preview</td>
-                                <td className="p-2 font-bold bg-green-400 text-white">SM&emsp;</td>
-                                <td className="p-2 font-bold bg-green-400 text-white">ANN&nbsp;</td>
+                                <td className="p-2 font-bold bg-green-600/80 rounded-lt-xl text-white">PatientID</td>
+                                <td className="p-2 font-bold bg-green-600/80 text-white">Name</td>
+                                <td className="p-2 font-bold bg-green-600/80 text-white">BirthDate</td>
+                                <td className="p-2 font-bold bg-green-600/80 text-white">Sex</td>
+                                <td className="p-2 font-bold bg-green-600/80 text-white">Accession Number</td>
+                                <td className="p-2 font-bold bg-green-600/80 text-white">Study Date</td>
+                                <td className="p-2 font-bold bg-green-600/80 text-white">Preview</td>
+                                <td className="p-2 font-bold bg-green-600/80 text-white">SM&emsp;</td>
+                                <td className="p-2 font-bold bg-green-600/80 text-white">ANN&nbsp;</td>
                             </tr>
                             </thead>
                             <tbody>
@@ -79,7 +77,6 @@ const SearchResultList = ({state}) => {
                             }))}
                             </tbody>
                         </table>
-
                     </div>
 
             </div>

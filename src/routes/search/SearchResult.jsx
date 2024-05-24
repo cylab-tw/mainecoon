@@ -107,7 +107,7 @@ const SearchResult = ({qidorsSingleStudy, onMessageChange}) => {
                         <td className="border-2 w-10 p-2.5 text-center group-first:border-t-0 group-last:border-b-0">
                             <div className="flex items-center  justify-center">
                                 <div
-                                    className="rounded-md bg-green-400 p-1 scale-[0.90] mx-auto flex items-center justify-center ">
+                                    className="rounded-md bg-green-600/80 p-1 scale-[0.90] mx-auto flex items-center justify-center ">
                                     <Icon icon="ion:male-female" width="24" height="24" className="text-white"/>
                                     <span className="mx-2 text-white">O</span>
                                 </div>
