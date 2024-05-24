@@ -114,8 +114,6 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
             console.warn(`The referenced instance "${instanceUID}" could not be found, using the highest resolution.`);
         }
 
-        console.log(referencedResolution);
-        console.log(resolutions);
 
         points = points?.map((point) => point * referencedResolution);
 
@@ -166,22 +164,26 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
                 }
                 break;
             case 'POLYGON':
+                console.group()
                 for (let i = 0; i < indexes.length; i++) {
                     const start = Math.floor(indexes[i] / 2);
                     const end = Math.floor(indexes[i + 1] / 2) || coordinates.length;
                     const coord = coordinates.slice(start, end).concat([coordinates[start]]);
                     if (coord && coord.length > 1) {
                         features.push(new Feature({ geometry: new Polygon([coord]) }));
-                        console.log(coord.shift(), coord.pop());
+                        // console.log(coord.shift(), coord.pop());
                     }
                 }
+                console.groupEnd()
                 break;
             case 'ELLIPSE':
+                console.group()
                 for (let i = 0; i < coordinates.length; i += 4) {
                     const coord = calculateEllipsePoints(coordinates.slice(i, i + 4));
                     const polygon = new Polygon([coord]);
                     features.push(new Feature({ geometry: polygon }));
                 }
+                console.groupEnd()
                 break;
             case 'RECTANGLE':
                 for (let i = 0; i < coordinates.length; i += 4) {

@@ -26,7 +26,7 @@ import Polygon from "ol/geom/Polygon";
 import LineString from "ol/geom/LineString";
 import {toast} from "react-toastify";
 
-const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, drawType, save}) => {
+const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, annotations, drawType, save, tests}) => {
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState(undefined);
     let touch = false;
@@ -56,6 +56,8 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, dr
             if (pinchZoom) pinchZoom.setActive(true);
         }
     };
+
+    console.log("annSeriesUid", annSeriesUid)
 
     useEffect(() => {
         if (drawType) {
@@ -158,7 +160,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, dr
         }
     }, [drawType]);
 
-
     useEffect(() => {
         if (!mapRef.current || !sourceRef.current) return;
 
@@ -257,7 +258,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, dr
         }
     }, [isDrawingRectangle, rectangleCenter]);
 
-
     function undoFeature() {
         let features = sourceRef.current.getFeatures();
         switch (drawnShapesStack.current.pop()) {
@@ -322,7 +322,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, dr
         return [topLeft, topRight, bottomRight, bottomLeft]; // 確保長方形閉合
     }
 
-
     function createEllipse(center, semiMajor, semiMinor, rotation = 0, sides = 50) {
         let angleStep = (2 * Math.PI) / sides;
         let coords = [];
@@ -352,161 +351,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, dr
 
         const ellipsesFeatures = savedEllipsesSourceRef.current.getFeatures();
         features.push(...ellipsesFeatures.map(feature => new CustomShape('ELLIPSE', feature)));
-
-        const formatCoordinate = (coord) => {
-            return [parseFloat(coord[0].toFixed(1)), parseFloat(coord[1].toFixed(1))];
-        };
-
-
-        const savedAnnotations0 = features.map(feature => {
-            let type = null;
-            let coordinates = [];
-
-            if (feature instanceof CustomShape) {
-                type = feature.type;
-                feature = feature.feature;
-            }
-
-            // 获取几何类型和坐标
-            const geometry = feature.getGeometry();
-            if (geometry instanceof Point) {
-                type = "POINT";
-                let coords = geometry.getCoordinates();
-                // 修改 y 轴坐标
-                coords = [coords[0], coords[1] * -1]; // 将坐标转换为可变数组，然后修改 y 轴坐标
-                coordinates.push(formatCoordinate(coords));
-            } else if (geometry instanceof Polygon) {
-                type ??= "POLYGON";
-                let coords = geometry.getCoordinates()[0].map(coord => formatCoordinate(coord));
-                if (type === 'ELLIPSE') {
-                    coords = calculateExtremityPoints(coords);
-                    console.log("coords00000", coords)
-                    const points = coords.map(coord => coord.replace(/[()]/g, '').split(',').map(Number));
-                    console.log("points", points)
-                    // 修改 y 轴坐标
-                    coordinates = points.map(coord => {
-                        console.log("coord1111", coord)
-                        coord[1] *= -1;
-                        return formatCoordinate(coord);
-                    });
-                } else {
-                    // 修改 y 轴坐标
-                    coordinates = coords.map(coord => {
-                        console.log("coord1111", coord)
-                        coord[1] *= -1;
-                        return formatCoordinate(coord);
-                    });
-                }
-
-
-            } else if (geometry instanceof LineString) {
-                type = "POLYLINE";
-                coordinates = geometry.getCoordinates().map(coord => {
-                    // 修改 y 轴坐标
-                    coord[1] *= -1;
-                    return formatCoordinate(coord);
-                });
-            }
-
-            return {type, coordinates};
-        }).filter(annotation => annotation.type !== null);
-        saveAnnotations()
-
-        const groupedAnnotations = Object.values(savedAnnotations0.reduce((acc, curr) => {
-            if (acc[curr.type]) {
-                acc[curr.type].coordinates = acc[curr.type].coordinates.concat(curr.coordinates);
-            } else {
-                acc[curr.type] = {type: curr.type, coordinates: curr.coordinates};
-            }
-            return acc;
-        }, {}));
-
-        console.log('Grouped Annotations:', groupedAnnotations);
-
-        function extractStudyAndSeriesIdsFromUrl(url) {
-            const parsedUrl = new URLSearchParams(url.substring(url.indexOf('?')));
-            const studyUid = parsedUrl.get('studyUid');
-            const seriesUid = parsedUrl.get('seriesUid');
-
-            return {studyUid, seriesUid};
-        }
-
-        const currentUrl = window.location.href;
-        const ids = extractStudyAndSeriesIdsFromUrl(currentUrl);
-        if (ids) {
-            const studyUid = ids.studyUid;
-            const seriesUid = ids.seriesUid;
-            console.log('studyUid', studyUid)
-            console.log('seriesUid', seriesUid)
-            const formattedData = {
-                NewAnnSeries: newAnnSeries ? "true" : "false",
-                OldAnnSeriesOID: seriesUid,
-                NewAnnAccession: newAnnAccession ? "true" : "false",
-                AccessionNumber: accessionNumber,
-                data: savedAnnotations0 // 原有的转换逻辑
-            };
-            console.log("savedAnnotations0", savedAnnotations0)
-
-            console.log('Formatted Data:', formattedData);
-            // 使用 formattedData 作为请求体
-            fetch(`http://127.0.0.1:5000/SaveAnnData/studies/${studyUid}/series/${seriesUid}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formattedData)
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                        toast.error("发生未知错误")
-                    }
-                    toast.success("上傳成功")
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('API response:', data);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        } else {
-            console.error("Failed to extract study and series IDs from URL");
-            toast.error("发生未知错误")
-        }
-    }, [save]);
-
-
-    const toggleSwitch1 = () => {
-        setNewAnnAccession(!newAnnAccession);
-    };
-
-    const disableDragPan = () => {
-        if (mapRef.current) {
-            //函数獲取地圖的所有交互（Interactions）。交互包括拖拽。
-            const interactions = mapRef.current.getInteractions();
-            //DragPan 是 OpenLayers 中負責處理地圖拖拽行為
-            const dragPan = interactions.getArray().find(interaction => interaction instanceof DragPan);
-            // const pinchZoom = interactions.getArray().find(interaction => interaction instanceof PinchZoom);
-            // if (pinchZoom) pinchZoom.setActive(false);
-            if (dragPan) dragPan.setActive(false);
-        }
-    };
-
-    const saveAnnotations = () => {
-        const features = sourceRef.current.getFeatures();
-
-        function CustomShape(type, feature) {
-            this.type = type;
-            this.feature = feature;
-        }
-
-        const rectanglesFeatures = savedRectangleSourceRef.current.getFeatures();
-        features.push(...rectanglesFeatures.map(feature => new CustomShape('RECTANGLE', feature)));
-
-        const ellipsesFeatures = savedEllipsesSourceRef.current.getFeatures();
-        features.push(...ellipsesFeatures.map(feature => new CustomShape('ELLIPSE', feature)));
-
 
         const formatCoordinate = (coord) => {
             return [parseFloat(coord[0].toFixed(1)), parseFloat(coord[1].toFixed(1))];
@@ -609,9 +453,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, dr
                         toast.error("發生未知錯誤")
                     }
                     toast.success("上傳成功")
-                    // setTimeout(() => {
-                    //     window.location.href = '/';
-                    // }, 3000);
                     return response.json();
                 })
                 .then(data => {
@@ -624,10 +465,29 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, dr
             console.error("Failed to extract study and series IDs from URL");
             toast.error("發生未知錯誤")
         }
+    }, [save]);
+
+    const disableDragPan = () => {
+        if (mapRef.current) {
+            //函数獲取地圖的所有交互（Interactions）。交互包括拖拽。
+            const interactions = mapRef.current.getInteractions();
+            //DragPan 是 OpenLayers 中負責處理地圖拖拽行為
+            const dragPan = interactions.getArray().find(interaction => interaction instanceof DragPan);
+            // const pinchZoom = interactions.getArray().find(interaction => interaction instanceof PinchZoom);
+            // if (pinchZoom) pinchZoom.setActive(false);
+            if (dragPan) dragPan.setActive(false);
+        }
     };
 
-
     const mapRef = useRef(null);
+
+    const [test, setTest] = tests
+
+    useEffect(() => {
+        console.log("test45646", test)
+    }, [test])
+
+    console.log("3")
     useEffect(() => {
         const fetchData = async () => {
             if (images.length === 0) {
@@ -679,9 +539,10 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, dr
                     view,
                 });
 
+
                 // console.log('annotations:', annotations);
 
-
+                console.log("testSeriesUid", seriesUid)
                 computeAnnotationFeatures(annotations, resolutions)
                     .then((features) => {
                         console.log('features:', features);
@@ -689,8 +550,11 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, dr
                         console.log('resolutions:', resolutions)
                         if (features.length > 0) {
                             const source = new VectorSource({features});
-                            mapRef.current.addLayer(new VectorLayer({source, extent}));
+                            const newLayer = new VectorLayer({source, extent});
+                            mapRef.current.addLayer(newLayer);
+                            setTest({...test, [annSeriesUid]: newLayer});
                         }
+                        console.log("layers123456", mapRef.current.getLayers())
                     })
                     .catch((error) => {
                         setErrorMessage('Failed to load annotations.');
@@ -707,6 +571,14 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, dr
         };
         if (images) fetchData();
     }, [images, annotations]);
+
+    // useEffect(() => {
+    //     if (Object.hasOwn(test, annSeriesUid)) {
+    //         console.log(" test[annSeriesUid]", test[annSeriesUid])
+    //         test[annSeriesUid].setVisible(true)
+    //         setTest(test)
+    //     }
+    // },[annSeriesUid])
 
     return (
         <div className={`relative w-full flex grow ${loading ? 'loading' : ''}`}>
