@@ -81,19 +81,26 @@ const ViewerPage = () => {
                     const element = series
                     const modalityAttribute = element?.['00080060']?.Value ?? null;
                     if (modalityAttribute == "SM") {
-                        const metadataSM = element?.['00080050']?.Value ?? null
-                        smAccessionNumber.push(metadataSM)
+                        const smAccesionNum = element?.['00080050']?.Value ?? null
+                        const metadataSM = element?.['0020000E']?.Value ?? null;
+                        console.log("metadataSM", metadataSM)
+                        console.log("smAccesionNum", smAccesionNum)
+                        smAccessionNumber.push([metadataSM[0], smAccesionNum[0]])
+                        // smAccessionNumber.push([metadataSM,smAccesionNum])
                         const value = element?.['00280008']?.Value ?? null
                         const numberOfFrames = value != null ? value.toString() : null;
                         everySeries_numberOfFramesList.push(numberOfFrames);
                     } else if (modalityAttribute == "ANN") {
                         // const fliterMetadata = element?.['0']?.['00081115']?.Value?.['0002000E'].Value[0] != seriesUid;
-                        const metadataANN = element?.['00080050']?.Value ?? null
-                        annAccessionNumber.push(metadataANN)
+                        const annAccesionNum = element?.['00080050']?.Value ?? null
+                        const metadataANN = element?.['0020000E']?.Value ?? null;
+                        annAccessionNumber.push([metadataANN[0], annAccesionNum[0]])
                     }
                 }
             )
         }
+        console.log('smAccessionNumber', smAccessionNumber)
+        console.log('annAccessionNumber', annAccessionNumber)
 
         const sorted_everySeries_numberOfFramesList = everySeries_numberOfFramesList.slice().sort((a, b) => a - b);
         const maxNumberOfFrames = sorted_everySeries_numberOfFramesList[sorted_everySeries_numberOfFramesList.length - 1];
@@ -203,6 +210,13 @@ const ViewerPage = () => {
             setSave(!save);
         }
 
+        const handleChecked = (e) => {
+            console.log(e.target.checked)
+            console.log(e.target.value)
+            const value = e.target.value
+            setSeriesUid(value)
+            setSmSeriesUid(value)
+        }
         return (
             <div className="flex h-full w-full flex-col">
                 {/*<Header/>*/}
@@ -345,14 +359,21 @@ const ViewerPage = () => {
                                         <label className="ml-5 text-xl mt-2 font-bold font-sans mb-2 ">Series</label>
                                     </div>
                                     <div className="bg-green-50">
-                                        <div className="p-1.5 ">
-                                            {smAccessionNumber.map((series) => (
-                                                <button className="text-lg w-full mt-2 p-1.5 hover:bg-green-100" key={series}
-                                                        onClick={(e) => navigateTo(e)}
-                                                        value={series}>{series}</button>
+                                        <div className="p-1.5">
+                                            {smAccessionNumber.map((series, index) => (
+                                                console.log("series", series),
+                                                    <div key={index}>
+                                                        <button className="text-lg w-full mt-2 p-1.5 hover:bg-green-100"
+                                                                key={series[0]}
+                                                                onClick={(e) => navigateTo(e, series[0])}
+                                                                value={series[0]}
+                                                        >
+                                                            {series[1]}
+                                                        </button>
+                                                    </div>
                                             ))}
-                                            {/*<span className="block ml-2 text-lg mt-2">{patientID}</span>*/}
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -438,11 +459,16 @@ const ViewerPage = () => {
                                             className="ml-5 text-xl mt-2 font-bold font-sans mb-2 ">Annotations</label>
                                     </div>
                                     <div className="bg-green-50">
-                                        <div className="p-1.5 ">
-                                            {annAccessionNumber.map((series) => (
-                                                <button className="text-lg w-full mt-2 p-1.5 hover:bg-green-100" key={series}
-                                                        onClick={(e) => navigateTo(e)}
-                                                        value={series}>{series}</button>
+                                        <div className="p-1.5">
+                                            {annAccessionNumber.map((series, index) => (
+                                                console.log("series", series),
+                                                    <div key={index} className="flex hover:bg-green-100">
+                                                        <input type="checkbox" id={series[0]} name={series[0]} value={series[0]}
+                                                               onChange={(e) => handleChecked(e)}/>
+                                                        <p className="text-lg w-full mt-2 p-1 ">
+                                                            {series[1]}
+                                                        </p>
+                                                    </div>
                                             ))}
                                         </div>
                                     </div>

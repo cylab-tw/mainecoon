@@ -1,6 +1,16 @@
 import React, {useEffect, useRef, useState} from 'react';
 import 'ol/ol.css';
-import {defaults as defaultControls, OverviewMap,ScaleLine,FullScreen,Rotate,ZoomSlider,ZoomToExtent,Zoom,Attribution} from 'ol/control';
+import {
+    Attribution,
+    defaults as defaultControls,
+    FullScreen,
+    OverviewMap,
+    Rotate,
+    ScaleLine,
+    Zoom,
+    ZoomSlider,
+    ZoomToExtent
+} from 'ol/control';
 import {Map} from 'ol';
 import MousePosition from 'ol/control/MousePosition.js';
 import TileLayer from 'ol/layer/Tile';
@@ -9,11 +19,6 @@ import VectorSource from 'ol/source/Vector';
 import {computeAnnotationFeatures} from '../../../lib/microscopy-viewers/annotation';
 import {computePyramidInfo} from '../../../lib/microscopy-viewers/pyramid';
 import PropTypes from 'prop-types';
-import {Link} from "react-router-dom";
-import mainecoon from "../../../assests/mainecoon.png";
-import {Icon} from "@iconify/react";
-import {QIDO_RS_Response} from "../../../lib/search/QIDO_RS";
-import _ from "lodash";
 import {DragPan, Draw, PinchZoom} from "ol/interaction";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
@@ -21,46 +26,9 @@ import Polygon from "ol/geom/Polygon";
 import LineString from "ol/geom/LineString";
 import {toast} from "react-toastify";
 
-const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,drawType,save}) => {
+const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, drawType, save}) => {
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState(undefined);
-    const [isOpen, setIsOpen] = useState(true);
-
-    const LeftDrawer = () => {
-        setIsOpen(!isOpen);
-        setTimeout(function () { mapRef.current?.updateSize()},200)
-    };
-
-    function formatDate(inputDate) {
-        const year = inputDate.substring(0, 4);
-        const month = inputDate.substring(4, 6);
-        const day = inputDate.substring(6, 8);
-        return `${year}-${month}-${day}`;
-    }
-    function formatTime(inputTime) {
-        const hours = inputTime.substring(0, 2);
-        const minutes = inputTime.substring(2, 4);
-        const seconds = inputTime.substring(4, 6);
-        return `${hours}:${minutes}:${seconds}`;
-    }
-
-    const [data, setData] = useState([]);
-    // 確認studyInstanceUID是否有值(?!!!!!!!!!!!!!!!)
-    const fetchDetails = async() => {
-        try{
-            const response = await fetch(`https://ditto.dicom.tw/dicom-web/studies?ModalitiesInStudy=SM&StudyInstanceUID=${studyInstanceUID}`);
-            const data = await response.json();
-            setData(data)
-            console.log('data02313',data);
-        }catch (e) {
-            console.log('error',e)
-        }
-    }
-
-    useEffect(() => {
-        fetchDetails();
-    }, []);
-
     let touch = false;
     let currentFeature = null;
     const [isDrawingEllipse, setIsDrawingEllipse] = useState(false);
@@ -85,12 +53,12 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
             const dragPan = interactions.getArray().find(interaction => interaction instanceof DragPan);
             if (dragPan) dragPan.setActive(true);
             const pinchZoom = interactions.getArray().find(interaction => interaction instanceof PinchZoom);
-            if(pinchZoom) pinchZoom.setActive(true);
+            if (pinchZoom) pinchZoom.setActive(true);
         }
     };
 
     useEffect(() => {
-        if(drawType){
+        if (drawType) {
             if (!mapRef.current) return;
             disableDragPan();
 
@@ -127,16 +95,18 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
             } else if (drawType === 'Polygon') {
                 const drawInteraction = new Draw({
                     source: sourceRef.current,
-                    type:drawType, // 使用选定的绘图类型
+                    type: drawType, // 使用选定的绘图类型
                 });
-                console.log('drawInteraction',drawInteraction)
+                console.log('drawInteraction', drawInteraction)
                 mapRef.current.addInteraction(drawInteraction);
                 drawnShapesStack.current.push(drawType);
                 drawInteractionRef.current = drawInteraction;
             }
 
             const moveHandler = (evt) => {
-                if(touch){ return }
+                if (touch) {
+                    return
+                }
                 evt.preventDefault();
 
                 if (!currentFeature) {
@@ -157,7 +127,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
 
             const mouseUpHandler = (evt) => {
                 if (drawType === 'LineString' && currentFeatureCoords.length > 1) {
-                    console.log('currentFeatureCoords',[currentFeatureCoords])
+                    console.log('currentFeatureCoords', [currentFeatureCoords])
                     currentFeature = null;
                     currentFeatureCoords.length = 0;
                 }
@@ -176,7 +146,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
                 mapRef.current.un('pointerup', mouseUpHandler);
             };
 
-        }else if(drawType=== null){
+        } else if (drawType === null) {
             enableDragPan();
             // 2. 取消當前的繪圖操作
             if (drawInteractionRef.current) {
@@ -184,7 +154,8 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
                 currentFeatureCoords.length = 0;
                 mapRef.current.removeInteraction(drawInteractionRef.current);
                 drawInteractionRef.current = null; // 移除繪圖交互引用
-            }}
+            }
+        }
     }, [drawType]);
 
 
@@ -204,7 +175,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
                     const radiusX = calculateRadius(event.coordinate, ellipseCenter);
                     const radiusY = radiusX / 2; // 假設Y轴半径为X轴的一半
                     const ellipseCoords = createEllipse(ellipseCenter, radiusX, radiusY);
-                    console.log('[ellipseCoords]',[ellipseCoords])
+                    console.log('[ellipseCoords]', [ellipseCoords])
                     newEllipsePreview.setGeometry(new Polygon([ellipseCoords]));
                     setIsDrawingEllipse(false); // 结束繪製
                     setEllipseCenter(null);
@@ -252,7 +223,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
                     const radiusX = calculateRadius(event.coordinate, rectangleCenter);
                     const radiusY = radiusX / 2; // 假设Y轴半径为X轴的一半
                     const rectangleCoords = createRectangle(rectangleCenter, radiusX, radiusY);
-                    console.log('[rectangleCoords]',[rectangleCoords])
+                    console.log('[rectangleCoords]', [rectangleCoords])
                     newRectanglePreview.setGeometry(new Polygon([rectangleCoords]));
                     setIsDrawingRectangle(false); // 结束绘制
                     setRectangleCenter(null); // 重置中心
@@ -308,7 +279,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
                 if (features.length > 0) {
                     const lastFeature = features[features.length - 1];
                     sourceRef.current.removeFeature(lastFeature);
-                    console.log('lastFeature',lastFeature)
+                    console.log('lastFeature', lastFeature)
                     if (drawType && currentFeature) {
                         currentFeature = new Feature();
                         sourceRef.current.addFeature(currentFeature);
@@ -352,10 +323,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
     }
 
 
-
-
-
-
     function createEllipse(center, semiMajor, semiMinor, rotation = 0, sides = 50) {
         let angleStep = (2 * Math.PI) / sides;
         let coords = [];
@@ -372,7 +339,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
     }
 
     useEffect(() => {
-        if(save === false) return;
+        if (save === false) return;
         const features = sourceRef.current.getFeatures();
 
         function CustomShape(type, feature) {
@@ -389,7 +356,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
         const formatCoordinate = (coord) => {
             return [parseFloat(coord[0].toFixed(1)), parseFloat(coord[1].toFixed(1))];
         };
-
 
 
         const savedAnnotations0 = features.map(feature => {
@@ -414,19 +380,19 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
                 let coords = geometry.getCoordinates()[0].map(coord => formatCoordinate(coord));
                 if (type === 'ELLIPSE') {
                     coords = calculateExtremityPoints(coords);
-                    console.log("coords00000",coords)
-                    const points = coords.map(coord =>  coord.replace(/[()]/g, '').split(',').map(Number));
-                    console.log("points",points)
+                    console.log("coords00000", coords)
+                    const points = coords.map(coord => coord.replace(/[()]/g, '').split(',').map(Number));
+                    console.log("points", points)
                     // 修改 y 轴坐标
                     coordinates = points.map(coord => {
-                        console.log("coord1111",coord)
+                        console.log("coord1111", coord)
                         coord[1] *= -1;
                         return formatCoordinate(coord);
                     });
-                }else{
+                } else {
                     // 修改 y 轴坐标
                     coordinates = coords.map(coord => {
-                        console.log("coord1111",coord)
+                        console.log("coord1111", coord)
                         coord[1] *= -1;
                         return formatCoordinate(coord);
                     });
@@ -442,7 +408,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
                 });
             }
 
-            return { type, coordinates };
+            return {type, coordinates};
         }).filter(annotation => annotation.type !== null);
         saveAnnotations()
 
@@ -470,8 +436,8 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
         if (ids) {
             const studyUid = ids.studyUid;
             const seriesUid = ids.seriesUid;
-            console.log('studyUid',studyUid)
-            console.log('seriesUid',seriesUid)
+            console.log('studyUid', studyUid)
+            console.log('seriesUid', seriesUid)
             const formattedData = {
                 NewAnnSeries: newAnnSeries ? "true" : "false",
                 OldAnnSeriesOID: seriesUid,
@@ -479,7 +445,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
                 AccessionNumber: accessionNumber,
                 data: savedAnnotations0 // 原有的转换逻辑
             };
-            console.log("savedAnnotations0",savedAnnotations0)
+            console.log("savedAnnotations0", savedAnnotations0)
 
             console.log('Formatted Data:', formattedData);
             // 使用 formattedData 作为请求体
@@ -496,9 +462,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
                         toast.error("发生未知错误")
                     }
                     toast.success("上傳成功")
-                    // setTimeout(() => {
-                    //     window.location.href = '/';
-                    // }, 3000);
                     return response.json();
                 })
                 .then(data => {
@@ -571,14 +534,14 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
                 let coords = geometry.getCoordinates()[0].map(coord => formatCoordinate(coord));
                 if (type === 'ELLIPSE') {
                     coords = calculateExtremityPoints(coords);
-                    const points = coords.map(coord =>  coord.replace(/[()]/g, '').split(',').map(Number));
-                    console.log("points",points)
+                    const points = coords.map(coord => coord.replace(/[()]/g, '').split(',').map(Number));
+                    console.log("points", points)
                     // 修改 y 轴坐标
                     coordinates = points.map(coord => {
                         coord[1] *= -1;
                         return coord;
                     });
-                }else{
+                } else {
                     // 修改 y 轴坐标
                     coordinates = coords.map(coord => {
                         coord[1] *= -1;
@@ -629,7 +592,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
                 AccessionNumber: accessionNumber,
                 data: savedAnnotations // 原有的转换逻辑
             };
-            console.log("formattedData",formattedData.data)
+            console.log("formattedData", formattedData.data)
             const formattedDataJson = JSON.stringify(formattedData);
             console.log('Formatted Data:', formattedDataJson);
             // 使用 formattedData 作为请求体
@@ -664,18 +627,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
     };
 
 
-
-    function getQidorsSingleStudyMetadataValue(data, metadataTag, defaultValue) {
-        return _.get(data, metadataTag) ? _.get(data, metadataTag).Value[0] : defaultValue;
-        console.log('data',data)
-    }
-    const patientID= getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientID, "NotFound");
-    const patientName = _.get(getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientName, "NotFound"), "Alphabetic");
-    const patientBirthDate= formatDate(getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientBirthDate, "PatientBirthDate NotFound"));
-    const patientSex= getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientSex, "NotFound");
-    const accessionNumber2= getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.AccessionNumber, "NotFound");
-    const studyDate= formatDate(getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.StudyDate, " NotFound"));
-    const StudyTime= formatTime(getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.StudyTime, " NotFound"));
     const mapRef = useRef(null);
     useEffect(() => {
         const fetchData = async () => {
@@ -724,7 +675,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
                     ]),
                     // target: 'map',
                     target: ViewerID,
-                    layers: [layer,vector,savedEllipsesLayer, savedRectangleLayer],
+                    layers: [layer, vector, savedEllipsesLayer, savedRectangleLayer],
                     view,
                 });
 
@@ -733,7 +684,9 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
 
                 computeAnnotationFeatures(annotations, resolutions)
                     .then((features) => {
-                        // console.log('features:', features);
+                        console.log('features:', features);
+                        console.log('annotations:', annotations)
+                        console.log('resolutions:', resolutions)
                         if (features.length > 0) {
                             const source = new VectorSource({features});
                             mapRef.current.addLayer(new VectorLayer({source, extent}));
@@ -753,7 +706,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
             }
         };
         if (images) fetchData();
-        //console.log('images:', images);
     }, [images, annotations]);
 
     return (
@@ -773,9 +725,10 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations,dra
 
 function calculateExtremityPoints(coordinates) {
     // const points = coordinates.map(coord => coord.replace(/[()]/g, '').split(',').map(Number));
-    console.log("coordinates",coordinates)
+    console.log("coordinates", coordinates)
     const points = coordinates
-    console.log("points",points)
+    console.log("points", points)
+
     // Encapsulated helper function to estimate the center of the ellipse
     function estimateCenter(points) {
         let sumX = 0, sumY = 0;
