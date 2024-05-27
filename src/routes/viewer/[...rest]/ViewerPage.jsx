@@ -32,6 +32,9 @@ const ViewerPage = () => {
         const [drawType, setDrawType] = useState([]);
         const [save, setSave] = useState(false)
         const [test, setTest] = useState({})
+        const [layers, setLayers] = useState({})
+        const [visibleIndex, setVisibleIndex] = useState([])
+        const [selectedSeriesUid, setSelectedSeriesUid] = useState([])
 
         useEffect(() => {
             try {
@@ -39,9 +42,8 @@ const ViewerPage = () => {
                 const fetchSeries = async () => {
                     const seriesResult = await fetch(`${combineUrl}/studies/${studyUid}/series`)
                     const seriesJson = await seriesResult.json()
-                    console.log("seriesResult", seriesJson)
-                    console.log("seriesSM", seriesJson[0]?.["0020000E"]?.Value[0])
                     setSeriesUid(seriesJson[0]?.["0020000E"]?.Value[0])
+                    // selectedSeriesUid.push(seriesJson[0]?.["0020000E"]?.Value[0])
                 }
                 // patient資料
                 const fetchDetails = async () => {
@@ -59,7 +61,6 @@ const ViewerPage = () => {
                         const result = await fetch(`${combineUrl}/studies/${studyUid}/series`)
                         if (result) {
                             const data = await result.json();
-                            console.log('WadoSeries:', data);
                             setWadoSeries(data);
                         }
                     } catch (error) {
@@ -76,6 +77,14 @@ const ViewerPage = () => {
 
         const everySeries_numberOfFramesList = [];
 
+        useEffect(() => {
+            visibleIndex.map((index) => {
+                const layerArray = layers.getArray()
+                console.log("layerArray123", layerArray)
+                layerArray[index].setVisible(false)
+            })
+        }, [visibleIndex])
+
         {
             wadoSeries.map((series) => {
                     const element = series
@@ -83,8 +92,10 @@ const ViewerPage = () => {
                     if (modalityAttribute == "SM") {
                         const smAccesionNum = element?.['00080050']?.Value ?? null
                         const metadataSM = element?.['0020000E']?.Value ?? null;
-                        smAccessionNumber.push([metadataSM[0], smAccesionNum[0]])
-                        // smAccessionNumber.push([metadataSM,smAccesionNum])
+                        console.log("element",element)
+                        console.log("smAccesionNum",smAccesionNum)
+                        console.log("metadataSM",metadataSM)
+                        smAccessionNumber.push([metadataSM[0], smAccesionNum? smAccesionNum[0]:"unknown"])
                         const value = element?.['00280008']?.Value ?? null
                         const numberOfFrames = value != null ? value.toString() : null;
                         everySeries_numberOfFramesList.push(numberOfFrames);
@@ -92,7 +103,7 @@ const ViewerPage = () => {
                         // const fliterMetadata = element?.['0']?.['00081115']?.Value?.['0002000E'].Value[0] != seriesUid;
                         const annAccesionNum = element?.['00080050']?.Value ?? null
                         const metadataANN = element?.['0020000E']?.Value ?? null;
-                        annAccessionNumber.push([metadataANN[0], annAccesionNum[0]])
+                        annAccessionNumber.push([metadataANN[0], annAccesionNum? annAccesionNum : "unknown"])
                     }
                 }
             )
@@ -101,38 +112,39 @@ const ViewerPage = () => {
         const sorted_everySeries_numberOfFramesList = everySeries_numberOfFramesList.slice().sort((a, b) => a - b);
         const maxNumberOfFrames = sorted_everySeries_numberOfFramesList[sorted_everySeries_numberOfFramesList.length - 1];
 
+        console.log("selectedSeriesUid", selectedSeriesUid)
         useEffect(() => {
             const fetchData = async () => {
                 if (studyUid === null || seriesUid === null || studyUid === "" || seriesUid === "") return;
 
-                console.log("studyUid", studyUid)
-                console.log("seriesUid", seriesUid)
                 const baseUrl = getDicomwebUrl(server);
                 setBaseUrl(baseUrl);
 
                 const series = await getSeriesInfo(baseUrl, studyUid, seriesUid);
                 const smSeriesUidd = series?.modality === 'SM' ? seriesUid : series?.referencedSeriesUid;
                 setSmSeriesUid(smSeriesUidd);
+
                 const imagingInfo = await getImagingInfo(baseUrl, studyUid, smSeriesUidd);
                 setImages(imagingInfo);
+                console.log('imagingInfo:', imagingInfo);
 
                 if (series?.modality === 'ANN') {
-                    if(!Object.hasOwn(test, seriesUid)){
+                    if (!Object.hasOwn(test, seriesUid)) {
                         const annotations = await getAnnotations(baseUrl, studyUid, seriesUid);
                         setAnnotations(annotations);
                     }
-
-                    console.log("annotations", annotations)
-                    console.log(getAnnotations(baseUrl, studyUid, seriesUid));
                 }
             };
+            console.log("seriesUid",seriesUid)
+            console.log("123467978915++++++")
 
             fetchData();
         }, [server, studyUid, seriesUid]);
 
+
         if (images.length === 0 || !smSeriesUid) {
             return (
-                <div className="flex h-full w-full justify-center items-center">
+                <div className="flex h-full w-full bg-opacity-25 bg-gray-200/10 justify-center items-center">
                     <h1>Loading...</h1>
                 </div>
             );
@@ -165,6 +177,7 @@ const ViewerPage = () => {
             return `${hours}:${minutes}:${seconds}`;
         }
 
+
         const patientID = getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientID, "NotFound");
         const patientName = getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientName, "NotFound")?.Alphabetic;
         const patientBirthDate = getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientBirthDate, "NotFound");
@@ -176,12 +189,10 @@ const ViewerPage = () => {
 
         function navigateTo(e) {
             const value = e.target.value
-            console.log("value", value)
             setSeriesUid(value)
             setSmSeriesUid(value)
         }
 
-        //console.log("smSeriesUid", smSeriesUid)
 
         const updateDrawType = (e, type) => {
 
@@ -199,7 +210,6 @@ const ViewerPage = () => {
 
         const handleViewer = (e) => {
             setDrawType(null)
-            // Remove bounce animation
             let target = e.target;
             while (!target.querySelector('svg.animate-bounce')) target = target.parentElement;
             console.log(target)
@@ -210,29 +220,44 @@ const ViewerPage = () => {
             setSave(!save);
         }
 
-        const handleChecked = (e) => {
+        const handleMessageChange = (message) => {
+            console.log("message", message)
+            setLayers(message)
+        }
+
+
+        const handleChecked = (e, index) => {
             const checked = e.target.checked
             const value = e.target.value
-            console.log("checked", checked,"value", value)
-            if(seriesUid !== value){
+            console.log("index", index, "checked", checked, "value", value)
+            const test123 = selectedSeriesUid.includes(value);
+            if (!test123)
+            {
                 setSeriesUid(value)
-            }else{
-                setSeriesUid('')
+                selectedSeriesUid.push(value)
             }
-            console.log("annSeriesUid", seriesUid)
-            console.log("yes",Object.hasOwn(test, seriesUid))
-            if (Object.hasOwn(test, seriesUid)) {
-                console.log(" test[seriesUid]", test[seriesUid])
-                test[seriesUid].setVisible(false)
+            if (Object.hasOwn(test, value)) {
+                console.log("test", test)
+                let testJson = Object.entries(test);
+                const testid = testJson
+                    .map((test, index) => test[0] === value ? index : null)
+                    .filter(index => index !== null);
+                const layerArray = layers.getArray()
+                const length = parseInt(testid) + 4;
+                console.log("length", length)
+                console.log("layerArrayvisible", layerArray[length].values_.visible)
+                layerArray[length].setVisible(!layerArray[length].values_.visible)
+                if (layerArray[length].values_.visible === false) {
+                    visibleIndex.push(length)
+                } else {
+                    const fliterIndex = visibleIndex.filter((index) => index !== length)
+                    setVisibleIndex(fliterIndex)
+                }
                 setTest(test)
-                console.log("1")
-            } else {
-                console.log("2")
             }
         }
-        console.log("test123", test)
-        console.log("seriesUid",seriesUid)
-        console.log("smSeriesUid",smSeriesUid)
+
+        console.log("visibleIndex", visibleIndex)
 
 
         return (
@@ -418,6 +443,7 @@ const ViewerPage = () => {
                         drawType={drawType}
                         save={save}
                         tests={[test, setTest]}
+                        onMessageChange={handleMessageChange}
                         className="grow"
                     />
                     {isRightOpen ? (
@@ -481,7 +507,7 @@ const ViewerPage = () => {
                                             {annAccessionNumber.map((series, index) => (
                                                 <div key={index} className="flex hover:bg-green-100">
                                                     <input type="checkbox" id={series[0]} name={series[0]} value={series[0]}
-                                                           onChange={(e) => handleChecked(e)}/>
+                                                           onChange={(e) => handleChecked(e, index)}/>
                                                     <p className="text-lg w-full mt-2 p-1 ">
                                                         {series[0]}
                                                     </p>

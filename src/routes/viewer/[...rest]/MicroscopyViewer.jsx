@@ -25,8 +25,9 @@ import Point from "ol/geom/Point";
 import Polygon from "ol/geom/Polygon";
 import LineString from "ol/geom/LineString";
 import {toast} from "react-toastify";
+import {Style, Fill, Stroke, Circle as CircleStyle} from 'ol/style';
 
-const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, annotations, drawType, save, tests}) => {
+const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, annotations, drawType, save, tests,onMessageChange}) => {
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState(undefined);
     let touch = false;
@@ -57,7 +58,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
         }
     };
 
-    console.log("annSeriesUid", annSeriesUid)
 
     useEffect(() => {
         if (drawType) {
@@ -436,9 +436,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
                 AccessionNumber: accessionNumber,
                 data: savedAnnotations // 原有的转换逻辑
             };
-            console.log("formattedData", formattedData.data)
             const formattedDataJson = JSON.stringify(formattedData);
-            console.log('Formatted Data:', formattedDataJson);
             // 使用 formattedData 作为请求体
             fetch(`http://127.0.0.1:5000/SaveAnnData/studies/${studyUid}/series/${seriesUid}`, {
                 method: 'POST',
@@ -483,13 +481,20 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
 
     const [test, setTest] = tests
 
-    useEffect(() => {
-        console.log("test45646", test)
-    }, [test])
+    const getRandomColor = () => {
+        const letters = '0123456789';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 8)];
+        }
 
-    console.log("3")
+        return color;
+    };
+    const color = getRandomColor(); // 为当前图层生成一个随机颜色
+
     useEffect(() => {
         const fetchData = async () => {
+            console.log("image",images)
             if (images.length === 0) {
                 setLoading(false);
                 setErrorMessage('No images found.');
@@ -499,14 +504,15 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
             try {
                 const {extent, layer, resolutions, view} =
                     computePyramidInfo(baseUrl, studyUid, seriesUid, images);
-
+                console.log('layer', layer)
                 document.getElementById(ViewerID).innerHTML = '';
                 const vector = new VectorLayer({source: sourceRef.current});
+                console.log('vector', vector)
                 const savedEllipsesLayer = new VectorLayer({
-                    source: savedEllipsesSourceRef.current,
+                    source: savedEllipsesSourceRef.current
                 });
                 const savedRectangleLayer = new VectorLayer({
-                    source: savedRectangleSourceRef.current,
+                    source: savedRectangleSourceRef.current
                 });
                 mapRef.current = new Map({
                     controls: defaultControls().extend([
@@ -520,7 +526,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
                             label: '\u00BB',
                             layers: [
                                 new TileLayer({
-                                    source: layer.getSource() ?? undefined  // 確保使用相同的圖層源，或者提供一個替代方案
+                                    source: layer.getSource() ?? undefined , // 確保使用相同的圖層源，或者提供一個替代方案
                                 })
                             ],
                             tipLabel: 'Overview Map'
@@ -540,21 +546,27 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
                 });
 
 
-                // console.log('annotations:', annotations);
-
-                console.log("testSeriesUid", seriesUid)
                 computeAnnotationFeatures(annotations, resolutions)
                     .then((features) => {
-                        console.log('features:', features);
-                        console.log('annotations:', annotations)
-                        console.log('resolutions:', resolutions)
                         if (features.length > 0) {
+                            const style = new Style({
+                                stroke: new Stroke({
+                                    color: color,
+                                    width: 1
+                                })
+                            });
+
                             const source = new VectorSource({features});
-                            const newLayer = new VectorLayer({source, extent});
+                            const newLayer = new VectorLayer({source,extent, style});
                             mapRef.current.addLayer(newLayer);
-                            setTest({...test, [annSeriesUid]: newLayer});
+
+                            if (!Object.hasOwn(test, annSeriesUid)) {
+                                setTest({...test, [annSeriesUid]: newLayer});
+                            }
                         }
-                        console.log("layers123456", mapRef.current.getLayers())
+
+                        onMessageChange(mapRef.current.getLayers());
+
                     })
                     .catch((error) => {
                         setErrorMessage('Failed to load annotations.');
@@ -572,13 +584,21 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
         if (images) fetchData();
     }, [images, annotations]);
 
-    // useEffect(() => {
-    //     if (Object.hasOwn(test, annSeriesUid)) {
-    //         console.log(" test[annSeriesUid]", test[annSeriesUid])
-    //         test[annSeriesUid].setVisible(true)
-    //         setTest(test)
-    //     }
-    // },[annSeriesUid])
+    // useEffect(
+    //     () => {
+    //         onMessageChange (mapRef.current.getLayers())
+    //         const layers = mapRef.current.getLayers();
+    //         const layersArray = layers.getArray()
+    //         console.log("layers0527",layers)
+    //         const layersFeature = layersArray[1].getSource().getFeatures()[1]
+    //         console.log("layersFeature",layersFeature)
+    //     },[]
+    // )
+
+    useEffect(() => {
+        console.log("layers9999", mapRef.current.getLayers())
+    }, [annSeriesUid]);
+
 
     return (
         <div className={`relative w-full flex grow ${loading ? 'loading' : ''}`}>
