@@ -50,17 +50,17 @@ const SearchResultList = ({state}) => {
             >
                     <div className="w-full">
                         <table className="w-full mr-2">
-                            <thead className="sticky top-0">
-                            <tr className="h-12">
-                                <td className="p-2 font-bold bg-green-600/80 rounded-lt-xl text-white">PatientID</td>
-                                <td className="p-2 font-bold bg-green-600/80 text-white">Name</td>
-                                <td className="p-2 font-bold bg-green-600/80 text-white">BirthDate</td>
-                                <td className="p-2 font-bold bg-green-600/80 text-white">Sex</td>
-                                <td className="p-2 font-bold bg-green-600/80 text-white">Accession Number</td>
-                                <td className="p-2 font-bold bg-green-600/80 text-white">Study Date</td>
-                                <td className="p-2 font-bold bg-green-600/80 text-white">Preview</td>
-                                <td className="p-2 font-bold bg-green-600/80 text-white">SM&emsp;</td>
-                                <td className="p-2 font-bold bg-green-600/80 text-white">ANN&nbsp;</td>
+                            <thead className="sticky top-0 z-10 bg-green-600 ">
+                            <tr className="h-12 ">
+                                <td className="p-2 font-bold bg-green-600 rounded-lt-xl text-white">PatientID</td>
+                                <td className="p-2 font-bold bg-green-600 text-white">Name</td>
+                                <td className="p-2 font-bold bg-green-600 text-white">BirthDate</td>
+                                <td className="p-2 font-bold bg-green-600 text-white">Sex</td>
+                                <td className="p-2 font-bold bg-green-600 text-white">Accession Number</td>
+                                <td className="p-2 font-bold bg-green-600 text-white">Study Date</td>
+                                <td className="p-2 font-bold bg-green-600 text-white">Preview</td>
+                                <td className="p-2 font-bold bg-green-600 text-white">SM&emsp;</td>
+                                <td className="p-2 font-bold bg-green-600 text-white">ANN&nbsp;</td>
                             </tr>
                             </thead>
                             <tbody>

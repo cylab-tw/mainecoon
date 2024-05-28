@@ -81,20 +81,19 @@ const Main = () => {
         })
     }, [state]);
 
-
-
-    return <>
-
-        <div className="max-w-full h-full">
-            <SearchPageHeader initialState={{state, setState}}/>
-            <div className="flex flex-col m-3 gap-3 w-full">
-                <div className="flex-grow-0 flex-column h-[81.5vh] rounded-xl overflow-auto shadow-lg border-2 ">
-                    <SearchResultList state={state}/>
-                </div>
+    return (
+        <div className="flex flex-col h-full ">
+            <div>
+                <SearchPageHeader initialState={{state, setState}}/>
             </div>
-            <div className="bg-gray-200 sticky bottom-0  h-16 flex items-center justify-center">
+            <div className="h-full m-3 overflow-hidden">
+                <div className="h-full overflow-auto bg-white border">
+                    <SearchResultList state={state}/>
+            </div>
+                </div>
+            <div className="flex items-center justify-center py-2.5 bg-gray-200">
                 <button
-                    className="shadow-2xl w-9  flex justify-center items-center shadow-black m-2 rounded-md px-2 bg-green-600/80 text-white h-9 disabled:bg-gray-200"
+                    className="shadow-2xl w-9  flex justify-center items-center shadow-black m-2 rounded-md px-2 bg-green-600 text-white h-9 disabled:bg-gray-400"
                     onClick={handlePrePageChangeMessage} disabled={!handlePrePageChange}><Icon icon="el:chevron-left"/>
                 </button>
                 <p className="px-3">Limit:</p>
@@ -118,9 +117,25 @@ const Main = () => {
                     onChange={handlePageLimit}
                 />
                 <button
-                    className="shadow-2xl w-9  flex justify-center items-center shadow-black m-2 rounded-md px-2 bg-green-600/80 text-white h-9 disabled:bg-gray-200"
-                    onClick={handleNextPageChangeMessage} disabled={!handleNextPageChang}><Icon
-                    icon="el:chevron-right"/></button>
+                    className="shadow-2xl w-9  flex justify-center items-center shadow-black m-2 rounded-md px-2 bg-green-600 text-white h-9 disabled:bg-gray-400"
+                    onClick={handleNextPageChangeMessage} disabled={!handleNextPageChang}>
+                    <Icon icon="el:chevron-right"/>
+                </button>
+            </div>
+        </div>
+    )
+
+    return <>
+
+        <div className="max-w-full h-full ">
+
+            <div className="grow gap-3 w-full">
+                <div className="flex-grow-0 flex-column h-[70vh] rounded-xl overflow-auto shadow-lg border-2 ">
+
+                </div>
+            </div>
+            <div className="bg-gray-200 sticky bottom-0  h-16 flex items-center justify-center">
+
             </div>
         </div>
     </>

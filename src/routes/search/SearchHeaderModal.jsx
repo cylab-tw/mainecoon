@@ -20,10 +20,10 @@ function Modal({ isOpen, onClose, children }) {
     }
 
     return (
-        <div className={`fixed flex top-16 w-fit h-fit z-50 transition-opacity duration-500 ${modalState}`}>
-            <div className="absolute inset-0 bg-gray-100 bg-opacity-50"></div>
+        <div className={`fixed flex top-16  rounded-lg shadow-2xl w-fit h-fit  transition-opacity duration-500 ${modalState}`}>
+            {/*<div className="absolute inset-0 bg-gray-100 bg-opacity-50"></div>*/}
             <div
-                className="bg-green-400 pl-4 pr-6 rounded-b-lg z-10"
+                className="bg-green-600 pl-4 pr-6 rounded-lg"
                 style={{
                     height: 'fit-content',
                     maxHeight: 'calc(100vh - 40px)',

@@ -19,8 +19,8 @@ const SearchPageHeader = ({initialState}) => {
     // };
 
     return <>
-        <div className="sticky m-0 top-0 p-0 w-full">
-            <div className="text-white bg-green-600/80 p-1 ">
+        <div className="sticky m-0 top-0 p-0 w-full z-50">
+            <div className="text-white bg-green-600 p-1 ">
                 <div className="flex flex-row h-auto">
                     <Link to="/" className={"w-16 h-16 flex flex-column justify-center items-center ml-3 mt-2"}>
                         <img src={mainecoon} alt="maincoon"/>
