@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Link, useLocation} from 'react-router-dom';
 import MicroscopyViewer from './MicroscopyViewer'; // 引入 MicroscopyViewer 組件
-import {getAnnotations, getImagingInfo, getSeriesInfo} from '../../../lib/dicom-webs/series';
+import {getAnnotations, getImagingInfo, getMetadataInfo, getSeriesInfo} from '../../../lib/dicom-webs/series';
 import {DICOMWEB_URLS} from '../../../lib/dicom-webs';
 import {combineUrl} from "../../../lib/search/index.js";
 import {getDicomwebUrl} from '../../../lib/dicom-webs/server';
@@ -12,7 +12,7 @@ import mainecoon from "../../../assests/mainecoon.png";
 
 const ViewerPage = () => {
         const location = useLocation();
-        const searchParams = new URLSearchParams(location.search);
+        const searchParams = new URLSearchParams(window.location.search);
         // const searchParams = useParams();
         const server = searchParams.get('server') || DICOMWEB_URLS[0].name;
         const studyUid = searchParams.get('studyUid');
@@ -35,6 +35,7 @@ const ViewerPage = () => {
         const [layers, setLayers] = useState({})
         const [visibleIndex, setVisibleIndex] = useState([])
         const [selectedSeriesUid, setSelectedSeriesUid] = useState([])
+        // const [loading, setLoading] = useState(true)
 
         useEffect(() => {
             try {
@@ -67,6 +68,7 @@ const ViewerPage = () => {
                         console.error('Error fetching metadata:', error);
                     }
                 };
+
                 fetchSeries()
                 fetchDetails()
                 fetchMetadata()
@@ -80,7 +82,7 @@ const ViewerPage = () => {
         useEffect(() => {
             visibleIndex.map((index) => {
                 const layerArray = layers.getArray()
-                console.log("layerArray123", layerArray)
+                // console.log("layerArray123", layerArray)
                 layerArray[index].setVisible(false)
             })
         }, [visibleIndex])
@@ -92,10 +94,7 @@ const ViewerPage = () => {
                     if (modalityAttribute == "SM") {
                         const smAccesionNum = element?.['00080050']?.Value ?? null
                         const metadataSM = element?.['0020000E']?.Value ?? null;
-                        console.log("element",element)
-                        console.log("smAccesionNum",smAccesionNum)
-                        console.log("metadataSM",metadataSM)
-                        smAccessionNumber.push([metadataSM[0], smAccesionNum? smAccesionNum[0]:"unknown"])
+                        smAccessionNumber.push([metadataSM[0], smAccesionNum ? smAccesionNum[0] : "unknown"])
                         const value = element?.['00280008']?.Value ?? null
                         const numberOfFrames = value != null ? value.toString() : null;
                         everySeries_numberOfFramesList.push(numberOfFrames);
@@ -103,7 +102,7 @@ const ViewerPage = () => {
                         // const fliterMetadata = element?.['0']?.['00081115']?.Value?.['0002000E'].Value[0] != seriesUid;
                         const annAccesionNum = element?.['00080050']?.Value ?? null
                         const metadataANN = element?.['0020000E']?.Value ?? null;
-                        annAccessionNumber.push([metadataANN[0], annAccesionNum? annAccesionNum : "unknown"])
+                        annAccessionNumber.push([metadataANN[0], annAccesionNum ? annAccesionNum : "unknown"])
                     }
                 }
             )
@@ -112,7 +111,7 @@ const ViewerPage = () => {
         const sorted_everySeries_numberOfFramesList = everySeries_numberOfFramesList.slice().sort((a, b) => a - b);
         const maxNumberOfFrames = sorted_everySeries_numberOfFramesList[sorted_everySeries_numberOfFramesList.length - 1];
 
-        console.log("selectedSeriesUid", selectedSeriesUid)
+        // console.log("selectedSeriesUid", selectedSeriesUid)
         useEffect(() => {
             const fetchData = async () => {
                 if (studyUid === null || seriesUid === null || studyUid === "" || seriesUid === "") return;
@@ -123,10 +122,14 @@ const ViewerPage = () => {
                 const series = await getSeriesInfo(baseUrl, studyUid, seriesUid);
                 const smSeriesUidd = series?.modality === 'SM' ? seriesUid : series?.referencedSeriesUid;
                 setSmSeriesUid(smSeriesUidd);
+                console.log("series",series)
 
                 const imagingInfo = await getImagingInfo(baseUrl, studyUid, smSeriesUidd);
                 setImages(imagingInfo);
-                console.log('imagingInfo:', imagingInfo);
+                // console.log('imagingInfo:', imagingInfo);
+
+                // const metadata = await getMetadataInfo(baseUrl, studyUid, seriesUid);
+                // console.log("metadata",metadata)
 
                 if (series?.modality === 'ANN') {
                     if (!Object.hasOwn(test, seriesUid)) {
@@ -135,14 +138,35 @@ const ViewerPage = () => {
                     }
                 }
             };
-            console.log("seriesUid",seriesUid)
-            console.log("123467978915++++++")
 
+            const fetchDetails = async () => {
+                try {
+                    const url = `${combineUrl}/studies/${studyUid}/series/${seriesUid}/metadata`
+                    const response = await fetch(url)
+                    const data = await response.json();
+                    const Description = data[0]?.["00400560"]?.Value[0]?.["00400600"]?.Value[0];
+                    const Anatomicalstructure = data[0]?.["00400560"]?.Value[0]?.["00082228"]?.Value[0]?.["00080104"]?.Value[0];
+                    const Collectionmethod = data[0]?.["00400560"]?.Value[0]?.["00400610"]?.Value[0]?.["00400612"]?.Value[4]?.["0040A168"]?.Value[0]?.["00080104"]?.Value[0];
+                    const Parentspecimen = data[0]?.["00400560"]?.Value[0]?.["00400610"]?.Value[0]?.["00400612"]?.Value[0]?.["0040A160"]?.Value[0]
+                    console.log("description",Description)
+                    console.log("Anatomicalstructure",Anatomicalstructure)
+                    console.log("Collectionmethod",Collectionmethod)
+                    console.log("Parentspecimen",Parentspecimen)
+
+                    console.log("url",url)
+                    console.log("metadata123",data)
+                } catch (e) {
+                    console.log('error', e)
+                }
+            }
+            console.log("")
             fetchData();
+            fetchDetails()
         }, [server, studyUid, seriesUid]);
 
 
         if (images.length === 0 || !smSeriesUid) {
+            // setLoading(false)
             return (
                 <div className="flex h-full w-full bg-opacity-25 bg-gray-200/10 justify-center items-center">
                     <h1>Loading...</h1>
@@ -153,15 +177,10 @@ const ViewerPage = () => {
         const LeftDrawer = () => {
             setIsLeftOpen(!isLeftOpen);
         };
-
         const RightDrawer = () => {
             setIsRightOpen(!isRightOpen);
         };
 
-        function getQidorsSingleStudyMetadataValue(qidorsSingleStudy, metadataTag, defaultValue) {
-            const metadataValue = qidorsSingleStudy[metadataTag]?.Value;
-            return metadataValue !== undefined && metadataValue.length > 0 ? metadataValue[0] : defaultValue;
-        }
 
         function formatDate(inputDate) {
             const year = inputDate.substring(0, 4);
@@ -177,14 +196,18 @@ const ViewerPage = () => {
             return `${hours}:${minutes}:${seconds}`;
         }
 
+        function getQidorsSingleStudyMetadataValue(qidorsSingleStudy, metadataTag, defaultValue) {
+            const metadataValue = qidorsSingleStudy[metadataTag]?.Value;
+            return metadataValue !== undefined && metadataValue.length > 0 ? metadataValue[0] : defaultValue;
+        }
 
-        const patientID = getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientID, "NotFound");
-        const patientName = getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientName, "NotFound")?.Alphabetic;
-        const patientBirthDate = getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientBirthDate, "NotFound");
-        const patientSex = getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientSex, "NotFound");
-        const accessionNumber = getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.AccessionNumber, "NotFound");
-        const studyDate = formatDate(getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.StudyDate, " NotFound"));
-        const StudyTime = formatTime(getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.StudyTime, " NotFound"));
+        const patientID = data[0] ? getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientID, "NotFound") : "loading"
+        const patientName = data[0] ? (getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientName, "NotFound")?.Alphabetic) : "loading"
+        const patientBirthDate = data[0] ? (getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientBirthDate, "NotFound")) : "loading"
+        const patientSex = data[0] ? (getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientSex, "NotFound")) : "loading"
+        const accessionNumber = data[0] ? (getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.AccessionNumber, "NotFound")) : "loading"
+        const studyDate = data[0] ? (formatDate(getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.StudyDate, " NotFound"))) : "loading"
+        const StudyTime = data[0] ? (formatTime(getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.StudyTime, " NotFound"))) : "loading"
 
 
         function navigateTo(e) {
@@ -221,31 +244,28 @@ const ViewerPage = () => {
         }
 
         const handleMessageChange = (message) => {
-            console.log("message", message)
+            // console.log("message", message)
             setLayers(message)
         }
 
 
         const handleChecked = (e, index) => {
-            const checked = e.target.checked
+            // const checked = e.target.checked
             const value = e.target.value
-            console.log("index", index, "checked", checked, "value", value)
+            // console.log("index", index, "checked", checked, "value", value)
             const test123 = selectedSeriesUid.includes(value);
-            if (!test123)
-            {
+            if (!test123) {
                 setSeriesUid(value)
                 selectedSeriesUid.push(value)
             }
             if (Object.hasOwn(test, value)) {
-                console.log("test", test)
                 let testJson = Object.entries(test);
                 const testid = testJson
                     .map((test, index) => test[0] === value ? index : null)
                     .filter(index => index !== null);
+                // console.log("test",test)
                 const layerArray = layers.getArray()
                 const length = parseInt(testid) + 4;
-                console.log("length", length)
-                console.log("layerArrayvisible", layerArray[length].values_.visible)
                 layerArray[length].setVisible(!layerArray[length].values_.visible)
                 if (layerArray[length].values_.visible === false) {
                     visibleIndex.push(length)
@@ -256,8 +276,6 @@ const ViewerPage = () => {
                 setTest(test)
             }
         }
-
-        console.log("visibleIndex", visibleIndex)
 
 
         return (
@@ -419,8 +437,6 @@ const ViewerPage = () => {
                                     </div>
                                 </div>
                             </div>
-
-
                         </>
                     ) : (
                         <div className="bg-opacity-0 flex justify-start items-center z-30 mt-2">
@@ -446,6 +462,7 @@ const ViewerPage = () => {
                         onMessageChange={handleMessageChange}
                         className="grow"
                     />
+                    {/*<AnnotationLoader loading={loading}/>*/}
                     {isRightOpen ? (
                         <>
                             <div className="!h-100 w-96 overflow-auto ">
@@ -537,5 +554,16 @@ const ViewerPage = () => {
     }
 ;
 
+function AnnotationLoader({loading}) {
+    const className = loading ? 'bottom-2' : '-bottom-8';
+    return (
+        <div className={`absolute left-1/2 -translate-x-1/2 transition-all duration-300 ${className}`}>
+            <div className="flex items-center gap-3 rounded-full border bg-white/75 px-2 py-1 text-xs shadow">
+                <span className="loader h-4 w-4 border-2 border-green-500"/>
+                <p>Loading Annotations...</p>
+            </div>
+        </div>
+    );
+}
 
 export default ViewerPage;

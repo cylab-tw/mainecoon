@@ -53,6 +53,7 @@ const combineUrl = (() => {
     const port = config.port ? `:${config.port}` : '';
     const pathname = config.pathname;
 
+    console.log("url",`${protocol}${hostname}${port}${pathname}`)
     return `${protocol}${hostname}${port}${pathname}`;
 })()
 

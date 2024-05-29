@@ -1,0 +1,1396 @@
+{
+  "8109": [
+    {
+      "Coding Scheme Designator": "SRT",
+      "Code Value": "P1-03130",
+      "Code Meaning": "Aspiration"
+    },
+    {
+      "Coding Scheme Designator": "SRT",
+      "Code Value": "P1-03100",
+      "Code Meaning": "Biopsy"
+    },
+    {
+      "Coding Scheme Designator": "SRT",
+      "Code Value": "P1-03000",
+      "Code Meaning": "Excision"
+    },
+    {
+      "Coding Scheme Designator": "SRT",
+      "Code Value": "P1-03000",
+      "Code Meaning": "Resection"
+    },
+    {
+      "Coding Scheme Designator": "SRT",
+      "Code Value": "P1-D0300",
+      "Code Meaning": "Harvesting of tissue"
+    },
+    {
+      "Coding Scheme Designator": "SRT",
+      "Code Value": "P1-03021",
+      "Code Meaning": "Removal of device"
+    },
+    {
+      "Coding Scheme Designator": "SRT",
+      "Code Value": "P1-38200",
+      "Code Meaning": "Venipuncture"
+    },
+    {
+      "Coding Scheme Designator": "SRT",
+      "Code Value": "P0-00593",
+      "Code Meaning": "Taking of swab"
+    },
+    {
+      "Coding Scheme Designator": "SRT",
+      "Code Value": "P3-02000",
+      "Code Meaning": "Specimen collection"
+    },
+    {
+      "Coding Scheme Designator": "SRT",
+      "Code Value": "P1-03154",
+      "Code Meaning": "Scraping"
+    }
+  ],
+  "8110": [
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "122459003",
+      "Code Meaning": "Dissection"
+    },
+    {
+      "Coding Scheme Designator": "DCM",
+      "Code Value": "111726",
+      "Code Meaning": "Dissection with entire specimen submission"
+    },
+    {
+      "Coding Scheme Designator": "DCM",
+      "Code Value": "111727",
+      "Code Meaning": "Dissection with representative sections submission"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "434479002",
+      "Code Meaning": "Core sampling"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "434472006",
+      "Code Meaning": "Block sectioning"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "433454009",
+      "Code Meaning": "Laser microdissection"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "434474007",
+      "Code Meaning": "Block surface recut"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "434475008",
+      "Code Meaning": "Block step sectioning"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "430854000",
+      "Code Meaning": "Touch preparation (procedure)"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "448895004",
+      "Code Meaning": "Smear procedure"
+    }
+  ],
+  "8111": [
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "17636008",
+      "Code Meaning": "Specimen collection"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "428995007",
+      "Code Meaning": "Specimen receiving"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "433465004",
+      "Code Meaning": "Sampling of tissue specimen"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "127790008",
+      "Code Meaning": "Staining"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "9265001",
+      "Code Meaning": "Specimen processing"
+    },
+    {
+      "Coding Scheme Designator": "DCM",
+      "Code Value": "111729",
+      "Code Meaning": "Specimen storage"
+    }
+  ],
+  "8112": [
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255792001",
+      "Code Meaning": "acid phosphatase stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255793006",
+      "Code Meaning": "Albert's stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "4656000",
+      "Code Meaning": "alcian blue 8GX stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "47995002",
+      "Code Meaning": "alcohol soluble nigrosine stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406981005",
+      "Code Meaning": "aldehyde fuchsin stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "54432009",
+      "Code Meaning": "alizarin blue S stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "21951008",
+      "Code Meaning": "alizarin cyanine green stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "65580004",
+      "Code Meaning": "alizarin red S stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "27016007",
+      "Code Meaning": "alizarin yellow GG stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "28622002",
+      "Code Meaning": "alizarin yellow R stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406971006",
+      "Code Meaning": "alkaline phosphatase stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406990003",
+      "Code Meaning": "aniline blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255794000",
+      "Code Meaning": "auramine stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "85066006",
+      "Code Meaning": "azo black stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "76048000",
+      "Code Meaning": "azocarmine G (GX) stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "35609001",
+      "Code Meaning": "azophloxin stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "2159007",
+      "Code Meaning": "azorubin S stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "16836001",
+      "Code Meaning": "azure A stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "8926000",
+      "Code Meaning": "azure B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "11069001",
+      "Code Meaning": "azure C stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406982003",
+      "Code Meaning": "bauer's chromic acid leucofuchsin stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "27844007",
+      "Code Meaning": "benzo fast scarlet stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255795004",
+      "Code Meaning": "beta-glucuronidase stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "76605005",
+      "Code Meaning": "biebrich scarlet stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "44488008",
+      "Code Meaning": "bismark brown R stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "85190005",
+      "Code Meaning": "bismark brown Y stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "1346008",
+      "Code Meaning": "blue shade eosin stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "41750006",
+      "Code Meaning": "brazilin stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "8342001",
+      "Code Meaning": "brilliant cresyl blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "86541009",
+      "Code Meaning": "brilliant crocein stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "8429000",
+      "Code Meaning": "brilliant orange stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "57753006",
+      "Code Meaning": "brilliant yellow stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406955006",
+      "Code Meaning": "butyrate esterase stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "764166003",
+      "Code Meaning": "carbol fuchsin stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "73892005",
+      "Code Meaning": "carmine stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "432003",
+      "Code Meaning": "carminic acid stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "37575004",
+      "Code Meaning": "carmoisine A stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "38707008",
+      "Code Meaning": "celestine blue B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255796003",
+      "Code Meaning": "chloroacetate esterase stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406986000",
+      "Code Meaning": "chromic acid stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "85981002",
+      "Code Meaning": "chromotrope 2R stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "10247008",
+      "Code Meaning": "chrysoidine R stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "16943008",
+      "Code Meaning": "chrysoidine Y stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "91606004",
+      "Code Meaning": "cochineal stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406952009",
+      "Code Meaning": "colloidal iron stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "45106005",
+      "Code Meaning": "Congo red stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406960005",
+      "Code Meaning": "cresyl echt violet stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406959000",
+      "Code Meaning": "cresyl violet stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "68459007",
+      "Code Meaning": "crystal ponceau stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "89028002",
+      "Code Meaning": "curcumin stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "72572003",
+      "Code Meaning": "diamond black stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "11780008",
+      "Code Meaning": "durazol red stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "40076005",
+      "Code Meaning": "erie garnet stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "58631000",
+      "Code Meaning": "eriochrome blue black SE stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "7434003",
+      "Code Meaning": "erythrosin B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "5043000",
+      "Code Meaning": "erythrosin Y stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "22931006",
+      "Code Meaning": "Evans blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "34700000",
+      "Code Meaning": "fast blue B salt stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "91295002",
+      "Code Meaning": "fast blue BB salt stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "64112001",
+      "Code Meaning": "fast blue RR salt stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "89148006",
+      "Code Meaning": "fast garnet GBC salt stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "24167004",
+      "Code Meaning": "fast green FCF stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "40718007",
+      "Code Meaning": "fast red B salt stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "47486002",
+      "Code Meaning": "fast red ITR stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "76633005",
+      "Code Meaning": "fast red TR salt stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "88660000",
+      "Code Meaning": "fast sulfon black F stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "72371006",
+      "Code Meaning": "fast violet B salt stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "76439002",
+      "Code Meaning": "fat red 7B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255797007",
+      "Code Meaning": "Feulgen reaction stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255798002",
+      "Code Meaning": "field's stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255799005",
+      "Code Meaning": "Flagellar stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "35352008",
+      "Code Meaning": "fluorescent stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406980006",
+      "Code Meaning": "fouchet stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "60920007",
+      "Code Meaning": "fuchsin acid stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "50062004",
+      "Code Meaning": "fuchsin basic stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "8836009",
+      "Code Meaning": "gallocyanine stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "373646006",
+      "Code Meaning": "giemsa stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "385484003",
+      "Code Meaning": "gram stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406983008",
+      "Code Meaning": "hansel stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "75956008",
+      "Code Meaning": "hematein stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "12710003",
+      "Code Meaning": "hematoxylin stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255800009",
+      "Code Meaning": "immunofluorescent stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406972004",
+      "Code Meaning": "India ink stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "412548006",
+      "Code Meaning": "indigo carmine"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "11727009",
+      "Code Meaning": "indophenol from naphthol stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "47030008",
+      "Code Meaning": "insoluble berlin blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "68263003",
+      "Code Meaning": "janus green B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255801008",
+      "Code Meaning": "Jenner-Giemsa stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "29342009",
+      "Code Meaning": "kenacid blue R stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "35724001",
+      "Code Meaning": "lacmoid stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255802001",
+      "Code Meaning": "Leishman stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "89139001",
+      "Code Meaning": "light green SF stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "6701008",
+      "Code Meaning": "lissamine fast red B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "25079009",
+      "Code Meaning": "lissamine fast yellow stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "38543004",
+      "Code Meaning": "lissamine green B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "111102009",
+      "Code Meaning": "lissamine rhodamine stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406958008",
+      "Code Meaning": "luxol fast blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "27120008",
+      "Code Meaning": "malachite green stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406953004",
+      "Code Meaning": "Mallory bleach stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "41639004",
+      "Code Meaning": "martius yellow stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255803006",
+      "Code Meaning": "may-Grunwald giemsa stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "24516006",
+      "Code Meaning": "meldola blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "54791001",
+      "Code Meaning": "metanil yellow stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "9010006",
+      "Code Meaning": "methyl blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255804000",
+      "Code Meaning": "methyl green pyronin stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "42248000",
+      "Code Meaning": "methyl orange stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "13744001",
+      "Code Meaning": "methyl red stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "387239001",
+      "Code Meaning": "methyl violet stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "6725000",
+      "Code Meaning": "methylene blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406961009",
+      "Code Meaning": "methylene violet stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "31260003",
+      "Code Meaning": "methylene violet stain (Bernthsen)"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406991004",
+      "Code Meaning": "modified trichrome stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406964001",
+      "Code Meaning": "mucicarmine stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255805004",
+      "Code Meaning": "myeloperoxidase stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "16788000",
+      "Code Meaning": "naphthalene black 12B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "14958002",
+      "Code Meaning": "naphthol green B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "111101002",
+      "Code Meaning": "naphthol yellow S stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406973009",
+      "Code Meaning": "naphthol-AS-D-chloracetate esterase stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "67956008",
+      "Code Meaning": "neutral red stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255806003",
+      "Code Meaning": "neutrophil alkaline phosphatase stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "31714001",
+      "Code Meaning": "new fuchsin stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406965000",
+      "Code Meaning": "night blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "77073008",
+      "Code Meaning": "nile blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "86570008",
+      "Code Meaning": "nitrazine yellow stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255807007",
+      "Code Meaning": "nonspecific esterase stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "78869007",
+      "Code Meaning": "nuclear fast red stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "40808006",
+      "Code Meaning": "oil red O stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "54221006",
+      "Code Meaning": "orange G stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "25941002",
+      "Code Meaning": "orange II stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406966004",
+      "Code Meaning": "orcein stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "5442001",
+      "Code Meaning": "page blue 83 stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "2088005",
+      "Code Meaning": "page blue G-90 stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "48540004",
+      "Code Meaning": "patent blue V sodium salt stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255808002",
+      "Code Meaning": "periodic acid Schiff stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "333111009",
+      "Code Meaning": "permethrin stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406974003",
+      "Code Meaning": "peroxidase stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "71957009",
+      "Code Meaning": "phloxin B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406967008",
+      "Code Meaning": "phosphotungstic acid-hematoxylin stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "65730007",
+      "Code Meaning": "ponceau 3R stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "89856006",
+      "Code Meaning": "ponceau S stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "70520000",
+      "Code Meaning": "ponceau xylidine stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "89577003",
+      "Code Meaning": "pontamine sky blue 5BX stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "80305003",
+      "Code Meaning": "pontamine sky blue 6BX stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "34763001",
+      "Code Meaning": "potassium hydroxide stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "24900003",
+      "Code Meaning": "procion brilliant blue MRS stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406993001",
+      "Code Meaning": "protargol S stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406452004",
+      "Code Meaning": "Prussian blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406968003",
+      "Code Meaning": "quinacrine fluorescent stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406977005",
+      "Code Meaning": "rhodamine stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255810000",
+      "Code Meaning": "Romanowsky stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "408742009",
+      "Code Meaning": "rose bengal stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "15529003",
+      "Code Meaning": "rosolic acid sodium salt stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "38271009",
+      "Code Meaning": "saffron stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406988004",
+      "Code Meaning": "safranin stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406985001",
+      "Code Meaning": "silver nitrate stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406951002",
+      "Code Meaning": "silver stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "51567006",
+      "Code Meaning": "sirius red F3B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "43549000",
+      "Code Meaning": "solochrome azurine (BS) stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "11201005",
+      "Code Meaning": "solochrome black 6B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "25091000",
+      "Code Meaning": "solochrome cyanine R stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "38902009",
+      "Code Meaning": "solochrome dark blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "64991008",
+      "Code Meaning": "soluble berlin blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "11645004",
+      "Code Meaning": "spirit soluble aniline blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "83600004",
+      "Code Meaning": "spirit soluble eosin stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255811001",
+      "Code Meaning": "spore stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "314900004",
+      "Code Meaning": "Sudan stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "22968009",
+      "Code Meaning": "sunset yellow FCF stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "21592006",
+      "Code Meaning": "tartrazine stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406975002",
+      "Code Meaning": "terminal deoxynucleotidyl transferase stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406995008",
+      "Code Meaning": "thioflavine S stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "61068006",
+      "Code Meaning": "thioflavine T stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406969006",
+      "Code Meaning": "thionin stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "12001002",
+      "Code Meaning": "thionine stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "84217005",
+      "Code Meaning": "titan yellow stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406989007",
+      "Code Meaning": "trichrome stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "35094004",
+      "Code Meaning": "tropaeolin O stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "53511009",
+      "Code Meaning": "tropaeolin OO stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "60441008",
+      "Code Meaning": "trypan blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406957003",
+      "Code Meaning": "Van Gieson stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "406992006",
+      "Code Meaning": "verhoeff's hematoxylin stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "20230008",
+      "Code Meaning": "vital new red stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "88625006",
+      "Code Meaning": "water soluble aniline blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "58755002",
+      "Code Meaning": "water soluble anthracene brown stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "12119009",
+      "Code Meaning": "water soluble nigrosine stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "60739006",
+      "Code Meaning": "waxoline blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "409549005",
+      "Code Meaning": "wayson stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "373682001",
+      "Code Meaning": "wright stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "55831004",
+      "Code Meaning": "xylene cyanol FF stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "255813003",
+      "Code Meaning": "Ziehl-Neelsen stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "29252006",
+      "Code Meaning": "acridine orange stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "17693003",
+      "Code Meaning": "acriflavine stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "84656005",
+      "Code Meaning": "atebrin FS stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "73251007",
+      "Code Meaning": "auramine G stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "81397005",
+      "Code Meaning": "auramine O stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "49687009",
+      "Code Meaning": "coriphosphine stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "85596006",
+      "Code Meaning": "fluorescein stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "108880002",
+      "Code Meaning": "fluorexon stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "27671009",
+      "Code Meaning": "rhodamine B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "25351006",
+      "Code Meaning": "Fluorescein sodium stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "36572009",
+      "Code Meaning": "Sudan black B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "310850002",
+      "Code Meaning": "Sudan black stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "10740006",
+      "Code Meaning": "Sudan blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "12030009",
+      "Code Meaning": "Sudan II stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "39777001",
+      "Code Meaning": "Sudan III stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "69133007",
+      "Code Meaning": "Sudan IV stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "76925007",
+      "Code Meaning": "alkali blue 5B (4B) stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "63929007",
+      "Code Meaning": "alkali blue 6B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "34128002",
+      "Code Meaning": "chrome azurol S stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "17172002",
+      "Code Meaning": "dibromofluorescein stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "65445001",
+      "Code Meaning": "ethyl violet stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "22021002",
+      "Code Meaning": "methyl green stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "15896008",
+      "Code Meaning": "methyl violet 2B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "14544006",
+      "Code Meaning": "methyl violet 6B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "76001002",
+      "Code Meaning": "pyronine B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "43106008",
+      "Code Meaning": "pyronine G stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "29522004",
+      "Code Meaning": "toluidine blue stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "82682000",
+      "Code Meaning": "victoria blue 4R stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "22749001",
+      "Code Meaning": "victoria blue B stain"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "36879007",
+      "Code Meaning": "water soluble eosin stain"
+    }
+  ],
+  "8113": [
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "433455005",
+      "Code Meaning": "Specimen microwave heating"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "433457002",
+      "Code Meaning": "Specimen steam heating"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "433456006",
+      "Code Meaning": "Protease digestion of tissue specimen"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "433470006",
+      "Code Meaning": "Specimen dehydration"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "27872000",
+      "Code Meaning": "Specimen freezing"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "433452008",
+      "Code Meaning": "Specimen clearing"
+    }
+  ],
+  "8114": [
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "434162003",
+      "Code Meaning": "Neutral Buffered Formalin"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "433474002",
+      "Code Meaning": "Bouin's fluid"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "431510009",
+      "Code Meaning": "Formalin"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "433338005",
+      "Code Meaning": "Carnoy's fluid"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "434295000",
+      "Code Meaning": "Formol sublimate"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "433471005",
+      "Code Meaning": "Helly's fluid"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "430028007",
+      "Code Meaning": "Michel's medium"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "433473008",
+      "Code Meaning": "Zenker's fluid"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "52836003",
+      "Code Meaning": "Paraformaldehyde"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "2869004",
+      "Code Meaning": "Acetic acid"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "259153006",
+      "Code Meaning": "Chloroform"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "430821002",
+      "Code Meaning": "Chromium trioxide"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "419442005",
+      "Code Meaning": "Ethanol"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "111095003",
+      "Code Meaning": "Formaldehyde"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "11496005",
+      "Code Meaning": "Mercuric chloride"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "259221006",
+      "Code Meaning": "Methanol"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "13931001",
+      "Code Meaning": "Osmium tetroxide"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "24215009",
+      "Code Meaning": "Picric acid"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "19893005",
+      "Code Meaning": "Potassium dichromate"
+    }
+  ],
+  "8115": [
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "311731000",
+      "Code Meaning": "Paraffin wax"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "433469005",
+      "Code Meaning": "Tissue freezing medium"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "61088005",
+      "Code Meaning": "Plastic"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "10249006",
+      "Code Meaning": "Agar"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "65345002",
+      "Code Meaning": "Epoxy resin"
+    },
+    {
+      "Coding Scheme Designator": "SCT",
+      "Code Value": "261712009",
+      "Code Meaning": "Acrylic resin"
+    }
+  ]
+}

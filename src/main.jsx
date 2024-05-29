@@ -13,7 +13,8 @@ const Main = () => {
         <Router>
             <Routes>
                 <Route path="/" element={<Navigate to ="/search"/>} />
-                <Route path="/viewer/:rest" element={<ViewerPage />} />
+                {/*<Route path="/viewer/:rest" element={<ViewerPage />} />*/}
+                <Route path="/viewer" element={<ViewerPage />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/image/:id" element={<ImageReport/>}/>
             </Routes>

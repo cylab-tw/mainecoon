@@ -99,7 +99,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
                     source: sourceRef.current,
                     type: drawType, // 使用选定的绘图类型
                 });
-                console.log('drawInteraction', drawInteraction)
+                // console.log('drawInteraction', drawInteraction)
                 mapRef.current.addInteraction(drawInteraction);
                 drawnShapesStack.current.push(drawType);
                 drawInteractionRef.current = drawInteraction;
@@ -120,7 +120,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
                         currentFeature.setGeometry(new Point(evt.coordinate));
                         currentFeature = null;
                     } else if (drawType === 'LineString') {
-                        console.log(currentFeature)
+                        // console.log(currentFeature)
                         currentFeatureCoords.push(evt.coordinate);
                         currentFeature.setGeometry(new LineString(currentFeatureCoords));
                     }
@@ -129,7 +129,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
 
             const mouseUpHandler = (evt) => {
                 if (drawType === 'LineString' && currentFeatureCoords.length > 1) {
-                    console.log('currentFeatureCoords', [currentFeatureCoords])
+                    // console.log('currentFeatureCoords', [currentFeatureCoords])
                     currentFeature = null;
                     currentFeatureCoords.length = 0;
                 }
@@ -176,7 +176,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
                     const radiusX = calculateRadius(event.coordinate, ellipseCenter);
                     const radiusY = radiusX / 2; // 假設Y轴半径为X轴的一半
                     const ellipseCoords = createEllipse(ellipseCenter, radiusX, radiusY);
-                    console.log('[ellipseCoords]', [ellipseCoords])
+                    // console.log('[ellipseCoords]', [ellipseCoords])
                     newEllipsePreview.setGeometry(new Polygon([ellipseCoords]));
                     setIsDrawingEllipse(false); // 结束繪製
                     setEllipseCenter(null);
@@ -224,7 +224,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
                     const radiusX = calculateRadius(event.coordinate, rectangleCenter);
                     const radiusY = radiusX / 2; // 假设Y轴半径为X轴的一半
                     const rectangleCoords = createRectangle(rectangleCenter, radiusX, radiusY);
-                    console.log('[rectangleCoords]', [rectangleCoords])
+                    // console.log('[rectangleCoords]', [rectangleCoords])
                     newRectanglePreview.setGeometry(new Polygon([rectangleCoords]));
                     setIsDrawingRectangle(false); // 结束绘制
                     setRectangleCenter(null); // 重置中心
@@ -279,7 +279,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
                 if (features.length > 0) {
                     const lastFeature = features[features.length - 1];
                     sourceRef.current.removeFeature(lastFeature);
-                    console.log('lastFeature', lastFeature)
+                    // console.log('lastFeature', lastFeature)
                     if (drawType && currentFeature) {
                         currentFeature = new Feature();
                         sourceRef.current.addFeature(currentFeature);
@@ -379,7 +379,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
                 if (type === 'ELLIPSE') {
                     coords = calculateExtremityPoints(coords);
                     const points = coords.map(coord => coord.replace(/[()]/g, '').split(',').map(Number));
-                    console.log("points", points)
+                    // console.log("points", points)
                     // 修改 y 轴坐标
                     coordinates = points.map(coord => {
                         coord[1] *= -1;
@@ -494,20 +494,20 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
 
     useEffect(() => {
         const fetchData = async () => {
-            console.log("image",images)
+            // console.log("image",images)
             if (images.length === 0) {
                 setLoading(false);
-                setErrorMessage('No images found.');
+                // setErrorMessage('No images found.');
                 return;
             }
             const ViewerID = "ViewerID";
             try {
                 const {extent, layer, resolutions, view} =
                     computePyramidInfo(baseUrl, studyUid, seriesUid, images);
-                console.log('layer', layer)
+                // console.log('layer', layer)
                 document.getElementById(ViewerID).innerHTML = '';
                 const vector = new VectorLayer({source: sourceRef.current});
-                console.log('vector', vector)
+                // console.log('vector', vector)
                 const savedEllipsesLayer = new VectorLayer({
                     source: savedEllipsesSourceRef.current
                 });
@@ -595,9 +595,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
     //     },[]
     // )
 
-    useEffect(() => {
-        console.log("layers9999", mapRef.current.getLayers())
-    }, [annSeriesUid]);
 
 
     return (
@@ -617,9 +614,9 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
 
 function calculateExtremityPoints(coordinates) {
     // const points = coordinates.map(coord => coord.replace(/[()]/g, '').split(',').map(Number));
-    console.log("coordinates", coordinates)
+    // console.log("coordinates", coordinates)
     const points = coordinates
-    console.log("points", points)
+    // console.log("points", points)
 
     // Encapsulated helper function to estimate the center of the ellipse
     function estimateCenter(points) {

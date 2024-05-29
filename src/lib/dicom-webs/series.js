@@ -146,3 +146,14 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
 
     return instances.filter(Boolean);
 };
+
+export const getMetadataInfo = async (baseUrl, studyUid, seriesUid) => {
+    const dicomJson = await fetchDicomJson({ baseUrl, studyUid, seriesUid, pathname: '/metadata' });
+    if (!dicomJson || dicomJson.length === 0) {
+        return null;
+    }
+
+    const metadata = dicomJson;
+    console.log("metadataJson",metadata)
+    return metadata;
+};
