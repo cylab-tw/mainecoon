@@ -32,12 +32,9 @@ const SearchResultList = ({state}) => {
         })
         const { limit, offset } = state.parameter;
         firstQuery({...state.parameter,limit:1,offset:limit + offset}).then(({ result } ) => {
-            console.log("offset", limit + offset)
-            console.log("result", result)
-
+            // console.log("offset", limit + offset)
+            // console.log("result", result)
         })
-        // const hasNextResult = hasNext(state.parameter);
-        // hasNextResult.then((A12)=>(console.log("hasNextResult", A12)))
     }, [state]);
 
 

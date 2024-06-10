@@ -113,7 +113,6 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
         const referencedSeriesSequence = metadata[DicomTags.ReferencedSeriesSequence]?.Value?.[0];
         const referencedInstance = referencedSeriesSequence[DicomTags.ReferencedInstanceSequence]?.Value?.[0];
         const annotations = metadata[DicomTags.AnnotationGroupSequence]?.Value;
-
         return annotations.map(annotation => {
             let coordinates = annotation[DicomTags.PointCoordinatesData];
             coordinates ??= annotation[DicomTags.DoublePointCoordinatesData];
@@ -121,8 +120,6 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
             const indexes = annotation[DicomTags.LongPrimitivePointIndexList];
             const graphicType = annotation[DicomTags.GraphicType]?.Value?.[0];
             const hasIndexes = graphicType === 'POLYLINE' || graphicType === 'POLYGON';
-
-
 
             if (modality === 'ANN') {
                 return {
@@ -147,13 +144,17 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
     return instances.filter(Boolean);
 };
 
-export const getMetadataInfo = async (baseUrl, studyUid, seriesUid) => {
-    const dicomJson = await fetchDicomJson({ baseUrl, studyUid, seriesUid, pathname: '/metadata' });
-    if (!dicomJson || dicomJson.length === 0) {
-        return null;
-    }
+export const getAnnotationsGroup = async (baseUrl, studyUid, seriesUid) => {
+    const dicomJson = await fetchDicomJson({ baseUrl, studyUid, seriesUid, pathname: '/instances' });
+    const instanceUids = dicomJson.map(instance => instance[DicomTags.SOPInstanceUID]?.Value?.[0]);
+    const metadata = (await Promise.all(instanceUids.map(instanceUid => fetchDicomJson({ baseUrl, studyUid, seriesUid, instanceUid, pathname: '/metadata' })))).flat();
+    // console.log("metadata",metadata)
+    const metadatas = metadata.flatMap(metadata => {
+        const modality = metadata[DicomTags.Modality]?.Value?.[0];
+        // console.log("modality",modality)
+        // console.log("metadata123",metadata)
+        if (modality === 'ANN') return metadata
 
-    const metadata = dicomJson;
-    console.log("metadataJson",metadata)
-    return metadata;
-};
+    });
+    return metadatas.flat(Boolean);
+}

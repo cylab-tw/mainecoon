@@ -16,7 +16,7 @@ const Main = () => {
             ModalitiesInStudy: "SM",
             ReferringPhysicianName: undefined,
             PatientName: undefined,
-            PatientID: "*",
+            PatientID: undefined,
             StudyInstanceUID: undefined,
             StudyID: undefined,
             limit: 10,
@@ -26,8 +26,6 @@ const Main = () => {
         status: null
     });
 
-
-    console.log("state", state)
     const [pageLimit, setPageLimit] = useState(state.parameter.limit || 10);
     const [pageOffset, setPageOffset] = useState(state.parameter.offset || 0);
     const handlePageLimit = (e) => {

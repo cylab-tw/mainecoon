@@ -26,8 +26,10 @@ import Polygon from "ol/geom/Polygon";
 import LineString from "ol/geom/LineString";
 import {toast} from "react-toastify";
 import {Style, Fill, Stroke, Circle as CircleStyle} from 'ol/style';
-
-const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, annotations, drawType, save, tests,onMessageChange}) => {
+import {Icon} from "@iconify/react";
+import {getAnnotations} from "../../../lib/dicom-webs/series.js";
+// annotations
+const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images,annList, drawType, save, tests,onMessageChange}) => {
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState(undefined);
     let touch = false;
@@ -47,6 +49,19 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
     const [newAnnSeries, setNewAnnSeries] = useState(false);
     const [newAnnAccession, setNewAnnAccession] = useState(false);
     const [accessionNumber, setAccessionNumber] = useState('');
+    const [annotations, setAnnotations] = useState([]);
+    // console.log("annList",annList)
+
+    useEffect(() => {
+        annList.map((ann) => {
+            const instances = async() => {
+                await getAnnotations(baseUrl, studyUid, annList[0]);
+                // console.log("instances123", instances)
+                annotations.push(instances)
+            }
+        })
+    },[annList]);
+
     const enableDragPan = () => {
         if (mapRef.current) {
             //函数獲取地圖的所有交互（Interactions）。交互包括拖拽、缩放、旋轉等。
@@ -414,7 +429,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
             return acc;
         }, {}));
 
-        console.log('Grouped Annotations:', groupedAnnotations);
+        // console.log('Grouped Annotations:', groupedAnnotations);
 
         function extractStudyAndSeriesIdsFromUrl(url) {
             const parsedUrl = new URL(url);
@@ -482,7 +497,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
     const [test, setTest] = tests
 
     const getRandomColor = () => {
-        const letters = '0123456789';
+        const letters = '0123456789ABC';
         let color = '#';
         for (let i = 0; i < 6; i++) {
             color += letters[Math.floor(Math.random() * 8)];
@@ -500,14 +515,15 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
                 // setErrorMessage('No images found.');
                 return;
             }
+            setLoading(true);
+            // console.log("seriesUid000", annSeriesUid)
+            // console.log("annotationsViewer", annotations)
             const ViewerID = "ViewerID";
             try {
                 const {extent, layer, resolutions, view} =
                     computePyramidInfo(baseUrl, studyUid, seriesUid, images);
-                // console.log('layer', layer)
                 document.getElementById(ViewerID).innerHTML = '';
                 const vector = new VectorLayer({source: sourceRef.current});
-                // console.log('vector', vector)
                 const savedEllipsesLayer = new VectorLayer({
                     source: savedEllipsesSourceRef.current
                 });
@@ -565,6 +581,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
                             }
                         }
 
+
                         onMessageChange(mapRef.current.getLayers());
 
                     })
@@ -573,7 +590,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
                         console.error(error);
                     })
                     .finally(() => setLoading(false));
-
                 mapRef.current.getView().fit(extent, {size: mapRef.current.getSize()});
             } catch (error) {
                 setErrorMessage('Unexpected error occurred.');
@@ -600,9 +616,17 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images, a
     return (
         <div className={`relative w-full flex grow ${loading ? 'loading' : ''}`}>
             <div id="ViewerID" className="h-full w-full"/>
-            <div
-                className={`absolute inset-0 z-10 flex items-center justify-center bg-black/40 ${!loading ? 'hidden' : ''}`}>
-                <span className="loader border-green-500"/>
+            <div className={`absolute inset-0 z-10 flex items-end justify-center  ${!loading ? 'hidden' : ''}`}>
+                {/*<span className="loader border-green-500"/>*/}
+
+                {/*<Icon icon="svg-spinners:12-dots-scale-rotate" width="24" height="24" />*/}
+                <div className={`absolute left-1/2 -translate-x-1/2 transition-all duration-300 ${loading ? 'bottom-2' : '-bottom-8'}`}>
+                    <div className="flex items-center gap-3 rounded-full border bg-white/75 px-2 py-1 text-xs shadow">
+                        {/*<span className="loader h-4 w-4 border-2 border-green-500"/>*/}
+                        <Icon icon="svg-spinners:12-dots-scale-rotate" width="28" height="28" className="text-green-400" />
+                        <p className="text-lg">Loading Annotations...</p>
+                    </div>
+                </div>
             </div>
             <div
                 className={`absolute inset-0 z-10 flex items-center justify-center bg-black/40 ${!errorMessage ? 'hidden' : ''}`}>

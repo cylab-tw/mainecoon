@@ -34,11 +34,10 @@ const SearchResult = ({qidorsSingleStudy, onMessageChange}) => {
 
     function OnClick() {
         const studyInstanceUID = getQidorsSingleStudyMetadataValue(qidorsSingleStudy, QIDO_RS_Response.StudyInstanceUID, "StudyInstanceUID, NotFound");
-        console.log("onClick");
         // navigate(`../image/${studyInstanceUID}`);
-        navigate(`../viewer?server=NTUNHS&studyUid=${studyInstanceUID}`);
-        // navigate(`../viewer/Google?studyUid=${studyInstanceUID}`);
         // navigate(`../viewer/J4Care?studyUid=${studyInstanceUID}`);
+        navigate(`../viewer?server=NTUNHS&studyUid=${studyInstanceUID}`);
+        // navigate(`../viewer?server=Google&studyUid=${studyInstanceUID}`);
         // navigate(`../viewer?server=J4Care&studyUid=${studyInstanceUID}`);
     }
 
@@ -52,7 +51,6 @@ const SearchResult = ({qidorsSingleStudy, onMessageChange}) => {
                 setSM(metadatas?.map((metadata) => {
                     const Attribute = metadata?.["00080060"]?.Value;
                     if (Attribute && Attribute.length > 0) {
-                        console.log("Attribute", Attribute[0])
                         if (Attribute[0] === "SM") {
                             X += 1
                             return metadata['0020000E'].Value?.[0]

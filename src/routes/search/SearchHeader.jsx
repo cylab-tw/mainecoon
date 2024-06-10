@@ -14,7 +14,6 @@ const SearchHeader = ({State}) => {
             [name]: value
         }));
     };
-    console.log("parameter", parameter)
 
 
     const mouseOnFun = () => {

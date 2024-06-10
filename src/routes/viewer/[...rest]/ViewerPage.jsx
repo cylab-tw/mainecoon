@@ -1,22 +1,18 @@
 import React, {useEffect, useState} from 'react';
-import {Link, useLocation} from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import MicroscopyViewer from './MicroscopyViewer'; // 引入 MicroscopyViewer 組件
-import {getAnnotations, getImagingInfo, getMetadataInfo, getSeriesInfo} from '../../../lib/dicom-webs/series';
+import {getAnnotations, getImagingInfo, getSeriesInfo} from '../../../lib/dicom-webs/series';
 import {DICOMWEB_URLS} from '../../../lib/dicom-webs';
 import {combineUrl} from "../../../lib/search/index.js";
 import {getDicomwebUrl} from '../../../lib/dicom-webs/server';
 import {QIDO_RS_Response} from "../../../lib/search/QIDO_RS.jsx";
 import {Icon} from "@iconify/react";
-// import mainecoon from "../../../assests/mainecoon.png";
 import mainecoon from "../../../assests/mainecoon.png";
 
 const ViewerPage = () => {
-        const location = useLocation();
         const searchParams = new URLSearchParams(window.location.search);
-        // const searchParams = useParams();
         const server = searchParams.get('server') || DICOMWEB_URLS[0].name;
         const studyUid = searchParams.get('studyUid');
-        // const seriesUid = searchParams.get('seriesUid');
         const [seriesUid, setSeriesUid] = useState('');
         const [baseUrl, setBaseUrl] = useState('');
         const [images, setImages] = useState([]);
@@ -26,7 +22,6 @@ const ViewerPage = () => {
         const [isLeftOpen, setIsLeftOpen] = useState(true);
         const [isRightOpen, setIsRightOpen] = useState(true);
         const [wadoSeries, setWadoSeries] = useState([]);
-        const [annSeriesUid, setAnnSeriesUid] = useState('');
         let smAccessionNumber = []
         let annAccessionNumber = []
         const [drawType, setDrawType] = useState([]);
@@ -35,6 +30,17 @@ const ViewerPage = () => {
         const [layers, setLayers] = useState({})
         const [visibleIndex, setVisibleIndex] = useState([])
         const [selectedSeriesUid, setSelectedSeriesUid] = useState([])
+        const [labelOpen, setLabelOpen] = useState([1, 1, 1, 0, 1, 1])
+        const [annDrawer, setAnnDrawer] = useState([])
+        const [specimen, setSpecimen] = useState({
+            "Description": "",
+            "Anatomical structure": "",
+            "Collection method": "",
+            "Parent specimen": "",
+            "Tissue fixative": "",
+            "Tissue embedding medium": ""
+        })
+        const [selectedServer, setSelectedServer] = useState("NTUNHS")
         // const [loading, setLoading] = useState(true)
 
         useEffect(() => {
@@ -44,7 +50,6 @@ const ViewerPage = () => {
                     const seriesResult = await fetch(`${combineUrl}/studies/${studyUid}/series`)
                     const seriesJson = await seriesResult.json()
                     setSeriesUid(seriesJson[0]?.["0020000E"]?.Value[0])
-                    // selectedSeriesUid.push(seriesJson[0]?.["0020000E"]?.Value[0])
                 }
                 // patient資料
                 const fetchDetails = async () => {
@@ -82,13 +87,36 @@ const ViewerPage = () => {
         useEffect(() => {
             visibleIndex.map((index) => {
                 const layerArray = layers.getArray()
-                // console.log("layerArray123", layerArray)
                 layerArray[index].setVisible(false)
             })
         }, [visibleIndex])
 
-        {
-            wadoSeries.map((series) => {
+        // function addToAnnGroup(metadataANN, groupName1) {
+        //
+        //     for (let i = 0; i < annAccessionNumber.length; i++) {
+        //         if (annAccessionNumber[i][0] === key) {
+        //             if (annAccessionNumber[i][2]) {
+        //                 annAccessionNumber[i][2].push(groupName1);
+        //             } else {
+        //                 annAccessionNumber[i].push([groupName1]);
+        //             }
+        //             found = true;
+        //             break;
+        //         }
+        //     }
+        //
+        //     if (!found) {
+        //         annAccessionNumber.forEach((ann) => {
+        //             if (ann[0] === key) {
+        //                 if (ann[0] === key) {
+        //                     ann[2].push(groupName1);
+        //                 }
+        //             }
+        //         })
+        //     }
+        // }
+
+        {wadoSeries.map((series) => {
                     const element = series
                     const modalityAttribute = element?.['00080060']?.Value ?? null;
                     if (modalityAttribute == "SM") {
@@ -104,14 +132,12 @@ const ViewerPage = () => {
                         const metadataANN = element?.['0020000E']?.Value ?? null;
                         annAccessionNumber.push([metadataANN[0], annAccesionNum ? annAccesionNum : "unknown"])
                     }
-                }
-            )
-        }
+                })}
+
 
         const sorted_everySeries_numberOfFramesList = everySeries_numberOfFramesList.slice().sort((a, b) => a - b);
         const maxNumberOfFrames = sorted_everySeries_numberOfFramesList[sorted_everySeries_numberOfFramesList.length - 1];
 
-        // console.log("selectedSeriesUid", selectedSeriesUid)
         useEffect(() => {
             const fetchData = async () => {
                 if (studyUid === null || seriesUid === null || studyUid === "" || seriesUid === "") return;
@@ -122,44 +148,82 @@ const ViewerPage = () => {
                 const series = await getSeriesInfo(baseUrl, studyUid, seriesUid);
                 const smSeriesUidd = series?.modality === 'SM' ? seriesUid : series?.referencedSeriesUid;
                 setSmSeriesUid(smSeriesUidd);
-                console.log("series",series)
 
                 const imagingInfo = await getImagingInfo(baseUrl, studyUid, smSeriesUidd);
                 setImages(imagingInfo);
-                // console.log('imagingInfo:', imagingInfo);
-
-                // const metadata = await getMetadataInfo(baseUrl, studyUid, seriesUid);
-                // console.log("metadata",metadata)
-
                 if (series?.modality === 'ANN') {
-                    if (!Object.hasOwn(test, seriesUid)) {
-                        const annotations = await getAnnotations(baseUrl, studyUid, seriesUid);
-                        setAnnotations(annotations);
+                    const test789 = Object.hasOwn(test, seriesUid)
+                    if (test789 === false) {
+                        const instances = await getAnnotations(baseUrl, studyUid, seriesUid);
+                        setAnnotations(instances);
                     }
                 }
             };
+            console.log("annAccessionNumber", annAccessionNumber)
+            // console.log("annotations", annotations)
 
             const fetchDetails = async () => {
                 try {
+                    console.log("studyUid", studyUid)
+                    console.log("seriesUid", seriesUid)
+                    if (studyUid === null || seriesUid === null || studyUid === "" || seriesUid === "") return;
+
                     const url = `${combineUrl}/studies/${studyUid}/series/${seriesUid}/metadata`
                     const response = await fetch(url)
                     const data = await response.json();
-                    const Description = data[0]?.["00400560"]?.Value[0]?.["00400600"]?.Value[0];
-                    const Anatomicalstructure = data[0]?.["00400560"]?.Value[0]?.["00082228"]?.Value[0]?.["00080104"]?.Value[0];
-                    const Collectionmethod = data[0]?.["00400560"]?.Value[0]?.["00400610"]?.Value[0]?.["00400612"]?.Value[4]?.["0040A168"]?.Value[0]?.["00080104"]?.Value[0];
-                    const Parentspecimen = data[0]?.["00400560"]?.Value[0]?.["00400610"]?.Value[0]?.["00400612"]?.Value[0]?.["0040A160"]?.Value[0]
-                    console.log("description",Description)
-                    console.log("Anatomicalstructure",Anatomicalstructure)
-                    console.log("Collectionmethod",Collectionmethod)
-                    console.log("Parentspecimen",Parentspecimen)
-
-                    console.log("url",url)
-                    console.log("metadata123",data)
+                    // console.log("data***", data)
+                    const SpecimenDescriptionSequence = data[0]?.["00400560"]?.Value[0]
+                    const Description = SpecimenDescriptionSequence?.["00400600"]?.Value[0] ?? "";
+                    const Anatomicalstructure = SpecimenDescriptionSequence?.["00082228"]?.Value?.[0]?.["00080104"]?.Value?.[0] ?? "";
+                    let Collectionmethod = ""
+                    let parentspecimen = []
+                    let Tissuefixative = ""
+                    let Tissueembeddingmedium = ""
+                    SpecimenDescriptionSequence?.["00400610"]?.Value?.map((s) => {
+                        const s0 = s?.["00400612"]?.Value
+                        s0.map((s1) => {
+                            if (s1?.["0040A160"]) {
+                                const ConceptNameCodeSequence = s1?.["0040A043"]?.Value?.[0]
+                                const codeValue = ConceptNameCodeSequence?.["00080100"].Value?.[0]
+                                if (codeValue === "111705") {
+                                    const codeMeaning = ConceptNameCodeSequence?.["00080104"]?.Value?.[0]
+                                    if (codeMeaning === "Parent Specimen Identifier") {
+                                        const parentSpecimen = s1?.["0040A160"]?.Value?.[0]
+                                        parentspecimen.push(parentSpecimen)
+                                    }
+                                }
+                            } else if (s1?.["0040A168"]) {
+                                const ConceptCodeSequenceCodeValue = s1?.["0040A168"]?.Value?.[0]?.["00080100"]?.Value?.[0]
+                                const ConceptNameCodeSequenceCodeValue = s1?.["0040A043"]?.Value?.[0]?.["00080100"]?.Value?.[0]
+                                if (ConceptCodeSequenceCodeValue === "118292001") {
+                                    const codeMeaning = s1?.["0040A168"]?.Value?.[0]?.["00080104"]?.Value?.[0]
+                                    Collectionmethod = codeMeaning
+                                }
+                                if (ConceptCodeSequenceCodeValue === "311731000") {
+                                    const codeMeaning = s1?.["0040A168"]?.Value?.[0]?.["00080104"]?.Value?.[0]
+                                    Tissueembeddingmedium = codeMeaning
+                                }
+                                if (ConceptNameCodeSequenceCodeValue === "430864009") {
+                                    const codeMeaning = s1?.["0040A168"]?.Value?.[0]?.["00080104"]?.Value?.[0]
+                                    Tissuefixative = codeMeaning
+                                }
+                            }
+                        })
+                    })
+                    setSpecimen(prevState => ({
+                        ...prevState,
+                        "Description": Description,
+                        "Anatomical structure": Anatomicalstructure,
+                        "Collection method": Collectionmethod,
+                        "Parent specimen": parentspecimen,
+                        "Tissue fixative": Tissuefixative,
+                        "Tissue embedding medium": Tissueembeddingmedium
+                    }));
                 } catch (e) {
                     console.log('error', e)
                 }
             }
-            console.log("")
+
             fetchData();
             fetchDetails()
         }, [server, studyUid, seriesUid]);
@@ -169,7 +233,12 @@ const ViewerPage = () => {
             // setLoading(false)
             return (
                 <div className="flex h-full w-full bg-opacity-25 bg-gray-200/10 justify-center items-center">
-                    <h1>Loading...</h1>
+                    {/*<h1>Loading...</h1>*/}
+                    <div className="flex items-center gap-3 bg-white/75 px-2 py-3">
+                        {/*<span className="h-4 w-4 border-2 border-green-500"/>*/}
+                        <Icon icon="svg-spinners:6-dots-rotate" width="28" height="28" className="text-green-500"/>
+                        <p className="text-xl">Loading</p>
+                    </div>
                 </div>
             );
         }
@@ -235,7 +304,7 @@ const ViewerPage = () => {
             setDrawType(null)
             let target = e.target;
             while (!target.querySelector('svg.animate-bounce')) target = target.parentElement;
-            console.log(target)
+            // console.log(target)
             target.querySelector('svg.animate-bounce').classList.remove('animate-bounce');
         }
 
@@ -249,21 +318,23 @@ const ViewerPage = () => {
         }
 
 
-        const handleChecked = (e, index) => {
+        const handleChecked = (e) => {
             // const checked = e.target.checked
             const value = e.target.value
             // console.log("index", index, "checked", checked, "value", value)
             const test123 = selectedSeriesUid.includes(value);
-            if (!test123) {
+            if (test123 === false) {
                 setSeriesUid(value)
                 selectedSeriesUid.push(value)
             }
+            // console.log("seriesUid", seriesUid)
+            // console.log("test123", test123)
+            // console.log("test", test)
             if (Object.hasOwn(test, value)) {
                 let testJson = Object.entries(test);
                 const testid = testJson
                     .map((test, index) => test[0] === value ? index : null)
                     .filter(index => index !== null);
-                // console.log("test",test)
                 const layerArray = layers.getArray()
                 const length = parseInt(testid) + 4;
                 layerArray[length].setVisible(!layerArray[length].values_.visible)
@@ -277,12 +348,27 @@ const ViewerPage = () => {
             }
         }
 
+        const handleLabelOpen = (e) => {
+            e.preventDefault();
+            const value = parseInt(e.currentTarget.getAttribute('value'));
+            const newLabelOpen = [...labelOpen];
+            newLabelOpen[value] = newLabelOpen[value] === 0 ? 1 : 0;
+            setLabelOpen(newLabelOpen);
+        }
+
+        const handleAnnDrawer = (e) => {
+            console.log("test")
+        }
+
+    const handleServerChange = (e) => {
+        setSelectedServer(e.target.value);
+    };
+
 
         return (
             <div className="flex h-full w-full flex-col">
-                {/*<Header/>*/}
                 <header>
-                    <div className="bg-gradient-to-r from-green-400 via-green-200 to-blue-200 text-white p-1 ">
+                    <div className="bg-green-500 text-white p-1 ">
                         <div className="flex flex-row ">
                             <Link to="/" className={"w-20 h-20 flex flex-column justify-center items-center ml-3 mt-2"}>
                                 <img src={mainecoon} alt="maincoon"/>
@@ -295,58 +381,64 @@ const ViewerPage = () => {
                                 <div className="flex flex-row m-2 gap-2">
                                     <div className="m-2 mt-3">
 
-                                        <button className="bg-yellow-200 hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
+                                        <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
                                                 onClick={handleViewer}
                                         >
                                             <Icon icon="fa6-regular:hand"
                                                   className="animate-bounce text-black h-6 w-6"/>
                                         </button>
-                                        <button className="bg-yellow-200 hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
+                                        {/*bg-yellow-200*/}
+                                        <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
                                                 onClick={(e) => updateDrawType(e, 'Point')}
                                         >
                                             <Icon icon="tabler:point-filled" className="text-black h-6 w-6"/>
                                         </button>
-                                        <button className="bg-yellow-200 hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
+                                        <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
                                                 onClick={(e) => updateDrawType(e, 'LineString')}
                                         >
                                             <Icon icon="material-symbols-light:polyline-outline"
                                                   className="text-black h-6 w-6"/>
                                         </button>
-                                        <button className="bg-yellow-200 hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
+                                        <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
                                                 onClick={(e) => updateDrawType(e, 'Polygon')}
                                         >
                                             <Icon icon="ph:polygon" className="text-black h-6 w-6"/>
                                         </button>
-                                        <button className="bg-yellow-200 hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
+                                        <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
                                                 onClick={(e) => updateDrawType(e, 'Rectangle')}
                                         >
                                             <Icon icon="f7:rectangle" className="text-black h-6 w-6"/>
                                         </button>
-                                        <button className="bg-yellow-200 hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
+                                        <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
                                                 onClick={(e) => updateDrawType(e, 'Ellipse')}
                                         >
                                             <Icon icon="mdi:ellipse-outline" className="text-black h-6 w-6"/>
                                         </button>
-                                        <button className="bg-yellow-200 hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
+                                        <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
                                                 onClick={(e) => updateDrawType(e, 'ELLIPSE')}
                                         >
                                             <Icon icon="bx:screenshot" className="text-black h-6 w-6"/>
                                         </button>
                                     </div>
-
-                                    <div className="flex justify-end mt-1 ">
+                                    <div className="flex justify-end mt-1 text-black">
+                                        {/*bg-[#0073ff]*/}
                                         <button
-                                            className="bg-[#0073ff] w-24 h-10 justify-center flex mt-3.5 mx-2 p-2 text-white rounded-3 mb-2"
-                                            onClick={saveAnnotations}
-                                        >
+                                            className="bg-white w-24 h-10 justify-center flex mt-3.5 mx-2 p-2 rounded-lg mb-2"
+                                            onClick={saveAnnotations}>
                                             <Icon icon="ant-design:save-outlined" className="w-6 h-6 mr-2"/>儲存
                                         </button>
                                         <button
-                                            className="bg-[#0073ff] w-24 h-10 justify-center flex mt-3.5 mx-2 p-2 text-white rounded-3 mb-2"
+                                            className="bg-white w-24 h-10 justify-center flex mt-3.5 mx-2 p-2  rounded-lg mb-2"
                                             // onClick={undoFeature}
                                         >
                                             <Icon icon="gg:undo" className="w-6 h-6 mr-2"/>復原
                                         </button>
+                                        <select
+                                            className="bg-white w-fit h-10 justify-center flex mt-3.5 mx-2 p-2  rounded-lg mb-2"
+                                            onChange={handleServerChange}>
+                                            <option value="NTUNHS">NTUNHS</option>
+                                            <option value="GOOGLE">GOOGLE</option>
+                                        </select>
                                         <button className="ml-6 mr-2 mb-2"
                                             // onClick={() => openStuModal()}
                                                 style={{transform: 'rotate(180deg)'}}>
@@ -363,78 +455,163 @@ const ViewerPage = () => {
                 <div className={`relative w-full flex grow `}>
                     {isLeftOpen ? (
                         <>
-                            <div className="!h-100 w-96 overflow-auto ">
+                            <div className={`!h-100 w-1/5 overflow-auto `}>
                                 <div className="flex flex-col w-full h-full border-end ">
-                                    <div className="flex flex-row items-center bg-green-300 mt-2 justify-between">
-                                        <div className="flex items-center">
-                                            <label
-                                                className="ml-5 text-xl mt-2 font-bold font-sans mb-2 flex items-center">
-                                                Patient
-                                                <Icon icon="bi:people-circle" width="28" height="28"
-                                                      className="ml-3 text-white"/>
-                                            </label>
-                                        </div>
-                                        <div className="bg-opacity-100 flex z-30">
-                                            <button
-                                                className="flex items-center bg-gray-400 hover:bg-gray-600 text-white font-bold rounded-l-lg p-3"
-                                                onClick={LeftDrawer}>
-                                                {'<<'}
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div className="bg-green-50">
-                                        <div className="p-1.5">
-                                            {/*00100020,LO => 123456*/}
-                                            <span className="block ml-2 text-lg mt-2 "><span
-                                                className="font-bold">ID : </span>{patientID}</span>
-                                            {/*00100010,PN => Philips^Amy*/}
-                                            <span className="block ml-2 text-lg mt-2"><span
-                                                className="font-bold">Name : </span>{patientName}</span>
-                                            {/*00100040,CS => O*/}
-                                            <span className="block ml-2 text-lg mt-2"><span
-                                                className="font-bold">Gender : </span>{patientSex}</span>
-                                            {/*00100030,DA => 20010101*/}
-                                            <span className="block ml-2 text-lg mt-2 mb-4"><span className="font-bold">Birthdate : </span>{patientBirthDate}</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-row items-center bg-green-300 mt-6">
-                                        <label className="ml-5 text-xl mt-2 font-bold font-sans mb-2 ">Case</label>
-                                        <Icon icon="fluent:document-data-16-filled" width="28" height="28"
-                                              className="ml-3 text-white"/>
-                                    </div>
-                                    <div className="bg-green-50">
-                                        <div className="p-1.5">
-                                            {/*00080050,SH => D18-1001*/}
-                                            <span className="block ml-2 text-lg mt-2"><span
-                                                className="font-bold">Accession : </span>{accessionNumber}</span>
-                                            <span className="block ml-2 text-lg mt-2"><span
-                                                className="font-bold">ID : </span></span>
-                                            {/*00080020,DA => 20181003 */}
-                                            <span className="block ml-2 text-lg mt-2"><span
-                                                className="font-bold">Date : </span>{studyDate}</span>
-                                            <span className="block ml-2 text-lg mt-2 mb-4"><span
-                                                className="font-bold">Time : </span>{StudyTime}</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-row items-center bg-green-300 mt-6">
-                                        <label className="ml-5 text-xl mt-2 font-bold font-sans mb-2 ">Series</label>
-                                    </div>
-                                    <div className="bg-green-50">
-                                        <div className="p-1.5">
-                                            {smAccessionNumber.map((series, index) => (
-                                                <div key={index}>
-                                                    <button className="text-lg w-full mt-2 p-1.5 hover:bg-green-100"
-                                                            key={series[0]}
-                                                            onClick={(e) => navigateTo(e, series[0])}
-                                                            value={series[0]}
-                                                    >
-                                                        {series[0]}
+                                    {labelOpen[0] === 0 ? (
+                                        <>
+                                            <div
+                                                className="flex flex-row items-center bg-green-300 mt-2 justify-between"
+                                                value={0} onClick={handleLabelOpen}>
+                                                <div className="flex items-center">
+                                                    <label
+                                                        className="ml-5 text-lg mt-2 font-bold font-sans mb-2 flex items-center ">
+                                                        Patient
+                                                        <Icon icon="bi:people-circle" width="28" height="28"
+                                                              className="ml-3 text-white"/>
+                                                    </label>
+                                                </div>
+                                                <div className="mr-1">
+                                                    <Icon icon="line-md:chevron-small-down" width="24" height="24"/>
+                                                </div>
+                                                <div className="bg-opacity-100 flex z-30">
+                                                    <button
+                                                        className="flex items-center bg-gray-400 hover:bg-gray-600 text-white font-bold rounded-l-lg p-3"
+                                                        onClick={LeftDrawer}>
+                                                        {'<<'}
                                                     </button>
                                                 </div>
-                                            ))}
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div
+                                                className="flex flex-row items-center bg-green-300 mt-2 justify-between"
+                                                value={0} onClick={handleLabelOpen}>
+                                                <div className="flex items-center">
+                                                    <label
+                                                        className="ml-5 text-lg mt-2 font-bold font-sans mb-2 flex items-center ">
+                                                        Patient
+                                                        <Icon icon="bi:people-circle" width="28" height="28"
+                                                              className="ml-3 text-white"/>
+                                                    </label>
+                                                </div>
+                                                <div className="mr-1">
+                                                    <Icon icon="line-md:chevron-small-up" width="24" height="24"/>
+                                                </div>
+                                                <div className="bg-opacity-100 flex z-30">
+                                                    <button
+                                                        className="flex items-center bg-gray-400 hover:bg-gray-600 text-white font-bold rounded-l-lg p-3"
+                                                        onClick={LeftDrawer}>
+                                                        {'<<'}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className="bg-green-50">
+                                                <div className="p-1.5">
+                                                    {/*00100020,LO => 123456*/}
+                                                    <span className="block ml-2 text-md mt-2 "><span
+                                                        className="font-bold">ID : </span>{patientID}</span>
+                                                    {/*00100010,PN => Philips^Amy*/}
+                                                    <span className="block ml-2 text-md mt-2"><span
+                                                        className="font-bold">Name : </span>{patientName}</span>
+                                                    {/*00100040,CS => O*/}
+                                                    <span className="block ml-2 text-md mt-2"><span
+                                                        className="font-bold">Gender : </span>{patientSex}</span>
+                                                    {/*00100030,DA => 20010101*/}
+                                                    <span className="block ml-2 text-md mt-2 mb-4"><span
+                                                        className="font-bold">Birthdate : </span>{patientBirthDate}</span>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+                                    {labelOpen[1] === 0 ? (
+                                        <div className="flex flex-row items-center bg-green-300 mt-6 justify-between"
+                                             value={1} onClick={handleLabelOpen}>
+                                            <div className="flex items-center">
+                                                <label
+                                                    className="ml-5 text-lg mt-2 font-bold font-sans mb-2 ">Case</label>
+                                                <Icon icon="fluent:document-data-16-filled" width="28" height="28"
+                                                      className="ml-3 text-white"/>
+                                            </div>
+                                            <div className="mr-1">
+                                                <Icon icon="line-md:chevron-small-down" width="24" height="24"/>
+                                            </div>
                                         </div>
+                                    ) : (
+                                        <>
+                                            <div
+                                                className="flex flex-row items-center bg-green-300 mt-6 justify-between"
+                                                value={1} onClick={handleLabelOpen}>
+                                                <div className="flex items-center">
+                                                    <label
+                                                        className="ml-5 text-lg mt-2 font-bold font-sans mb-2 ">Case</label>
+                                                    <Icon icon="fluent:document-data-16-filled" width="28" height="28"
+                                                          className="ml-3 text-white"/>
+                                                </div>
+                                                <div className="mr-1">
+                                                    <Icon icon="line-md:chevron-small-up" width="24" height="24"/>
+                                                </div>
+                                            </div>
+                                            <div className="bg-green-50">
+                                                <div className="p-1.5">
+                                                    <span className="block ml-2 text-md mt-2"><span
+                                                        className="font-bold">Accession : </span>{accessionNumber}</span>
+                                                    <span className="block ml-2 text-md mt-2"><span
+                                                        className="font-bold">ID : </span>{accessionNumber}</span>
+                                                    <span className="block ml-2 text-md mt-2"><span
+                                                        className="font-bold">Date : </span>{studyDate}</span>
+                                                    <span className="block ml-2 text-md mt-2 mb-4"><span
+                                                        className="font-bold">Time : </span>{StudyTime}</span>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+                                    {labelOpen[2] === 0 ? (
+                                        <div className="flex flex-row items-center bg-green-300 mt-6 justify-between"
+                                             value={2} onClick={handleLabelOpen}>
+                                            <div className="flex items-center">
+                                                <label
+                                                    className="ml-5 text-lg mt-2 font-bold font-sans mb-2 ">Series</label>
+                                                <Icon icon="fluent:document-data-16-filled" width="28" height="28"
+                                                      className="ml-3 text-white"/>
+                                            </div>
+                                            <div className="mr-1">
+                                                <Icon icon="line-md:chevron-small-down" width="24" height="24"/>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div
+                                                className="flex flex-row items-center bg-green-300 mt-6 justify-between"
+                                                value={2} onClick={handleLabelOpen}>
+                                                <div className="flex items-center">
+                                                    <label
+                                                        className="ml-5 text-lg mt-2 font-bold font-sans mb-2 ">Series</label>
+                                                    <Icon icon="fluent:document-data-16-filled" width="28" height="28"
+                                                          className="ml-3 text-white"/>
+                                                </div>
+                                                <div className="mr-1">
+                                                    <Icon icon="line-md:chevron-small-up" width="24" height="24"/>
+                                                </div>
+                                            </div>
 
-                                    </div>
+                                            <div className="bg-green-50">
+                                                <div className="p-1.5">
+                                                    {smAccessionNumber.map((series, index) => (
+                                                        <div key={index}>
+                                                            <button
+                                                                className="text-lg w-full mt-2 p-1.5 hover:bg-green-100"
+                                                                key={series[0]}
+                                                                onClick={(e) => navigateTo(e, series[0])}
+                                                                value={series[0]}
+                                                            >{series[1]}
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </>)
+                                    }
                                 </div>
                             </div>
                         </>
@@ -443,12 +620,11 @@ const ViewerPage = () => {
                             <div className="bg-opacity-0 absolute z-30 mt-2">
                                 <button
                                     className="flex items-center bg-gray-400 hover:bg-gray-600 text-white font-bold rounded-r-lg px-2 py-5"
-                                    onClick={LeftDrawer}>
-                                    {'>'}
-                                </button>
+                                    onClick={LeftDrawer}>{'>'}</button>
                             </div>
-                        </div>
-                    )}
+                        </div>)
+                    }
+
                     <MicroscopyViewer
                         baseUrl={baseUrl}
                         studyUid={studyUid}
@@ -459,83 +635,208 @@ const ViewerPage = () => {
                         drawType={drawType}
                         save={save}
                         tests={[test, setTest]}
+                        annList={annAccessionNumber}
                         onMessageChange={handleMessageChange}
-                        className="grow"
+                        className="grow" e
                     />
                     {/*<AnnotationLoader loading={loading}/>*/}
                     {isRightOpen ? (
                         <>
-                            <div className="!h-100 w-96 overflow-auto ">
+                            <div className="!h-100 w-1/4 overflow-auto ">
                                 <div className="flex flex-col w-full h-full border-end ">
-                                    <div className="flex flex-row items-center bg-green-300 mt-2 justify-start">
-                                        <div className="bg-opacity-100 flex z-30">
-                                            <button
-                                                className="flex items-center bg-gray-400 hover:bg-gray-600 text-white font-bold rounded-r-lg p-3"
-                                                onClick={RightDrawer}>
-                                                {'>>'}
-                                            </button>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <label
-                                                className="ml-5 text-xl mt-2 font-bold font-sans mb-2 flex items-center">
-                                                Slide label
-                                                <Icon icon="fluent:slide-text-sparkle-24-filled" width="28" height="28"
-                                                      className="ml-3 text-white"/>
-                                            </label>
-                                        </div>
-
-                                    </div>
-                                    <div className="bg-green-50">
-                                        <div className="p-1.5">
-                                        <span className="block ml-2 text-lg mt-2 "><span
-                                            className="font-bold">ID : </span>{patientID}</span>
-                                            <span className="block ml-2 text-lg mt-2"><span
-                                                className="font-bold">Name : </span>{patientName}</span>
-                                            <span className="block ml-2 text-lg mt-2"><span
-                                                className="font-bold">Gender : </span>{patientSex}</span>
-                                            <span className="block ml-2 text-lg mt-2 mb-4"><span className="font-bold">Birthdate : </span>{patientBirthDate}</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-row items-center bg-green-300 mt-6">
-                                        <label className="ml-5 text-xl mt-2 font-bold font-sans mb-2 ">Specimens</label>
-                                        <Icon icon="pajamas:details-block" width="28" height="28"
-                                              className="ml-3 text-white"/>
-                                    </div>
-                                    <div className="bg-green-50">
-                                        <div className="p-1.5">
-                                            {/*00080050,SH => D18-1001*/}
-                                            <span className="block ml-2 text-lg mt-2"><span
-                                                className="font-bold">Accession : </span>{accessionNumber}</span>
-                                            <span className="block ml-2 text-lg mt-2"><span
-                                                className="font-bold">ID : </span></span>
-                                            {/*00080020,DA => 20181003 */}
-                                            <span className="block ml-2 text-lg mt-2"><span
-                                                className="font-bold">Date : </span>{studyDate}</span>
-                                            <span className="block ml-2 text-lg mt-2 mb-4"><span
-                                                className="font-bold">Time : </span>{StudyTime}</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-row items-center bg-green-300 mt-6">
-                                        <label
-                                            className="ml-5 text-xl mt-2 font-bold font-sans mb-2 ">Annotations</label>
-                                    </div>
-                                    <div className="bg-green-50">
-                                        <div className="p-1.5">
-                                            {annAccessionNumber.map((series, index) => (
-                                                <div key={index} className="flex hover:bg-green-100">
-                                                    <input type="checkbox" id={series[0]} name={series[0]} value={series[0]}
-                                                           onChange={(e) => handleChecked(e, index)}/>
-                                                    <p className="text-lg w-full mt-2 p-1 ">
-                                                        {series[0]}
-                                                    </p>
+                                    {labelOpen[3] === 0 ? (
+                                        <>
+                                            <div
+                                                className="flex flex-row items-center bg-green-300 mt-2 justify-between">
+                                                <div className="bg-opacity-100 flex z-30">
+                                                    <button
+                                                        className="flex items-center bg-gray-400 hover:bg-gray-600 text-white font-bold rounded-r-lg p-3"
+                                                        onClick={RightDrawer}>
+                                                        {'>>'}
+                                                    </button>
                                                 </div>
-                                            ))}
+                                                <div className="flex items-center" value={3} onClick={handleLabelOpen}>
+                                                    <label
+                                                        className="ml-5 text-lg mt-2 font-bold font-sans mb-2 flex items-center ">
+                                                        Slide label
+                                                        <Icon icon="fluent:slide-text-sparkle-24-filled" width="28"
+                                                              height="28" className="ml-3 text-white"/>
+                                                    </label>
+                                                </div>
+                                                <div className="mr-1">
+                                                    <Icon icon="line-md:chevron-small-down" width="24" height="24"/>
+                                                </div>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div
+                                                className="flex flex-row items-center bg-green-300 mt-2 justify-between">
+                                                <div className="bg-opacity-100 flex z-30">
+                                                    <button
+                                                        className="flex items-center bg-gray-400 hover:bg-gray-600 text-white font-bold rounded-r-lg p-3"
+                                                        onClick={RightDrawer}>
+                                                        {'>>'}
+                                                    </button>
+                                                </div>
+                                                <div className="flex items-center" value={3} onClick={handleLabelOpen}>
+                                                    <label
+                                                        className="ml-5 text-lg mt-2 font-bold font-sans mb-2 flex items-center ">
+                                                        Slide label
+                                                        <Icon icon="fluent:slide-text-sparkle-24-filled" width="28"
+                                                              height="28" className="ml-3 text-white"/>
+                                                    </label>
+                                                </div>
+                                                <div className="mr-1">
+                                                    <Icon icon="line-md:chevron-small-up" width="24" height="24"/>
+                                                </div>
+                                            </div>
+                                            <div className="bg-green-50">
+                                                <div className="p-1.5"/>
+                                            </div>
+                                        </>
+                                    )}
+                                    {labelOpen[4] === 0 ? (
+                                        <div className="flex flex-row items-center bg-green-300 mt-6 justify-between"
+                                             value={4} onClick={handleLabelOpen}>
+                                            <div className="flex items-center">
+                                                <label
+                                                    className="ml-28 text-lg mt-2 font-bold font-sans mb-2 ">Specimens</label>
+                                                <Icon icon="pajamas:details-block" width="28" height="28"
+                                                      className="ml-3 text-white"/>
+                                            </div>
+                                            <div className="mr-1">
+                                                <Icon icon="line-md:chevron-small-down" width="24" height="24"/>
+                                            </div>
                                         </div>
-                                    </div>
+                                    ) : (
+                                        <>
+                                            <div
+                                                className="flex flex-row items-center bg-green-300 mt-6 justify-between"
+                                                value={4} onClick={handleLabelOpen}>
+                                                <div className="flex items-center">
+                                                    <label
+                                                        className="ml-28 text-lg mt-2 font-bold font-sans mb-2 ">Specimens</label>
+                                                    <Icon icon="pajamas:details-block" width="28" height="28"
+                                                          className="ml-3 text-white"/>
+                                                </div>
+                                                <div className="mr-1">
+                                                    <Icon icon="line-md:chevron-small-up" width="24" height="24"/>
+                                                </div>
+                                            </div>
+                                            <div className="bg-green-50">
+                                                <div className="p-1.5">
+                                                    {specimen.Description && (
+                                                        <span className="block ml-2 text-md mt-2 ">
+                                                            <span
+                                                                className="font-bold">Description : </span>{specimen.Description}
+                                                        </span>
+                                                    )}
+                                                    {specimen["Anatomical structure"] && (
+                                                        <span className="block ml-2 text-md mt-2"><span
+                                                            className="font-bold">Anatomical structure : </span>{specimen["Anatomical structure"]}</span>
+                                                    )}
+                                                    {specimen["Collection method"] && (
+                                                        <span className="block ml-2 text-md mt-2"><span
+                                                            className="font-bold">Collection method : </span>{specimen["Collection method"]}</span>
+                                                    )}
+                                                    {specimen["Parent specimen"] && (
+                                                        specimen["Parent specimen"].map((parent, index) => (
+                                                            <span key={index} className="block ml-2 text-md mt-2"><span
+                                                                className="font-bold">Parent specimen : </span>{parent}</span>
+                                                        ))
+                                                        // <span className="block ml-2 text-md mt-2"><span
+                                                        //     className="font-bold">Parent specimen : </span>{specimen["Parent specimen"]}</span>
+                                                    )}
+                                                    {specimen["Parent specimen1"] && (
+                                                        <span className="block ml-2 text-md mt-2"><span
+                                                            className="font-bold">Parent specimen 1 : </span>{specimen["Parent specimen1"]}</span>
+                                                    )}
+                                                    {specimen["Parent specimen2"] && (
+                                                        <span className="block ml-2 text-md mt-2"><span
+                                                            className="font-bold">Parent specimen 2 : </span>{specimen["Parent specimen2"]}</span>
+                                                    )}
+                                                    {specimen["Tissue fixative"] && (
+                                                        <span className="block ml-2 text-md mt-2"><span
+                                                            className="font-bold">Tissue fixative : </span>{specimen["Tissue fixative"]}</span>
+                                                    )}
+                                                    {specimen["Tissue embedding medium"] && (
+                                                        <span className="block ml-2 text-md mt-2"><span
+                                                            className="font-bold">Tissue embedding medium : </span>{specimen["Tissue embedding medium"]}</span>
+                                                    )}
+                                                    {/*<span className="block ml-2 text-md mt-2 ">*/}
+                                                    {/*        <span*/}
+                                                    {/*            className="font-bold">Description : </span>t-CyCIF*/}
+                                                    {/*    </span>*/}
+                                                    {/*<span className="block ml-2 text-md mt-2 ">*/}
+                                                    {/*        <span*/}
+                                                    {/*            className="font-bold">Anatomical structure : </span>Rectum*/}
+                                                    {/*    </span>*/}
+                                                    {/*<span className="block ml-2 text-md mt-2 ">*/}
+                                                    {/*        <span*/}
+                                                    {/*            className="font-bold">Collection method : </span>Resection*/}
+                                                    {/*    </span>*/}
+                                                    {/*<span className="block ml-2 text-md mt-2 ">*/}
+                                                    {/*        <span*/}
+                                                    {/*            className="font-bold">Parent specimen : </span>HTA7_926_2*/}
+                                                    {/*    </span>*/}
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+                                    {labelOpen[5] === 0 ? (
+                                        <div className="flex flex-row items-center bg-green-300 mt-6 justify-between"
+                                             value={5} onClick={handleLabelOpen}>
+                                            <div className="flex items-center">
+                                                <label
+                                                    className="ml-28 text-lg mt-2 font-bold font-sans mb-2 ">Annotations</label>
+                                                <Icon icon="pajamas:details-block" width="28" height="28"
+                                                      className="ml-3 text-white"/>
+                                            </div>
+                                            <div className="mr-1">
+                                                <Icon icon="line-md:chevron-small-down" width="24" height="24"/>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div
+                                                className="flex flex-row items-center bg-green-300 mt-6 justify-between"
+                                                value={5} onClick={handleLabelOpen}>
+                                                <div className="flex items-center">
+                                                    <label
+                                                        className="ml-28 text-lg mt-2 font-bold font-sans mb-2 ">Annotations</label>
+                                                    <Icon icon="pajamas:details-block" width="28" height="28"
+                                                          className="ml-3 text-white"/>
+                                                </div>
+                                                <div className="mr-1">
+                                                    <Icon icon="line-md:chevron-small-up" width="24" height="24"/>
+                                                </div>
+                                            </div>
+                                            <div className="bg-green-50">
+                                                <div className="p-1.5">
+                                                    {annAccessionNumber.map((series, index) => (
+                                                        // console.log("series", series),
+                                                        <>
+                                                            <div key={index} className="flex hover:bg-green-100"
+                                                                 onClick={(e) => handleAnnDrawer(e)}>
+                                                                <input type="checkbox" id={series[0]}
+                                                                       name={series[0]}
+                                                                       value={series[0]}
+                                                                       onChange={(e) => handleChecked(e, index)}/>
+                                                                <p className="text-lg w-full mt-2 p-1 ">
+                                                                    {series[1]}
+                                                                </p>
+                                                            </div>
+                                                            {/*<div key={index} className="flex hover:bg-green-100">{JSON.stringify(series)}</div>*/}
+                                                        </>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </>
+
+                                    )}
                                 </div>
                             </div>
-
-
                         </>
                     ) : (
                         <div className="bg-opacity-0 flex justify-end items-center z-30 mt-2">
@@ -547,7 +848,8 @@ const ViewerPage = () => {
                                 </button>
                             </div>
                         </div>
-                    )}
+                    )
+                    }
                 </div>
             </div>
         );
