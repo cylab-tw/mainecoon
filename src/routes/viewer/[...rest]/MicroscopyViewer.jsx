@@ -28,8 +28,8 @@ import {toast} from "react-toastify";
 import {Style, Fill, Stroke, Circle as CircleStyle} from 'ol/style';
 import {Icon} from "@iconify/react";
 import {getAnnotations} from "../../../lib/dicom-webs/series.js";
-// annotations
-const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images,annList, drawType, save, tests,onMessageChange}) => {
+
+const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations, drawType, save,onMessageChange}) => {
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState(undefined);
     let touch = false;
@@ -49,18 +49,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images,an
     const [newAnnSeries, setNewAnnSeries] = useState(false);
     const [newAnnAccession, setNewAnnAccession] = useState(false);
     const [accessionNumber, setAccessionNumber] = useState('');
-    const [annotations, setAnnotations] = useState([]);
-    // console.log("annList",annList)
 
-    useEffect(() => {
-        annList.map((ann) => {
-            const instances = async() => {
-                await getAnnotations(baseUrl, studyUid, annList[0]);
-                // console.log("instances123", instances)
-                annotations.push(instances)
-            }
-        })
-    },[annList]);
 
     const enableDragPan = () => {
         if (mapRef.current) {
@@ -494,30 +483,25 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images,an
 
     const mapRef = useRef(null);
 
-    const [test, setTest] = tests
 
     const getRandomColor = () => {
-        const letters = '0123456789ABC';
+        const letters = '0123456789ABCEF';
         let color = '#';
         for (let i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 8)];
+            color += letters[Math.floor(Math.random() * 16)];
         }
-
         return color;
     };
-    const color = getRandomColor(); // 为当前图层生成一个随机颜色
+
 
     useEffect(() => {
         const fetchData = async () => {
-            // console.log("image",images)
             if (images.length === 0) {
                 setLoading(false);
-                // setErrorMessage('No images found.');
                 return;
             }
             setLoading(true);
-            // console.log("seriesUid000", annSeriesUid)
-            // console.log("annotationsViewer", annotations)
+            console.log("annotationsViewer", annotations)
             const ViewerID = "ViewerID";
             try {
                 const {extent, layer, resolutions, view} =
@@ -561,9 +545,12 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images,an
                     view,
                 });
 
+                {annotations.map((annotation) => {
 
-                computeAnnotationFeatures(annotations, resolutions)
+                    computeAnnotationFeatures(annotation, resolutions)
                     .then((features) => {
+                        const color = getRandomColor(); // 为当前图层生成一个随机颜色
+                        console.log("features", features)
                         if (features.length > 0) {
                             const style = new Style({
                                 stroke: new Stroke({
@@ -574,22 +561,21 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images,an
 
                             const source = new VectorSource({features});
                             const newLayer = new VectorLayer({source,extent, style});
+                            newLayer.setVisible(false);
                             mapRef.current.addLayer(newLayer);
 
-                            if (!Object.hasOwn(test, annSeriesUid)) {
-                                setTest({...test, [annSeriesUid]: newLayer});
-                            }
+                        }else{
+                            return
                         }
-
-
                         onMessageChange(mapRef.current.getLayers());
-
                     })
                     .catch((error) => {
                         setErrorMessage('Failed to load annotations.');
                         console.error(error);
                     })
                     .finally(() => setLoading(false));
+                })}
+
                 mapRef.current.getView().fit(extent, {size: mapRef.current.getSize()});
             } catch (error) {
                 setErrorMessage('Unexpected error occurred.');
@@ -600,18 +586,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images,an
         if (images) fetchData();
     }, [images, annotations]);
 
-    // useEffect(
-    //     () => {
-    //         onMessageChange (mapRef.current.getLayers())
-    //         const layers = mapRef.current.getLayers();
-    //         const layersArray = layers.getArray()
-    //         console.log("layers0527",layers)
-    //         const layersFeature = layersArray[1].getSource().getFeatures()[1]
-    //         console.log("layersFeature",layersFeature)
-    //     },[]
-    // )
-
-
 
     return (
         <div className={`relative w-full flex grow ${loading ? 'loading' : ''}`}>
@@ -620,13 +594,13 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, annSeriesUid, images,an
                 {/*<span className="loader border-green-500"/>*/}
 
                 {/*<Icon icon="svg-spinners:12-dots-scale-rotate" width="24" height="24" />*/}
-                <div className={`absolute left-1/2 -translate-x-1/2 transition-all duration-300 ${loading ? 'bottom-2' : '-bottom-8'}`}>
-                    <div className="flex items-center gap-3 rounded-full border bg-white/75 px-2 py-1 text-xs shadow">
-                        {/*<span className="loader h-4 w-4 border-2 border-green-500"/>*/}
-                        <Icon icon="svg-spinners:12-dots-scale-rotate" width="28" height="28" className="text-green-400" />
-                        <p className="text-lg">Loading Annotations...</p>
-                    </div>
-                </div>
+                {/*<div className={`absolute left-1/2 -translate-x-1/2 transition-all duration-300 ${loading ? 'bottom-2' : '-bottom-8'}`}>*/}
+                {/*    <div className="flex items-center gap-3 rounded-full border bg-white/75 px-2 py-1 text-xs shadow">*/}
+                {/*        /!*<span className="loader h-4 w-4 border-2 border-green-500"/>*!/*/}
+                {/*        <Icon icon="svg-spinners:12-dots-scale-rotate" width="28" height="28" className="text-green-400" />*/}
+                {/*        <p className="text-lg">Loading Annotations...</p>*/}
+                {/*    </div>*/}
+                {/*</div>*/}
             </div>
             <div
                 className={`absolute inset-0 z-10 flex items-center justify-center bg-black/40 ${!errorMessage ? 'hidden' : ''}`}>

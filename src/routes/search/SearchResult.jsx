@@ -36,10 +36,12 @@ const SearchResult = ({qidorsSingleStudy, onMessageChange}) => {
         const studyInstanceUID = getQidorsSingleStudyMetadataValue(qidorsSingleStudy, QIDO_RS_Response.StudyInstanceUID, "StudyInstanceUID, NotFound");
         // navigate(`../image/${studyInstanceUID}`);
         // navigate(`../viewer/J4Care?studyUid=${studyInstanceUID}`);
-        navigate(`../viewer?server=NTUNHS&studyUid=${studyInstanceUID}`);
+        // navigate(`../viewer?server=NTUNHS&studyUid=${studyInstanceUID}`);
+        location.href = `../viewer?server=NTUNHS&studyUid=${studyInstanceUID}`;
         // navigate(`../viewer?server=Google&studyUid=${studyInstanceUID}`);
         // navigate(`../viewer?server=J4Care&studyUid=${studyInstanceUID}`);
     }
+
 
     let X = 0
     let Y = 0

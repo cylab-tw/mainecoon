@@ -92,7 +92,7 @@ const calculateEllipsePoints = (points) => {
  */
 export const computeAnnotationFeatures = async (annotations, resolutions) => {
     const features = [];
-
+    console.log(annotations, resolutions)
     if (annotations.length === 0) {
         return [];
     }
