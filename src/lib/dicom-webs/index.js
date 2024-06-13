@@ -29,6 +29,7 @@ const DicomTags = {
     LongPrimitivePointIndexList: '00660040',
     AnnotationGroupSequence: '006A0002',
     GraphicType: '00700023',
+    GroupName: '006A0005',
 };
 
 // 定義 DICOM Web URL 的解析函數

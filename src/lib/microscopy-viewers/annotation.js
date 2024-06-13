@@ -90,14 +90,16 @@ const calculateEllipsePoints = (points) => {
  * @param {Array<Object>} resolutions - Array of objects containing instanceUID and resolution data.
  * @returns {Array<Feature<Geometry>>} Array of OpenLayers feature objects.
  */
-export const computeAnnotationFeatures = async (annotations, resolutions) => {
+export const computeAnnotationFeatures0 = async (annotations, resolutions) => {
     const features = [];
-    console.log(annotations, resolutions)
     if (annotations.length === 0) {
         return [];
     }
 
-    for (const { instanceUID, pointsData, indexesData, graphicType } of annotations ?? []) {
+    for (const { annGroupName,instanceUID, pointsData, indexesData, graphicType } of annotations ?? []) {
+        console.log("annGroupName",annGroupName.Value[0])
+        console.log("annotations",annotations)
+        console.log("indexesData0",indexesData)
         let points;
         let indexes;
 
@@ -114,17 +116,138 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
             console.warn(`The referenced instance "${instanceUID}" could not be found, using the highest resolution.`);
         }
 
-
         points = points?.map((point) => point * referencedResolution);
-
         if (indexesData) {
+            console.log("indexesData",indexesData)
             if (indexesData.inlineBinary) {
                 indexes = decodeIndexesData(indexesData.inlineBinary);
             } else if (indexesData.uri) {
                 const response = await fetch(indexesData.uri);
                 indexes = decodeIndexesData(multipartDecode(await response.arrayBuffer()));
             }
+            console.log("indexes",indexes)
         }
+
+
+        // Decrement indexes by 1 to match the 0-based index
+        indexes = indexes?.map((index) => index - 1);
+
+        if (!points || points.length === 0) {
+            continue;
+        }
+
+        const coordinates = [];
+        let hasNegativeCoordinates = false;
+
+        for (let i = 0; i < points.length; i += 2) {
+            const [x, y] = [points[i], points[i + 1]];
+            if (x < 0 || y < 0) hasNegativeCoordinates = true;
+            coordinates.push([points[i], -points[i + 1]]);
+        }
+
+        if (hasNegativeCoordinates) {
+            console.warn('Detected negative coordinates, some annotations may be out of bounds.');
+        }
+
+        if ((graphicType === 'POLYLINE' || graphicType === 'POLYGON') && !indexes) {
+            console.warn('Missing indexes data for graphic type: ', graphicType);
+            continue;
+        }
+
+        // let features = [];
+        switch (graphicType) {
+            case 'POINT':
+                features.push(new Feature({ geometry: new MultiPoint(coordinates) }));
+                break;
+            case 'POLYLINE':
+                for (let i = 0; i < indexes.length; i++) {
+                    const coord = coordinates.slice(indexes[i], indexes[i + 1] || coordinates.length);
+                    if (coord && coord.length > 1) {
+                        features.push(new Feature({ geometry: new LineString(coord) }));
+                    }
+                }
+                break;
+            case 'POLYGON':
+                console.group()
+                for (let i = 0; i < indexes.length; i++) {
+                    const start = Math.floor(indexes[i] / 2);
+                    const end = Math.floor(indexes[i + 1] / 2) || coordinates.length;
+                    const coord = coordinates.slice(start, end).concat([coordinates[start]]);
+                    if (coord && coord.length > 1) {
+                        features.push(new Feature({ geometry: new Polygon([coord]) }));
+                    }
+                }
+
+                console.groupEnd()
+                break;
+            case 'ELLIPSE':
+                console.group()
+                for (let i = 0; i < coordinates.length; i += 4) {
+                    const coord = calculateEllipsePoints(coordinates.slice(i, i + 4));
+                    const polygon = new Polygon([coord]);
+                    features.push(new Feature({ geometry: polygon }));
+                }
+                console.groupEnd()
+                break;
+            case 'RECTANGLE':
+                for (let i = 0; i < coordinates.length; i += 4) {
+                    const polygon = new Polygon([coordinates.slice(i, i + 4).concat([coordinates[i]])]);
+                    features.push(new Feature({ geometry: polygon }));
+                }
+                break;
+            default:
+                console.error('Unrecognized graphic type: ', graphicType);
+        }
+
+    }
+    return features;
+};
+
+
+export const computeAnnotationFeatures = async (annotations, resolutions) => {
+    const features0 = [];
+    if (annotations.length === 0) {
+        return [];
+    }
+
+    // console.log("annotations.length", annotations.length)
+
+    for (let index = 0; index < annotations.length; index++) {
+        let features = []
+        const { annGroupName, instanceUID, pointsData, indexesData, graphicType } = annotations[index];
+        // console.log("Index:", index); // 输出索引值
+        // console.log("annGroupName", annGroupName.Value[0]);
+        // console.log("annotations1", annotations[index]);
+        // console.log("indexesData", indexesData);
+
+        let points;
+        let indexes;
+
+        if (pointsData.inlineBinary) {
+            points = decodeCoordinatesData(pointsData.inlineBinary, pointsData.vr);
+        } else if (pointsData.uri) {
+            const response = await fetch(pointsData.uri);
+            points = decodeCoordinatesData(multipartDecode(await response.arrayBuffer()), pointsData.vr);
+        }
+
+        let referencedResolution = resolutions.find((res) => res.instanceUID === instanceUID)?.resolution;
+        if (!referencedResolution) {
+            referencedResolution = resolutions[resolutions.length - 1].resolution;
+            console.warn(`The referenced instance "${instanceUID}" could not be found, using the highest resolution.`);
+        }
+
+        points = points?.map((point) => point * referencedResolution);
+        if (indexesData) {
+            // console.log("indexesData", indexesData)
+            if (indexesData.inlineBinary) {
+                indexes = decodeIndexesData(indexesData.inlineBinary);
+            } else if (indexesData.uri) {
+                const response = await fetch(indexesData.uri);
+                indexes = decodeIndexesData(multipartDecode(await response.arrayBuffer()));
+            }
+            // console.log("indexes", indexes)
+        }
+
 
         // Decrement indexes by 1 to match the 0-based index
         indexes = indexes?.map((index) => index - 1);
@@ -156,6 +279,7 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
                 features.push(new Feature({ geometry: new MultiPoint(coordinates) }));
                 break;
             case 'POLYLINE':
+                // console.log("indexes", indexes)
                 for (let i = 0; i < indexes.length; i++) {
                     const coord = coordinates.slice(indexes[i], indexes[i + 1] || coordinates.length);
                     if (coord && coord.length > 1) {
@@ -165,15 +289,18 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
                 break;
             case 'POLYGON':
                 console.group()
+                // console.log("indexes0", indexes)
                 for (let i = 0; i < indexes.length; i++) {
                     const start = Math.floor(indexes[i] / 2);
                     const end = Math.floor(indexes[i + 1] / 2) || coordinates.length;
                     const coord = coordinates.slice(start, end).concat([coordinates[start]]);
+                    // console.log("coord", coord)
                     if (coord && coord.length > 1) {
                         features.push(new Feature({ geometry: new Polygon([coord]) }));
-                        // console.log(coord.shift(), coord.pop());
                     }
+                    // console.log("features000", features)
                 }
+
                 console.groupEnd()
                 break;
             case 'ELLIPSE':
@@ -194,7 +321,8 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
             default:
                 console.error('Unrecognized graphic type: ', graphicType);
         }
+        features0.push(features)
     }
-
-    return features;
+    console.log("features0", features0)
+    return features0;
 };

@@ -107,7 +107,7 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
     const dicomJson = await fetchDicomJson({ baseUrl, studyUid, seriesUid, pathname: '/instances' });
     const instanceUids = dicomJson.map(instance => instance[DicomTags.SOPInstanceUID]?.Value?.[0]);
     const metadata = (await Promise.all(instanceUids.map(instanceUid => fetchDicomJson({ baseUrl, studyUid, seriesUid, instanceUid, pathname: '/metadata' })))).flat();
-    // console.log(metadata)
+    console.log("metadata",metadata)
     const instances = metadata.flatMap(metadata => {
         const modality = metadata[DicomTags.Modality]?.Value?.[0];
         const referencedSeriesSequence = metadata[DicomTags.ReferencedSeriesSequence]?.Value?.[0];
@@ -116,7 +116,7 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
         return annotations.map(annotation => {
             let coordinates = annotation[DicomTags.PointCoordinatesData];
             coordinates ??= annotation[DicomTags.DoublePointCoordinatesData];
-
+            const name = annotation[DicomTags.GroupName];
             const indexes = annotation[DicomTags.LongPrimitivePointIndexList];
             const graphicType = annotation[DicomTags.GraphicType]?.Value?.[0];
             const hasIndexes = graphicType === 'POLYLINE' || graphicType === 'POLYGON';
@@ -124,6 +124,7 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
             if (modality === 'ANN') {
                 return {
                     modality,
+                    annGroupName:name,
                     instanceUID: referencedInstance[DicomTags.ReferencedSOPInstanceUID]?.Value?.[0],
                     pointsData: {
                         vr: coordinates.vr,
@@ -134,7 +135,6 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
                         ...(indexes.BulkDataURI ? { uri: indexes.BulkDataURI } : { inlineBinary: indexes.InlineBinary }),
                     } : {},
                     graphicType,
-
                 };
 
             }

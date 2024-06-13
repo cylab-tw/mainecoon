@@ -501,7 +501,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations, dra
                 return;
             }
             setLoading(true);
-            console.log("annotationsViewer", annotations)
             const ViewerID = "ViewerID";
             try {
                 const {extent, layer, resolutions, view} =
@@ -546,27 +545,28 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations, dra
                 });
 
                 {annotations.map((annotation) => {
-
                     computeAnnotationFeatures(annotation, resolutions)
                     .then((features) => {
                         const color = getRandomColor(); // 为当前图层生成一个随机颜色
-                        console.log("features", features)
-                        if (features.length > 0) {
-                            const style = new Style({
-                                stroke: new Stroke({
-                                    color: color,
-                                    width: 1
-                                })
-                            });
+                        features.map((feature) => {
+                            if (feature.length > 0) {
+                                const style = new Style({
+                                    stroke: new Stroke({
+                                        color: color,
+                                        width: 1
+                                    })
+                                });
 
-                            const source = new VectorSource({features});
-                            const newLayer = new VectorLayer({source,extent, style});
-                            newLayer.setVisible(false);
-                            mapRef.current.addLayer(newLayer);
+                                const source = new VectorSource({features: feature});
+                                const newLayer = new VectorLayer({source,extent, style});
+                                newLayer.setVisible(false);
+                                mapRef.current.addLayer(newLayer);
 
-                        }else{
-                            return
-                        }
+                            }else{
+                                return
+                            }
+                        })
+
                         onMessageChange(mapRef.current.getLayers());
                     })
                     .catch((error) => {

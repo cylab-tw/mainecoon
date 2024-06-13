@@ -39,6 +39,8 @@ const ViewerPage = () => {
         "Tissue embedding medium": ""
     })
     // const everySeries_numberOfFramesList = [];
+    const [groupName, setGroupName] = useState([]);
+    const [expandedGroups, setExpandedGroups] = useState([]);
 
     useEffect(() => {
         try {
@@ -194,14 +196,16 @@ const ViewerPage = () => {
 
 
     useEffect(() => {
-        const length = annAccessionNumber.length
+        // const length = annAccessionNumber.length
+        const length = groupName.length
         const checkboxList = []
         for (let i = 0; i < length; i++) {
             annCheckboxList.push(false)
         }
 
         setAnnCheckboxList(checkboxList)
-    }, [annAccessionNumber]);
+        // }, [annAccessionNumber]);
+    }, [groupName]);
 
 
     useEffect(() => {
@@ -214,10 +218,27 @@ const ViewerPage = () => {
             });
             setAnnCheckboxList(annList)
             const instances = await Promise.all(promises);
+            // setGroupName(instanc)
             setAnnotations(instances);
+            let gn = [];
+            instances.map((instance) => {
+                let groupName1 = []
+                if (instance.length > 0) {
+                    instance.map((i) => {
+                        console.log("i", i)
+                        groupName1.push(i?.annGroupName?.Value?.[0])
+                    })
+                }
+                gn.push(groupName1)
+            })
+            setGroupName(gn)
+            console.log("instances", instances)
         }
+
         processAnnotations();
     }, [annAccessionNumber]);
+
+    console.log("groupName", groupName)
 
 
     if (images.length === 0 || !smSeriesUid) {
@@ -233,8 +254,12 @@ const ViewerPage = () => {
         );
     }
 
-    const LeftDrawer = () => {setIsLeftOpen(!isLeftOpen);};
-    const RightDrawer = () => {setIsRightOpen(!isRightOpen);};
+    const LeftDrawer = () => {
+        setIsLeftOpen(!isLeftOpen);
+    };
+    const RightDrawer = () => {
+        setIsRightOpen(!isRightOpen);
+    };
 
     function formatDate(inputDate) {
         const year = inputDate.substring(0, 4);
@@ -296,32 +321,43 @@ const ViewerPage = () => {
         setSave(!save);
     }
 
+    // const handleMessageChange0 = (message) => {
+    //     const layerArray = message.array_
+    //     const annList = [...annCheckboxList]
+    //     for (let i = 4; i < layerArray.length; i++) {
+    //         annList[i - 4] = true
+    //     }
+    //     setLayers(message)
+    //     setAnnCheckboxList(annList)
+    // }
+
     const handleMessageChange = (message) => {
         const layerArray = message.array_
-        const annList = [...annCheckboxList]
-        for(let i = 4;i < layerArray.length ;i++) { annList[i-4] = true }
+        const annList = [...groupName]
+        for (let i = 4; i < layerArray.length; i++) {
+            annList[i - 4] = true
+        }
         setLayers(message)
         setAnnCheckboxList(annList)
     }
+
+    console.log("layers", layers)
 
     const handleChecked = (e, index) => {
         const newIndex = index + 4;
         const layerArray = layers.getArray()
         const length = newIndex
-        if(layerArray[length])
+        console.log("layerArray", length, layerArray[length])
+        if (layerArray[length])
             layerArray[length].setVisible(!layerArray[length].values_.visible)
     }
 
-    const handleLabelOpen = (e) => {
-        e.preventDefault();
-        const value = parseInt(e.currentTarget.getAttribute('value'));
-        const newLabelOpen = [...labelOpen];
-        newLabelOpen[value] = newLabelOpen[value] === 0 ? 1 : 0;
-        setLabelOpen(newLabelOpen);
-    }
-
-    const handleAnnDrawer = (e) => {
-        console.log("test")
+    const handleAnnDrawer = (index) => {
+        if (expandedGroups.includes(index)) {
+            setExpandedGroups(expandedGroups.filter((item) => item !== index));
+        } else {
+            setExpandedGroups([...expandedGroups, index]);
+        }
     }
 
     return (
@@ -402,7 +438,6 @@ const ViewerPage = () => {
                                             style={{transform: 'rotate(180deg)'}}>
                                         <Icon icon="fluent:list-28-filled" className="text-black h-7 w-7"/>
                                     </button>
-
                                 </div>
                             </div>
                         </div>
@@ -589,7 +624,6 @@ const ViewerPage = () => {
                     seriesUid={smSeriesUid}
                     images={images}
                     annotations={annotations}
-                    // annSeriesUid={seriesUid}
                     drawType={drawType}
                     save={save}
                     tests={[test, setTest]}
@@ -753,18 +787,20 @@ const ViewerPage = () => {
                                         </div>
                                         <div className="bg-green-50">
                                             <div className="p-1.5">
-                                                {annAccessionNumber.map((series, index) => (
+                                                {annAccessionNumber.map((series, index0) => (
                                                     <>
-                                                        <div key={index} className="flex items-center hover:bg-green-100"
-                                                             onClick={(e) => handleAnnDrawer(e)}>
+                                                        <div key={index0} className="flex items-center hover:bg-green-100"
+                                                             onClick={(e) => handleAnnDrawer(index0)}>
                                                             {
-                                                                annCheckboxList[index] === true ? (
-                                                                    <input type="checkbox" id={series[0]}
-                                                                           name={series[0]}
-                                                                           value={series[0]}
-                                                                           className="w-6 h-6 flex"
-                                                                           onChange={(e) => handleChecked(e, index)}
-                                                                    />
+                                                                annCheckboxList[index0] === true ? (
+                                                                    <>
+                                                                        <input type="checkbox" id={series[0]}
+                                                                               name={series[0]}
+                                                                               value={series[0]}
+                                                                               className="w-6 h-6 flex"
+                                                                               onChange={(e) => handleChecked(e, index0)}
+                                                                        />
+                                                                    </>
                                                                 ) : (
                                                                     <Icon icon="svg-spinners:6-dots-rotate" width="24"
                                                                           height="24" className="text-green-500"/>
@@ -773,14 +809,49 @@ const ViewerPage = () => {
                                                             <p className="text-lg w-full mt-2 p-1 ml-2 font-bold">
                                                                 {series[1]}
                                                             </p>
+                                                            <Icon icon={expandedGroups.includes(index0) ? "line-md:chevron-small-up" : "line-md:chevron-small-down"} className={"w-8 h-8 mr-3"}/>
+
                                                         </div>
-                                                        {/*<div key={index} className="flex hover:bg-green-100">{JSON.stringify(series)}</div>*/}
+                                                        <div>
+                                                            {expandedGroups.includes(index0) && (
+                                                                <div>
+                                                                    {groupName[index0] ? (
+                                                                        <div>
+                                                                            {groupName[index0].map((group, index) =>
+                                                                                (
+                                                                                    <div key={index}
+                                                                                         className="flex items-center hover:bg-green-100">
+                                                                                        {annCheckboxList[index0] === true ? (
+                                                                                            <>
+                                                                                                <input type="checkbox"
+                                                                                                       id={group}
+                                                                                                       name={group}
+                                                                                                       value={group}
+                                                                                                       className="ml-6 w-6 h-6 flex"
+                                                                                                       onChange={(e) => handleChecked(e, index + index0)}
+                                                                                                />
+                                                                                            </>
+                                                                                        ) : (<Icon icon="svg-spinners:6-dots-rotate" width="24" height="24" className="ml-6 text-green-500"/>)
+                                                                                        }
+                                                                                        <p className="text-lg w-full mt-2 p-1 ml-2 font-bold">
+                                                                                            {group}
+                                                                                        </p>
+                                                                                    </div>)
+                                                                            )}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <Icon icon="svg-spinners:6-dots-rotate"
+                                                                              width="24" height="24"
+                                                                              className="text-green-500"/>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                     </>
                                                 ))}
                                             </div>
                                         </div>
                                     </>
-
                                 )}
                             </div>
                         </div>
@@ -800,6 +871,14 @@ const ViewerPage = () => {
             </div>
         </div>
     );
+}
+
+const handleLabelOpen = (e) => {
+    e.preventDefault();
+    const value = parseInt(e.currentTarget.getAttribute('value'));
+    const newLabelOpen = [...labelOpen];
+    newLabelOpen[value] = newLabelOpen[value] === 0 ? 1 : 0;
+    setLabelOpen(newLabelOpen);
 }
 
 
