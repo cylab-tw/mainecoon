@@ -195,19 +195,17 @@ const ViewerPage = () => {
     }, [server, studyUid, seriesUid]);
 
 
+    // 依據groupName長度，設定checkboxList佔位(全設為false)
     useEffect(() => {
-        // const length = annAccessionNumber.length
         const length = groupName.length
         const checkboxList = []
         for (let i = 0; i < length; i++) {
             annCheckboxList.push(false)
         }
-
         setAnnCheckboxList(checkboxList)
-        // }, [annAccessionNumber]);
     }, [groupName]);
 
-
+    // 依據annAccessionNumber抓出對應的annotations
     useEffect(() => {
         async function processAnnotations() {
             let annList = annCheckboxList
@@ -218,27 +216,10 @@ const ViewerPage = () => {
             });
             setAnnCheckboxList(annList)
             const instances = await Promise.all(promises);
-            // setGroupName(instanc)
             setAnnotations(instances);
-            let gn = [];
-            instances.map((instance) => {
-                let groupName1 = []
-                if (instance.length > 0) {
-                    instance.map((i) => {
-                        console.log("i", i)
-                        groupName1.push(i?.annGroupName?.Value?.[0])
-                    })
-                }
-                gn.push(groupName1)
-            })
-            setGroupName(gn)
-            console.log("instances", instances)
         }
-
         processAnnotations();
     }, [annAccessionNumber]);
-
-    console.log("groupName", groupName)
 
 
     if (images.length === 0 || !smSeriesUid) {
@@ -321,16 +302,8 @@ const ViewerPage = () => {
         setSave(!save);
     }
 
-    // const handleMessageChange0 = (message) => {
-    //     const layerArray = message.array_
-    //     const annList = [...annCheckboxList]
-    //     for (let i = 4; i < layerArray.length; i++) {
-    //         annList[i - 4] = true
-    //     }
-    //     setLayers(message)
-    //     setAnnCheckboxList(annList)
-    // }
-
+    // 抓回MicroscopyViewer的layers轉為陣列存入 && 確認annotation已加到layer裡面(進到layers裡面就設為true)
+    // 4 => 原先layers裡有保底4個layers
     const handleMessageChange = (message) => {
         const layerArray = message.array_
         const annList = [...groupName]
@@ -341,17 +314,26 @@ const ViewerPage = () => {
         setAnnCheckboxList(annList)
     }
 
-    console.log("layers", layers)
-
-    const handleChecked = (e, index) => {
+    // 處理內層checkbox打勾時，外層checkbox也要打勾
+    // num = 0 代表 內層全部打勾，外層打勾
+    // num = 1 代表 外層打勾，內層全部打勾
+    const handleChecked = (_, index, seriesUid, num) => {
         const newIndex = index + 4;
         const layerArray = layers.getArray()
         const length = newIndex
-        console.log("layerArray", length, layerArray[length])
-        if (layerArray[length])
-            layerArray[length].setVisible(!layerArray[length].values_.visible)
+        if (layerArray[length]) layerArray[length].setVisible(!layerArray[length].values_.visible)
+        if (num == 0) {
+            let checked = false
+            document.querySelectorAll(`[data-index='${seriesUid}']`).forEach(
+                (item) => {
+                    if (item.checked === true)
+                        checked = true
+                })
+            document.getElementById(seriesUid).checked = checked
+        }
     }
 
+    // 處理annGroup選單
     const handleAnnDrawer = (index) => {
         if (expandedGroups.includes(index)) {
             setExpandedGroups(expandedGroups.filter((item) => item !== index));
@@ -359,6 +341,22 @@ const ViewerPage = () => {
             setExpandedGroups([...expandedGroups, index]);
         }
     }
+
+
+    // 處理外層checkbox打勾時，內層checkbox全部打勾
+    const handleInnerChecked = (e, index, index0) => {
+        if (!expandedGroups.includes(index)) {
+            setExpandedGroups([...expandedGroups, index0]);
+        }
+        // 利用dataset用法，取得data-index的值
+        document.querySelectorAll(`[data-index='${index}']`).forEach(
+            (item) => {
+                item.checked = e.target.checked
+                const groupIndex = Number(item.dataset.groupindex)
+                handleChecked(null, groupIndex, seriesUid, 1)
+            })
+    }
+
 
     return (
         <div className="flex h-full w-full flex-col">
@@ -626,7 +624,7 @@ const ViewerPage = () => {
                     annotations={annotations}
                     drawType={drawType}
                     save={save}
-                    tests={[test, setTest]}
+                    group={[groupName, setGroupName]}
                     annList={annAccessionNumber}
                     onMessageChange={handleMessageChange}
                     className="grow"
@@ -787,34 +785,39 @@ const ViewerPage = () => {
                                         </div>
                                         <div className="bg-green-50">
                                             <div className="p-1.5">
-                                                {annAccessionNumber.map((series, index0) => (
-                                                    <>
-                                                        <div key={index0} className="flex items-center hover:bg-green-100"
-                                                             onClick={(e) => handleAnnDrawer(index0)}>
-                                                            {
-                                                                annCheckboxList[index0] === true ? (
-                                                                    <>
-                                                                        <input type="checkbox" id={series[0]}
-                                                                               name={series[0]}
-                                                                               value={series[0]}
-                                                                               className="w-6 h-6 flex"
-                                                                               onChange={(e) => handleChecked(e, index0)}
-                                                                        />
-                                                                    </>
-                                                                ) : (
-                                                                    <Icon icon="svg-spinners:6-dots-rotate" width="24"
-                                                                          height="24" className="text-green-500"/>
-                                                                )
-                                                            }
-                                                            <p className="text-lg w-full mt-2 p-1 ml-2 font-bold">
-                                                                {series[1]}
-                                                            </p>
-                                                            <Icon icon={expandedGroups.includes(index0) ? "line-md:chevron-small-up" : "line-md:chevron-small-down"} className={"w-8 h-8 mr-3"}/>
+                                                {annAccessionNumber.map((series, index0) => {
+                                                    return (
+                                                        <>
+                                                            <div key={index0}
+                                                                 className="flex items-center hover:bg-green-100">
+                                                                {
+                                                                    annCheckboxList[index0] === true ? (
+                                                                        <>
+                                                                            <input type="checkbox" id={series[0]}
+                                                                                   name={series[0]}
+                                                                                   value={series[0]}
+                                                                                   className="w-6 h-6 flex"
+                                                                                   onChange={(e) => handleInnerChecked(e, series[0], index0)}
+                                                                            />
+                                                                        </>
+                                                                    ) : (
+                                                                        <Icon icon="svg-spinners:6-dots-rotate"
+                                                                              width="24"
+                                                                              height="24" className="text-green-500"/>
+                                                                    )
+                                                                }
+                                                                <p className="text-lg w-full mt-2 p-1 ml-2 font-bold"
+                                                                   onClick={(e) => handleAnnDrawer(index0)}>
+                                                                    {series[1]}
+                                                                </p>
+                                                                <Icon
+                                                                    icon={expandedGroups.includes(index0) ? "line-md:chevron-small-up" : "line-md:chevron-small-down"}
+                                                                    className={"w-8 h-8 mr-3"}/>
 
-                                                        </div>
-                                                        <div>
-                                                            {expandedGroups.includes(index0) && (
-                                                                <div>
+                                                            </div>
+                                                            <div>
+                                                                <div
+                                                                    style={{display: expandedGroups.includes(index0) ? "block" : "none"}}>
                                                                     {groupName[index0] ? (
                                                                         <div>
                                                                             {groupName[index0].map((group, index) =>
@@ -828,10 +831,15 @@ const ViewerPage = () => {
                                                                                                        name={group}
                                                                                                        value={group}
                                                                                                        className="ml-6 w-6 h-6 flex"
-                                                                                                       onChange={(e) => handleChecked(e, index + index0)}
+                                                                                                       data-index={series[0]}
+                                                                                                       data-groupindex={index + index0}
+                                                                                                       onChange={(e) => handleChecked(e, index + index0, series[0], 0)}
                                                                                                 />
                                                                                             </>
-                                                                                        ) : (<Icon icon="svg-spinners:6-dots-rotate" width="24" height="24" className="ml-6 text-green-500"/>)
+                                                                                        ) : (<Icon
+                                                                                            icon="svg-spinners:6-dots-rotate"
+                                                                                            width="24" height="24"
+                                                                                            className="ml-6 text-green-500"/>)
                                                                                         }
                                                                                         <p className="text-lg w-full mt-2 p-1 ml-2 font-bold">
                                                                                             {group}
@@ -845,10 +853,11 @@ const ViewerPage = () => {
                                                                               className="text-green-500"/>
                                                                     )}
                                                                 </div>
-                                                            )}
-                                                        </div>
-                                                    </>
-                                                ))}
+
+                                                            </div>
+                                                        </>
+                                                    )
+                                                })}
                                             </div>
                                         </div>
                                     </>

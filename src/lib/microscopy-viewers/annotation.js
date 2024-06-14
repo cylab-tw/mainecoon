@@ -206,6 +206,7 @@ export const computeAnnotationFeatures0 = async (annotations, resolutions) => {
 
 export const computeAnnotationFeatures = async (annotations, resolutions) => {
     const features0 = [];
+    let annGroupName0 = [];
     if (annotations.length === 0) {
         return [];
     }
@@ -215,10 +216,7 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
     for (let index = 0; index < annotations.length; index++) {
         let features = []
         const { annGroupName, instanceUID, pointsData, indexesData, graphicType } = annotations[index];
-        // console.log("Index:", index); // 输出索引值
-        // console.log("annGroupName", annGroupName.Value[0]);
-        // console.log("annotations1", annotations[index]);
-        // console.log("indexesData", indexesData);
+        annGroupName0.push(annGroupName.Value[0])
 
         let points;
         let indexes;
@@ -324,5 +322,5 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
         features0.push(features)
     }
     console.log("features0", features0)
-    return features0;
+    return {features0,annGroupName0};
 };

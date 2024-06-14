@@ -83,7 +83,6 @@ const SearchResult = ({qidorsSingleStudy, onMessageChange}) => {
 
     return (
         <>
-            {ANN > 1 && (
             <tr className=" m-2 hover:bg-gray-100 cursor-pointer group" key={patientID} onClick={OnClick}>
                 <td className="border-2 border-l-0 group-first:border-t-0 p-2.5 group-last:border-b-0">{patientID?.length ? patientID : "NotFound"}</td>
                 <td className="border-2 group-first:border-t-0 p-2.5 group-last:border-b-0">{patientName?.length ? patientName : "NotFound"}</td>
@@ -130,7 +129,7 @@ const SearchResult = ({qidorsSingleStudy, onMessageChange}) => {
                 </td>
                 <td className="border-2 w-1/12 p-2.5 text-center  group-first:border-t-0 group-last:border-b-0">{SMt}</td>
                 <td className="border-2 w-1/12 p-2.5 text-center  group-first:border-t-0 group-last:border-b-0">{ANN}</td>
-            </tr>)}
+            </tr>
         </>
     );
 }

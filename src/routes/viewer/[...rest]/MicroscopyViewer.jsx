@@ -29,7 +29,7 @@ import {Style, Fill, Stroke, Circle as CircleStyle} from 'ol/style';
 import {Icon} from "@iconify/react";
 import {getAnnotations} from "../../../lib/dicom-webs/series.js";
 
-const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations, drawType, save,onMessageChange}) => {
+const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,group, drawType, save,onMessageChange}) => {
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState(undefined);
     let touch = false;
@@ -49,6 +49,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations, dra
     const [newAnnSeries, setNewAnnSeries] = useState(false);
     const [newAnnAccession, setNewAnnAccession] = useState(false);
     const [accessionNumber, setAccessionNumber] = useState('');
+    const [groupName, setGroupName] = group;
 
 
     const enableDragPan = () => {
@@ -485,14 +486,13 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations, dra
 
 
     const getRandomColor = () => {
-        const letters = '0123456789ABCEF';
+        const letters = '0123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
         let color = '#';
         for (let i = 0; i < 6; i++) {
             color += letters[Math.floor(Math.random() * 16)];
         }
         return color;
     };
-
 
     useEffect(() => {
         const fetchData = async () => {
@@ -546,9 +546,10 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations, dra
 
                 {annotations.map((annotation) => {
                     computeAnnotationFeatures(annotation, resolutions)
-                    .then((features) => {
-                        const color = getRandomColor(); // 为当前图层生成一个随机颜色
-                        features.map((feature) => {
+                    .then(({features0,annGroupName0}) => {
+                        groupName.push(annGroupName0)
+                        features0.map((feature) => {
+                            const color = getRandomColor();
                             if (feature.length > 0) {
                                 const style = new Style({
                                     stroke: new Stroke({
