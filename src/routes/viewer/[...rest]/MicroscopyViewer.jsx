@@ -24,12 +24,13 @@ import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 import Polygon from "ol/geom/Polygon";
 import LineString from "ol/geom/LineString";
+import convert from 'color-convert';
 import {toast} from "react-toastify";
 import {Style, Fill, Stroke, Circle as CircleStyle} from 'ol/style';
 import {Icon} from "@iconify/react";
 import {getAnnotations} from "../../../lib/dicom-webs/series.js";
 
-const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,group, drawType, save,onMessageChange}) => {
+const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,group, drawType, drawColor, save,onMessageChange}) => {
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState(undefined);
     let touch = false;
@@ -103,7 +104,19 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
                 const drawInteraction = new Draw({
                     source: sourceRef.current,
                     type: drawType, // 使用选定的绘图类型
+                    style: new Style({
+                        fill: new Fill({ color: drawColor + '80', weight: 1 }),
+                        stroke: new Stroke({ color: drawColor, width: 1 })
+                    })
                 });
+
+                drawInteraction.on('drawstart', function(event){
+                    event.feature.setStyle(new Style({
+                        fill: new Fill({ color: drawColor + '80', weight: 1 }),
+                        stroke: new Stroke({ color: drawColor, width: 1 })
+                    }));
+                });
+
                 // console.log('drawInteraction', drawInteraction)
                 mapRef.current.addInteraction(drawInteraction);
                 drawnShapesStack.current.push(drawType);
@@ -117,17 +130,27 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
                 evt.preventDefault();
 
                 if (!currentFeature) {
-                    currentFeature = new Feature();
+                    currentFeature = new Feature({
+                        style: new Style({
+                            fill: new Fill({ color: drawColor + '80' }),
+                            stroke: new Stroke({ color: drawColor, width: 1 }),
+                            image: new CircleStyle({ radius: 5, fill: new Fill({ color: drawColor + '80' }) })
+                        })
+                    });
                     sourceRef.current.addFeature(currentFeature);
                 }
                 if (evt.dragging) {
                     if (drawType === 'Point') {
                         currentFeature.setGeometry(new Point(evt.coordinate));
+                        currentFeature.setStyle(new Style({
+                            image: new CircleStyle({ radius: 5, fill: new Fill({ color: drawColor + '80' }) })
+                        }));
                         currentFeature = null;
                     } else if (drawType === 'LineString') {
                         // console.log(currentFeature)
                         currentFeatureCoords.push(evt.coordinate);
                         currentFeature.setGeometry(new LineString(currentFeatureCoords));
+                        currentFeature.setStyle(new Style({ stroke: new Stroke({ color: drawColor, width: 1 }) }));
                     }
                 }
             }
@@ -163,7 +186,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
                 drawInteractionRef.current = null; // 移除繪圖交互引用
             }
         }
-    }, [drawType]);
+    }, [drawType, drawColor]);
 
     useEffect(() => {
         if (!mapRef.current || !sourceRef.current) return;
@@ -171,6 +194,10 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
         // 如果正在绘制椭圆，添加事件监听
         if (isDrawingEllipse) {
             const newEllipsePreview = new Feature();
+            newEllipsePreview.setStyle(new Style({
+                fill: new Fill({ color: drawColor + '80' }),
+                stroke: new Stroke({ color: drawColor, width: 1 })
+            }));
             setEllipsePreview(newEllipsePreview);
             sourceRef.current.addFeature(newEllipsePreview);
 
@@ -208,7 +235,13 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
 
 
         if (!isDrawingEllipse && ellipsePreview) {
-            savedEllipsesSourceRef.current.addFeature(new Feature(ellipsePreview.getGeometry())); // 將橢圓添加到保存圖層
+            const ellipseFeature = new Feature(ellipsePreview.getGeometry());
+            ellipseFeature.setStyle(new Style({
+                fill: new Fill({ color: drawColor + '80' }),
+                stroke: new Stroke({ color: drawColor, width: 1 })
+            }));
+            console.log(ellipseFeature.getStyle().getFill())
+            savedEllipsesSourceRef.current.addFeature(ellipseFeature); // 將橢圓添加到保存圖層
             drawnShapesStack.current.push('ELLIPSE');
             ellipsePreview.setGeometry(null); // 清除預覽圖層中的橢圓
             sourceRef.current.removeFeature(ellipsePreview); // 從原來的圖層中移除
@@ -220,6 +253,10 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
         // 如果正在绘制椭圆，添加事件监听
         if (isDrawingRectangle) {
             const newRectanglePreview = new Feature();
+            newRectanglePreview.setStyle(new Style({
+                fill: new Fill({ color: drawColor + '80' }),
+                stroke: new Stroke({ color: drawColor, width: 1 })
+            }));
             setRectanglePreview(newRectanglePreview);
             sourceRef.current.addFeature(newRectanglePreview);
             const clickHandler = (event) => {
@@ -255,7 +292,12 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
             };
         }
         if (!isDrawingRectangle && rectanglePreview) {
-            savedRectangleSourceRef.current.addFeature(new Feature(rectanglePreview.getGeometry())); // 將橢圓添加到保存圖層
+            const rectangleFeature = new Feature(rectanglePreview.getGeometry());
+            rectangleFeature.setStyle(new Style({
+                fill: new Fill({ color: drawColor + '80' }),
+                stroke: new Stroke({ color: drawColor, width: 1 })
+            }));
+            savedRectangleSourceRef.current.addFeature(rectangleFeature); // 將橢圓添加到保存圖層
             drawnShapesStack.current.push('RECTANGLE');
             rectanglePreview.setGeometry(null); // 清除預覽圖層中的橢圓
             sourceRef.current.removeFeature(rectanglePreview); // 從原來的圖層中移除
@@ -364,6 +406,8 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
         const savedAnnotations = features.map(feature => {
             let type = null;
             let coordinates = [];
+            let fillColor = null;
+            let strokeColor = null;
 
             if (feature instanceof CustomShape) {
                 type = feature.type;
@@ -407,7 +451,25 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
                 });
             }
 
-            return {type, coordinates: coordinates.map(coord => `(${coord[0].toFixed(1)}, ${coord[1].toFixed(1)})`)};
+            const style = feature.getStyle();
+            if (style) {
+                if (style.getImage()) {
+                    const image = style.getImage();
+                    if (image.getFill()) fillColor = image.getFill().getColor();
+                    if (image.getStroke()) strokeColor = image.getStroke().getColor();
+                } else {
+                    if (style.getFill()) fillColor = style.getFill().getColor();
+                    if (style.getStroke()) strokeColor = style.getStroke().getColor();
+                }
+            }
+
+            const hexColor = strokeColor || fillColor?.slice(0, 7);
+
+            return {
+                type,
+                coordinates: coordinates.map(coord => `(${coord[0].toFixed(1)}, ${coord[1].toFixed(1)})`),
+                color: hexColor ? convert.hex.lab(hexColor) : null,
+            };
         }).filter(annotation => annotation.type !== null);
 
         const groupedAnnotations = Object.values(savedAnnotations.reduce((acc, curr) => {

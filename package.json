@@ -23,6 +23,7 @@
     "@iconify/react": "^4.1.1",
     "@reduxjs/toolkit": "^2.2.3",
     "caniuse-lite": "^1.0.30001615",
+    "color-convert": "^2.0.1",
     "csy-dicomweb-qido-rs": "^0.3.3",
     "csy-dicomweb-wado-rs-uri": "^0.5.6",
     "dotenv": "^16.4.5",

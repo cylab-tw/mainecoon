@@ -30,6 +30,7 @@ const ViewerPage = () => {
     const [layers, setLayers] = useState({})
     const [labelOpen, setLabelOpen] = useState([1, 1, 1, 0, 1, 1])
     const [annCheckboxList, setAnnCheckboxList] = useState([])
+    const [annColor, setAnnColor] = useState("#FF0000");
     const [specimen, setSpecimen] = useState({
         "Description": "",
         "Anatomical structure": "",
@@ -407,6 +408,15 @@ const ViewerPage = () => {
                                     >
                                         <Icon icon="mdi:ellipse-outline" className="text-black h-6 w-6"/>
                                     </button>
+                                    <label className="bg-white relative inline-block hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2">
+                                        <span className="h-6 w-6 inline-block" style={{ backgroundColor: annColor }}></span>
+                                        <input
+                                            type="color"
+                                            className="h-[0.01rem] w-[0.01rem] absolute top-1/2 left-1/2 invisible"
+                                            onChange={(e) => setAnnColor(e.target.value)}
+                                            value={annColor}
+                                        />
+                                    </label>
                                     <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
                                             onClick={(e) => updateDrawType(e, 'ELLIPSE')}
                                     >
@@ -623,6 +633,7 @@ const ViewerPage = () => {
                     images={images}
                     annotations={annotations}
                     drawType={drawType}
+                    drawColor={annColor}
                     save={save}
                     group={[groupName, setGroupName]}
                     annList={annAccessionNumber}
