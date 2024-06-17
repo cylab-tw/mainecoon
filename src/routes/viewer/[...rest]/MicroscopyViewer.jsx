@@ -29,8 +29,9 @@ import {toast} from "react-toastify";
 import {Style, Fill, Stroke, Circle as CircleStyle} from 'ol/style';
 import {Icon} from "@iconify/react";
 import {getAnnotations} from "../../../lib/dicom-webs/series.js";
+import {MultiPoint} from "ol/geom";
 
-const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,group, drawType, drawColor, save,onMessageChange}) => {
+const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,group, drawType, drawColor, save, undoState, onMessageChange}) => {
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState(undefined);
     let touch = false;
@@ -51,6 +52,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
     const [newAnnAccession, setNewAnnAccession] = useState(false);
     const [accessionNumber, setAccessionNumber] = useState('');
     const [groupName, setGroupName] = group;
+    const [undo, setUndo] = undoState;
 
 
     const enableDragPan = () => {
@@ -63,6 +65,10 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
             if (pinchZoom) pinchZoom.setActive(true);
         }
     };
+    useEffect(() => {
+        console.log("currentFeature", currentFeature)
+    }, [currentFeature]);
+
 
 
     useEffect(() => {
@@ -117,9 +123,12 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
                     }));
                 });
 
+                drawInteraction.on('drawend', function(event){
+                    drawnShapesStack.current.push({ id: event.feature.getId(), type: drawType });
+                });
+
                 // console.log('drawInteraction', drawInteraction)
                 mapRef.current.addInteraction(drawInteraction);
-                drawnShapesStack.current.push(drawType);
                 drawInteractionRef.current = drawInteraction;
             }
 
@@ -127,26 +136,32 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
                 if (touch) {
                     return
                 }
+
+
                 evt.preventDefault();
 
+
                 if (!currentFeature) {
+
+                    // let cf = sourceRef.current.getFeatures().pop();
                     currentFeature = new Feature({
                         style: new Style({
                             fill: new Fill({ color: drawColor + '80' }),
                             stroke: new Stroke({ color: drawColor, width: 1 }),
                             image: new CircleStyle({ radius: 5, fill: new Fill({ color: drawColor + '80' }) })
                         })
-                    });
+                    })
+                    console.log('addddd feature', currentFeature.getId())
                     sourceRef.current.addFeature(currentFeature);
                 }
-                console.log('currentFeature', currentFeature)
+                // console.log('currentFeature', currentFeature)
                 if (evt.dragging) {
                     if (drawType === 'Point') {
-                        currentFeature.setGeometry(new Point(evt.coordinate));
+                        currentFeatureCoords.push(evt.coordinate);
+                        currentFeature.setGeometry(new MultiPoint(currentFeatureCoords));
                         currentFeature.setStyle(new Style({
                             image: new CircleStyle({ radius: 5, fill: new Fill({ color: drawColor + '80' }) })
                         }));
-                        currentFeature = null;
                     } else if (drawType === 'LineString') {
                         // console.log(currentFeature)
                         currentFeatureCoords.push(evt.coordinate);
@@ -158,14 +173,24 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
 
             const mouseUpHandler = (evt) => {
                 if (drawType === 'LineString' && currentFeatureCoords.length > 1) {
-                    // console.log('currentFeatureCoords', [currentFeatureCoords])
+                    drawnShapesStack.current.push({ id: currentFeature.getId(), type: drawType });
+                    currentFeature = null;
+                    currentFeatureCoords.length = 0;
+                } else if (drawType === 'Point' && currentFeatureCoords.length > 0) {
+                    drawnShapesStack.current.push({ id: currentFeature.getId(), type: drawType });
                     currentFeature = null;
                     currentFeatureCoords.length = 0;
                 }
             }
 
-            mapRef.current.on('pointermove', moveHandler);
-            mapRef.current.on('pointerup', mouseUpHandler);
+
+            const mouseDownHandler = (evt) => {
+                mapRef.current.on('pointermove', moveHandler);
+                mapRef.current.on('pointerup', mouseUpHandler);
+            }
+
+            mapRef.current.on('pointerdown', mouseDownHandler);
+
 
             if (currentFeature) {
                 currentFeature = null;
@@ -173,6 +198,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
             }
 
             return () => {
+                mapRef.current.un('pointerdown', mouseDownHandler);
                 mapRef.current.un('pointermove', moveHandler);
                 mapRef.current.un('pointerup', mouseUpHandler);
             };
@@ -241,9 +267,8 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
                 fill: new Fill({ color: drawColor + '80' }),
                 stroke: new Stroke({ color: drawColor, width: 1 })
             }));
-            console.log(ellipseFeature.getStyle().getFill())
             savedEllipsesSourceRef.current.addFeature(ellipseFeature); // 將橢圓添加到保存圖層
-            drawnShapesStack.current.push('ELLIPSE');
+            drawnShapesStack.current.push({ id: ellipseFeature.getId(), type: 'ELLIPSE' });
             ellipsePreview.setGeometry(null); // 清除預覽圖層中的橢圓
             sourceRef.current.removeFeature(ellipsePreview); // 從原來的圖層中移除
             setEllipsePreview(null); // 重置預覽Feature
@@ -299,43 +324,50 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
                 stroke: new Stroke({ color: drawColor, width: 1 })
             }));
             savedRectangleSourceRef.current.addFeature(rectangleFeature); // 將橢圓添加到保存圖層
-            drawnShapesStack.current.push('RECTANGLE');
+            drawnShapesStack.current.push({ id: rectangleFeature.getId(), type: 'RECTANGLE' });
             rectanglePreview.setGeometry(null); // 清除預覽圖層中的橢圓
             sourceRef.current.removeFeature(rectanglePreview); // 從原來的圖層中移除
-            setRectanglePreview(null); // 重置預覽Feature
+            setRectanglePreview(null); // 重置預覽 Feature
         }
     }, [isDrawingRectangle, rectangleCenter]);
-
     function undoFeature() {
         let features = sourceRef.current.getFeatures();
-        switch (drawnShapesStack.current.pop()) {
+        const item = drawnShapesStack.current.pop() ?? "Polygon";
+        console.log("item", item)
+        if (!item) return;
+
+        console.log("item", item)
+
+        switch (item.type) {
             case 'ELLIPSE':
                 features = savedEllipsesSourceRef.current.getFeatures();
-                if (features.length > 0) {
-                    const lastFeature = features[features.length - 1];
-                    savedEllipsesSourceRef.current.removeFeature(lastFeature);
-                }
+                if (features.length > 0) savedEllipsesSourceRef.current.removeFeature(features[features.length - 1]);
                 break;
             case 'RECTANGLE':
                 features = savedRectangleSourceRef.current.getFeatures();
-                if (features.length > 0) {
-                    const lastFeature = features[features.length - 1];
-                    savedRectangleSourceRef.current.removeFeature(lastFeature);
-                }
+                if (features.length > 0) savedRectangleSourceRef.current.removeFeature(features[features.length - 1]);
                 break;
             default:
-                if (features.length > 0) {
-                    const lastFeature = features[features.length - 1];
-                    sourceRef.current.removeFeature(lastFeature);
-                    // console.log('lastFeature', lastFeature)
-                    if (drawType && currentFeature) {
-                        currentFeature = new Feature();
-                        sourceRef.current.addFeature(currentFeature);
-                        currentFeatureCoords.length = 0;
-                    }
+                features = sourceRef.current.getFeatures();
+                console.log("feeeaaatures", features, sourceRef.current.getFeatures())
+                console.log("test",features?.toReversed().slice(0, 1))
+                for (const feature of features?.toReversed().slice(0, 1) ?? []) {
+                    console.log("feature999", feature)
+                    sourceRef.current.removeFeature(feature);
                 }
+                console.log("feeeaaatures", features, sourceRef.current.getFeatures())
         }
+
+        setUndo([...undo.slice(0, undo.length - 1)]);
+        console.log("features888", features)
+
     }
+
+    useEffect(() => {
+        if (!undo || undo.length === 0) return;
+
+        undoFeature();
+    }, [undo]);
 
     function calculateRadius(coord1, coord2) {
         return Math.sqrt(Math.pow(coord1[0] - coord2[0], 2) + Math.pow(coord1[1] - coord2[1], 2));

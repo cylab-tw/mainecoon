@@ -31,6 +31,7 @@ const ViewerPage = () => {
     const [labelOpen, setLabelOpen] = useState([1, 1, 1, 0, 1, 1])
     const [annCheckboxList, setAnnCheckboxList] = useState([])
     const [annColor, setAnnColor] = useState("#FF0000");
+    const [undo, setUndo] = useState([]);
     const [specimen, setSpecimen] = useState({
         "Description": "",
         "Anatomical structure": "",
@@ -358,6 +359,12 @@ const ViewerPage = () => {
             })
     }
 
+    // 復原
+
+    const undoFeature = () => {
+        setUndo([...undo, drawType]); // FIXME
+    }
+
 
     return (
         <div className="flex h-full w-full flex-col">
@@ -437,7 +444,7 @@ const ViewerPage = () => {
                                     </button>
                                     <button
                                         className="bg-white w-24 h-10 justify-center flex mt-3.5 mx-2 p-2  rounded-lg mb-2"
-                                        // onClick={undoFeature}
+                                        onClick={undoFeature}
                                     >
                                         <Icon icon="gg:undo" className="w-6 h-6 mr-2"/>復原
                                     </button>
@@ -491,7 +498,7 @@ const ViewerPage = () => {
                                 ) : (
                                     <>
                                         <div
-                                            className="flex flex-row items-center bg-green-300 mt-2 justify-between"
+                                            className="flex flex-row items-center bg-green-300  justify-between"
                                             value={0} onClick={handleLabelOpen}>
                                             <div className="flex items-center">
                                                 <label
@@ -642,6 +649,7 @@ const ViewerPage = () => {
                     save={save}
                     group={[groupName, setGroupName]}
                     annList={annAccessionNumber}
+                    undoState={[undo, setUndo]}
                     onMessageChange={handleMessageChange}
                     className="grow"
                 />
@@ -652,7 +660,7 @@ const ViewerPage = () => {
                                 {labelOpen[3] === 0 ? (
                                     <>
                                         <div
-                                            className="flex flex-row items-center bg-green-300 mt-2 justify-between">
+                                            className="flex flex-row items-center bg-green-300  justify-between">
                                             <div className="bg-opacity-100 flex z-30">
                                                 <button
                                                     className="flex items-center bg-gray-400 hover:bg-gray-600 text-white font-bold rounded-r-lg p-3"
@@ -676,7 +684,7 @@ const ViewerPage = () => {
                                 ) : (
                                     <>
                                         <div
-                                            className="flex flex-row items-center bg-green-300 mt-2 justify-between">
+                                            className="flex flex-row items-center bg-green-300  justify-between">
                                             <div className="bg-opacity-100 flex z-30">
                                                 <button
                                                     className="flex items-center bg-gray-400 hover:bg-gray-600 text-white font-bold rounded-r-lg p-3"
