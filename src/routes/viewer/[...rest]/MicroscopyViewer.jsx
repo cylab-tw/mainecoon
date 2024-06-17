@@ -139,6 +139,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
                     });
                     sourceRef.current.addFeature(currentFeature);
                 }
+                console.log('currentFeature', currentFeature)
                 if (evt.dragging) {
                     if (drawType === 'Point') {
                         currentFeature.setGeometry(new Point(evt.coordinate));
@@ -653,7 +654,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
     return (
         <div className={`relative w-full flex grow ${loading ? 'loading' : ''}`}>
             <div id="ViewerID" className="h-full w-full"/>
-            <div className={`absolute inset-0 z-10 flex items-end justify-center  ${!loading ? 'hidden' : ''}`}>
+            {/*<div className={`absolute inset-0 z-10 flex items-end justify-center  ${!loading ? 'hidden' : ''}`}>*/}
                 {/*<span className="loader border-green-500"/>*/}
 
                 {/*<Icon icon="svg-spinners:12-dots-scale-rotate" width="24" height="24" />*/}
@@ -664,7 +665,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
                 {/*        <p className="text-lg">Loading Annotations...</p>*/}
                 {/*    </div>*/}
                 {/*</div>*/}
-            </div>
+            {/*</div>*/}
             <div
                 className={`absolute inset-0 z-10 flex items-center justify-center bg-black/40 ${!errorMessage ? 'hidden' : ''}`}>
                 <p>{errorMessage}</p>

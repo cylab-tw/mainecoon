@@ -373,51 +373,56 @@ const ViewerPage = () => {
                             </div>
 
                             <div className="flex flex-row m-2 gap-2">
-                                <div className="m-2 mt-3">
+                                <div className="m-2 mt-3 flex">
 
-                                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
+                                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2 block"
                                             onClick={handleViewer}
                                     >
                                         <Icon icon="fa6-regular:hand"
                                               className="animate-bounce text-black h-6 w-6"/>
                                     </button>
                                     {/*bg-yellow-200*/}
-                                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
+                                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2 block"
                                             onClick={(e) => updateDrawType(e, 'Point')}
                                     >
                                         <Icon icon="tabler:point-filled" className="text-black h-6 w-6"/>
                                     </button>
-                                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
+                                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2 block"
                                             onClick={(e) => updateDrawType(e, 'LineString')}
                                     >
                                         <Icon icon="material-symbols-light:polyline-outline"
                                               className="text-black h-6 w-6"/>
                                     </button>
-                                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
+                                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2 block"
                                             onClick={(e) => updateDrawType(e, 'Polygon')}
                                     >
                                         <Icon icon="ph:polygon" className="text-black h-6 w-6"/>
                                     </button>
-                                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
+                                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2 block"
                                             onClick={(e) => updateDrawType(e, 'Rectangle')}
                                     >
                                         <Icon icon="f7:rectangle" className="text-black h-6 w-6"/>
                                     </button>
-                                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
+                                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2 block"
                                             onClick={(e) => updateDrawType(e, 'Ellipse')}
                                     >
                                         <Icon icon="mdi:ellipse-outline" className="text-black h-6 w-6"/>
                                     </button>
-                                    <label className="bg-white relative inline-block hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2">
-                                        <span className="h-6 w-6 inline-block" style={{ backgroundColor: annColor }}></span>
-                                        <input
-                                            type="color"
-                                            className="h-[0.01rem] w-[0.01rem] absolute top-1/2 left-1/2 invisible"
-                                            onChange={(e) => setAnnColor(e.target.value)}
-                                            value={annColor}
-                                        />
-                                    </label>
-                                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2"
+                                    <button className="relative bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2 block"
+                                            onClick={handleViewer}
+                                    >
+                                        <label className="contents ">
+                                            <span className="h-6 w-6 block" style={{ backgroundColor: annColor }}></span>
+                                            <input
+                                                type="color"
+                                                className="h-[0.01rem] w-[0.01rem] absolute tops left-1/2 invisible"
+                                                onChange={(e) => setAnnColor(e.target.value)}
+                                                value={annColor}
+                                            />
+                                        </label>
+                                    </button>
+
+                                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2 block"
                                             onClick={(e) => updateDrawType(e, 'ELLIPSE')}
                                     >
                                         <Icon icon="bx:screenshot" className="text-black h-6 w-6"/>
