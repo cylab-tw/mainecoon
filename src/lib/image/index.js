@@ -31,7 +31,6 @@ const querySeries = async (studyInstanceUID) => {
     const wado = await getInitWADOService();
     wado.studyInstanceUID = studyInstanceUID;
     await wado.querySeries();
-    //console.log("wado.response", wado.response)
     return wado.response;
 }
 

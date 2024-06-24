@@ -7,9 +7,6 @@ import {ReportList} from "../report/ReportList.jsx";
 
 const Header = ({imagesReports}) => {
 
-    setInterval(() => {
-        // console.log(imagesReports.current);
-    }, 1000);
 
     const slideToReport = () => {
         const element = document.getElementById("report");
@@ -65,8 +62,7 @@ const Header = ({imagesReports}) => {
 const ImageWithReportArea = () => {
     const params = useParams();
     const id = params.id
-    const imagesReports = useRef(null);
-    //console.log("studyInstanceUID",id);
+    const imagesReports = useRef(null)
     return (
         <div ref={imagesReports} className="bg-opacity-25 h-full overflow-auto flex flex-col flex-grow">
             <div>

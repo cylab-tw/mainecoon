@@ -10,7 +10,6 @@ export const getStudiesByFilter = async (baseUrl, filter, fetcher = fetch) => {
 
     const dicomJson = await fetchDicomJson({ baseUrl, pathname: '/studies', searchParams }, fetcher);
 
-    //console.log('dicomJson:', dicomJson);
 
     return dicomJson.map(study => ({
         studyDate: study[DicomTags.StudyDate]?.Value?.[0] ?? '',
@@ -33,10 +32,7 @@ const toGraphicType = ann => ann[DicomTags.GraphicType]?.Value;
 
 const getSeriesInstanceCount = async (baseUrl, studyUid, seriesUid, fetcher = fetch) => {
     if (!studyUid || !seriesUid) return null;
-    //console.log("dicomJsonstudyUid",studyUid)
-    //console.log("dicomJsonseriesUid",seriesUid)
     const dicomJson = await fetchDicomJson({ baseUrl, studyUid, seriesUid, pathname: '/instances' }, fetcher);
-    //console.log("dicomJson",dicomJson)
     return dicomJson.length;
 };
 

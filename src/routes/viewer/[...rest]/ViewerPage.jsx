@@ -43,6 +43,8 @@ const ViewerPage = () => {
     // const everySeries_numberOfFramesList = [];
     const [groupName, setGroupName] = useState([]);
     const [expandedGroups, setExpandedGroups] = useState([]);
+    const [color, setColor] = useState([])
+    const [seriesId,setSeriesId] = useState([])
 
     useEffect(() => {
         try {
@@ -50,6 +52,9 @@ const ViewerPage = () => {
             const fetchSeries = async () => {
                 const seriesResult = await fetch(`${combineUrl}/studies/${studyUid}/series`)
                 const seriesJson = await seriesResult.json()
+                seriesJson.map((series) => {
+                    seriesId.push(series["0020000E"]?.Value[0])
+                })
                 setSeriesUid(seriesJson[0]?.["0020000E"]?.Value[0])
             }
             // patient資料
@@ -78,12 +83,12 @@ const ViewerPage = () => {
             fetchSeries()
             fetchDetails()
             fetchMetadata()
-
-
         } catch (e) {
             console.log(e)
         }
     }, [])
+
+    console.log("seriesId",seriesId)
 
     useEffect(() => {
         let ann = []
@@ -96,7 +101,7 @@ const ViewerPage = () => {
                 const metadataSM = element?.['0020000E']?.Value ?? null;
                 sm.push([metadataSM[0], smAccesionNum ? smAccesionNum[0] : "unknown"])
 
-                const value = element?.['00280008']?.Value ?? null
+                // const value = element?.['00280008']?.Value ?? null
                 // const numberOfFrames = value != null ? value.toString() : null;
                 // everySeries_numberOfFramesList.push(numberOfFrames);
             } else if (modalityAttribute == "ANN") {
@@ -115,7 +120,6 @@ const ViewerPage = () => {
     // const maxNumberOfFrames = sorted_everySeries_numberOfFramesList[sorted_everySeries_numberOfFramesList.length - 1];
 
     useEffect(() => {
-
         const fetchData = async () => {
             if (studyUid === null || seriesUid === null || studyUid === "" || seriesUid === "") return;
 
@@ -220,6 +224,7 @@ const ViewerPage = () => {
             const instances = await Promise.all(promises);
             setAnnotations(instances);
         }
+
         processAnnotations();
     }, [annAccessionNumber]);
 
@@ -304,14 +309,19 @@ const ViewerPage = () => {
         setSave(!save);
     }
 
+
     // 抓回MicroscopyViewer的layers轉為陣列存入 && 確認annotation已加到layer裡面(進到layers裡面就設為true)
     // 4 => 原先layers裡有保底4個layers
     const handleMessageChange = (message) => {
         const layerArray = message.array_
         const annList = [...groupName]
+        let color = []
         for (let i = 4; i < layerArray.length; i++) {
             annList[i - 4] = true
+            color.push(layerArray[i].style_.stroke_.color_)
         }
+        setColor(color)
+
         setLayers(message)
         setAnnCheckboxList(annList)
     }
@@ -344,6 +354,14 @@ const ViewerPage = () => {
         }
     }
 
+    const handleLabelOpen = (e) => {
+        e.preventDefault();
+        const value = parseInt(e.currentTarget.getAttribute('value'));
+        const newLabelOpen = [...labelOpen];
+        newLabelOpen[value] = newLabelOpen[value] === 0 ? 1 : 0;
+        setLabelOpen(newLabelOpen);
+    }
+
 
     // 處理外層checkbox打勾時，內層checkbox全部打勾
     const handleInnerChecked = (e, index, index0) => {
@@ -360,9 +378,20 @@ const ViewerPage = () => {
     }
 
     // 復原
-
     const undoFeature = () => {
         setUndo([...undo, drawType]); // FIXME
+    }
+
+    const handleDeleteAnn = (index) => {
+        const newIndex = index + 1
+        const response = fetch(`${combineUrl}/studies/${studyUid}/series/${seriesId[newIndex]}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        const newAnnAccessionNumber = annAccessionNumber.filter((item, i) => item[0] !== seriesId[newIndex])
+        setAnnAccessionNumber(newAnnAccessionNumber)
     }
 
 
@@ -415,11 +444,12 @@ const ViewerPage = () => {
                                     >
                                         <Icon icon="mdi:ellipse-outline" className="text-black h-6 w-6"/>
                                     </button>
-                                    <button className="relative bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2 block"
-                                            onClick={handleViewer}
+                                    <button
+                                        className="relative bg-white hover:bg-yellow-500 rounded-lg p-2.5 mr-2 mb-2 block"
+                                        onClick={handleViewer}
                                     >
                                         <label className="contents ">
-                                            <span className="h-6 w-6 block" style={{ backgroundColor: annColor }}></span>
+                                            <span className="h-6 w-6 block" style={{backgroundColor: annColor}}></span>
                                             <input
                                                 type="color"
                                                 className="h-[0.01rem] w-[0.01rem] absolute tops left-1/2 invisible"
@@ -834,9 +864,14 @@ const ViewerPage = () => {
                                                                    onClick={(e) => handleAnnDrawer(index0)}>
                                                                     {series[1]}
                                                                 </p>
+
                                                                 <Icon
                                                                     icon={expandedGroups.includes(index0) ? "line-md:chevron-small-up" : "line-md:chevron-small-down"}
                                                                     className={"w-8 h-8 mr-3"}/>
+                                                                <button onClick={() => handleDeleteAnn(index0)}><Icon
+                                                                    icon="tabler:trash" width="24" height="24"
+                                                                    className="text-red-500"/></button>
+
 
                                                             </div>
                                                             <div>
@@ -860,22 +895,35 @@ const ViewerPage = () => {
                                                                                                        onChange={(e) => handleChecked(e, index + index0, series[0], 0)}
                                                                                                 />
                                                                                             </>
-                                                                                        ) : (<Icon
-                                                                                            icon="svg-spinners:6-dots-rotate"
-                                                                                            width="24" height="24"
-                                                                                            className="ml-6 text-green-500"/>)
+                                                                                        ) : (
+                                                                                            <Icon
+                                                                                                icon="svg-spinners:6-dots-rotate"
+                                                                                                width="24" height="24"
+                                                                                                className="ml-6 text-green-500"/>)
                                                                                         }
                                                                                         <p className="text-lg w-full mt-2 p-1 ml-2 font-bold">
                                                                                             {group}
                                                                                         </p>
-                                                                                    </div>)
+                                                                                        <label className="contents ">
+                                                                                            <span
+                                                                                                className="h-5 w-10 block"
+                                                                                                style={{backgroundColor: color[index + index0]}}></span>
+                                                                                            <input
+                                                                                                type="color"
+                                                                                                className="h-[0.01rem] w-[0.01rem] absolute tops left-1/2 invisible"
+                                                                                                value={color[index + index0]}
+                                                                                            />
+                                                                                        </label>
+                                                                                    </div>
+                                                                                )
                                                                             )}
                                                                         </div>
                                                                     ) : (
                                                                         <Icon icon="svg-spinners:6-dots-rotate"
                                                                               width="24" height="24"
                                                                               className="text-green-500"/>
-                                                                    )}
+                                                                    )
+                                                                    }
                                                                 </div>
 
                                                             </div>
@@ -906,13 +954,7 @@ const ViewerPage = () => {
     );
 }
 
-const handleLabelOpen = (e) => {
-    e.preventDefault();
-    const value = parseInt(e.currentTarget.getAttribute('value'));
-    const newLabelOpen = [...labelOpen];
-    newLabelOpen[value] = newLabelOpen[value] === 0 ? 1 : 0;
-    setLabelOpen(newLabelOpen);
-}
+
 
 
 export default ViewerPage;

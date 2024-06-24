@@ -107,7 +107,6 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
     const dicomJson = await fetchDicomJson({ baseUrl, studyUid, seriesUid, pathname: '/instances' });
     const instanceUids = dicomJson.map(instance => instance[DicomTags.SOPInstanceUID]?.Value?.[0]);
     const metadata = (await Promise.all(instanceUids.map(instanceUid => fetchDicomJson({ baseUrl, studyUid, seriesUid, instanceUid, pathname: '/metadata' })))).flat();
-    console.log("metadata",metadata)
     const instances = metadata.flatMap(metadata => {
         const modality = metadata[DicomTags.Modality]?.Value?.[0];
         const referencedSeriesSequence = metadata[DicomTags.ReferencedSeriesSequence]?.Value?.[0];
@@ -148,11 +147,8 @@ export const getAnnotationsGroup = async (baseUrl, studyUid, seriesUid) => {
     const dicomJson = await fetchDicomJson({ baseUrl, studyUid, seriesUid, pathname: '/instances' });
     const instanceUids = dicomJson.map(instance => instance[DicomTags.SOPInstanceUID]?.Value?.[0]);
     const metadata = (await Promise.all(instanceUids.map(instanceUid => fetchDicomJson({ baseUrl, studyUid, seriesUid, instanceUid, pathname: '/metadata' })))).flat();
-    // console.log("metadata",metadata)
     const metadatas = metadata.flatMap(metadata => {
         const modality = metadata[DicomTags.Modality]?.Value?.[0];
-        // console.log("modality",modality)
-        // console.log("metadata123",metadata)
         if (modality === 'ANN') return metadata
 
     });

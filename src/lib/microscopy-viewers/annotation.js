@@ -97,9 +97,6 @@ export const computeAnnotationFeatures0 = async (annotations, resolutions) => {
     }
 
     for (const { annGroupName,instanceUID, pointsData, indexesData, graphicType } of annotations ?? []) {
-        console.log("annGroupName",annGroupName.Value[0])
-        console.log("annotations",annotations)
-        console.log("indexesData0",indexesData)
         let points;
         let indexes;
 
@@ -118,14 +115,12 @@ export const computeAnnotationFeatures0 = async (annotations, resolutions) => {
 
         points = points?.map((point) => point * referencedResolution);
         if (indexesData) {
-            console.log("indexesData",indexesData)
             if (indexesData.inlineBinary) {
                 indexes = decodeIndexesData(indexesData.inlineBinary);
             } else if (indexesData.uri) {
                 const response = await fetch(indexesData.uri);
                 indexes = decodeIndexesData(multipartDecode(await response.arrayBuffer()));
             }
-            console.log("indexes",indexes)
         }
 
 
@@ -211,7 +206,6 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
         return [];
     }
 
-    // console.log("annotations.length", annotations.length)
 
     for (let index = 0; index < annotations.length; index++) {
         let features = []
@@ -236,14 +230,12 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
 
         points = points?.map((point) => point * referencedResolution);
         if (indexesData) {
-            // console.log("indexesData", indexesData)
             if (indexesData.inlineBinary) {
                 indexes = decodeIndexesData(indexesData.inlineBinary);
             } else if (indexesData.uri) {
                 const response = await fetch(indexesData.uri);
                 indexes = decodeIndexesData(multipartDecode(await response.arrayBuffer()));
             }
-            // console.log("indexes", indexes)
         }
 
 
@@ -277,7 +269,6 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
                 features.push(new Feature({ geometry: new MultiPoint(coordinates) }));
                 break;
             case 'POLYLINE':
-                // console.log("indexes", indexes)
                 for (let i = 0; i < indexes.length; i++) {
                     const coord = coordinates.slice(indexes[i], indexes[i + 1] || coordinates.length);
                     if (coord && coord.length > 1) {
@@ -287,16 +278,13 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
                 break;
             case 'POLYGON':
                 console.group()
-                // console.log("indexes0", indexes)
                 for (let i = 0; i < indexes.length; i++) {
                     const start = Math.floor(indexes[i] / 2);
                     const end = Math.floor(indexes[i + 1] / 2) || coordinates.length;
                     const coord = coordinates.slice(start, end).concat([coordinates[start]]);
-                    // console.log("coord", coord)
                     if (coord && coord.length > 1) {
                         features.push(new Feature({ geometry: new Polygon([coord]) }));
                     }
-                    // console.log("features000", features)
                 }
 
                 console.groupEnd()
@@ -321,6 +309,5 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
         }
         features0.push(features)
     }
-    console.log("features0", features0)
     return {features0,annGroupName0};
 };

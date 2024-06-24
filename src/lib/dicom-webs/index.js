@@ -59,7 +59,6 @@ const toDicomWebUrl = (input) => {
         if (frame) url += `/frames/${frame}`;
         if (pathname) url += pathname;
         if (searchParams) url += `?${searchParams.toString()}`;
-        // console.log('url:', url);
         return url;
     }
     return input;

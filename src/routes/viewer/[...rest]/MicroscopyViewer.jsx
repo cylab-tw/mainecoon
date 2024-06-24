@@ -588,6 +588,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
         }
         return color;
     };
+    const [color, setColor] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -644,11 +645,15 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
                     .then(({features0,annGroupName0}) => {
                         groupName.push(annGroupName0)
                         features0.map((feature) => {
-                            const color = getRandomColor();
+                            // const color = getRandomColor();
+                            const color1 = getRandomColor();
+                            color.push(color1)
+
+
                             if (feature.length > 0) {
                                 const style = new Style({
                                     stroke: new Stroke({
-                                        color: color,
+                                        color: color1,
                                         width: 1
                                     })
                                 });
@@ -679,9 +684,10 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
                 console.error('error:', error);
             }
         };
+
         if (images) fetchData();
     }, [images, annotations]);
-
+    console.log("colorChecked", color)
 
     return (
         <div className={`relative w-full flex grow ${loading ? 'loading' : ''}`}>
