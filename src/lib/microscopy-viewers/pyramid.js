@@ -248,6 +248,12 @@ export const computePyramidInfo = (baseUrl, studyUid, seriesUid, images) => {
 
     const layer = new TileLayer({
         source: new XYZ({
+            tileLoadFunction: (tile, src) => {
+                // const image = (tile as ImageTile).getImage() as HTMLImageElement;
+                const image = tile.getImage();
+                image.src = src;
+                image.fetchPriority = 'high';
+            },
             tileUrlFunction: ([z, x, y]) => {
                 const { instanceUID, totalPixelMatrixColumns, columns } = images[z];
                 const frame = x + y * Math.ceil(totalPixelMatrixColumns / columns) + 1;

@@ -404,9 +404,9 @@ const ViewerPage = () => {
                             <div className={`!h-100 w-6/12 border-4 border-black rounded-2xl m-3`}>
                                 <div className="flex flex-col w-full h-full">
                                     <div className="p-5 m-2 overflow-y-scroll scrollbar-thin scrollbar-webkit">
-                                        <h2>Gross Description:</h2>
+                                        <p className="font-bold text-xl bg-green-300 mt-1 mb-1">Gross Description:</p>
                                         <p>The specimen is received in three parts, all fresh.</p>
-                                        <p>Part #1 </p>
+                                        <p className="font-bold text-lg">Part #1 </p>
                                         <p>which is labeled &quot;?metastatic tumor in jugular vein lymph
                                             node&quot; consists of an elliptical
                                             fragment of light whitish-tan tissue which measures approximately 0.3 x 0.2
@@ -415,8 +415,8 @@ const ViewerPage = () => {
                                             is &quot;ganglion&quot;. The remainder of part #1 of the specimen is
                                             submitted
                                             as frozen section control #1.</p>
-                                        <p>Part #2 </p>
-                                        <p>is labeled &quot;resection of floor of mouth continuous with tongue and
+                                        <p className="font-bold text-lg">Part #2 </p>
+                                        <p className="whitespace-pre-line">is labeled &quot;resection of floor of mouth continuous with tongue and
                                             mandible
                                             plus left radical neck dissection&quot;. As received in the frozen section
                                             room,
@@ -461,7 +461,7 @@ const ViewerPage = () => {
                                             level is
                                             examined for lymph nodes which are dissected free and submitted in their
                                             entirety for sectioning. The remainder of the specimen is saved.</p>
-                                        <p>Part #3 </p>
+                                        <p className="font-bold text-lg">Part #3 </p>
                                         <p>of the specimen, labeled &quot;anterior margin of inferior
                                             mandible&quot; consists of
                                             an irregular fragment of fibrous connective and skeletal muscular tissues
@@ -469,7 +469,7 @@ const ViewerPage = () => {
                                             measures approximately 1.0 x 0.5 x 0.2 cm. The specimen is submitted in its
                                             entirety for
                                             sectioning on three levels.</p>
-                                        <h2>Microscopic Description:</h2>
+                                        <p className="font-bold text-xl bg-green-300 mt-1 mb-1">Microscopic Description:</p>
                                         <p>Microscopic examination of frozen section control #1 confirms the original
                                             frozen section
                                             diagnosis of &quot;ganglion&quot;.</p>
@@ -506,8 +506,8 @@ const ViewerPage = () => {
                                             of the tissue in level V reveals 1 lymph node which is negative for
                                             metastatic
                                             tumor.</p>
-                                        <h2>Diagnosis:</h2>
-                                        <ol>
+                                        <p className="font-bold text-xl bg-green-300 mt-1 mb-1">Diagnosis:</p>
+                                        <ol className="list-decimal list-inside pl-4">
                                             <li>Squamous cell carcinoma, left floor of mouth</li>
                                             <li>Squamous cell carcinoma, in extranodal connective tissue of neck at
                                                 level III
@@ -698,12 +698,11 @@ const ViewerPage = () => {
                                                 </div>
                                             </div>
                                             <div className="bg-green-50">
-                                                <div className="p-1.5">
+                                                <div>
                                                     {annAccessionNumber.map((series, index0) => {
                                                         return (
                                                             <>
-                                                                <div key={index0}
-                                                                     className="flex items-center hover:bg-green-100">
+                                                                <div key={index0} className="mt-2.5 ml-2.5 mr-2.5 flex items-center hover:bg-green-100">
                                                                     {
                                                                         annCheckboxList[index0] === true ? (
                                                                             <>
@@ -725,7 +724,6 @@ const ViewerPage = () => {
                                                                        onClick={(e) => handleAnnDrawer(index0)}>
                                                                         {series[1]}
                                                                     </p>
-
                                                                     <Icon
                                                                         icon={expandedGroups.includes(index0) ? "line-md:chevron-small-up" : "line-md:chevron-small-down"}
                                                                         className={"w-8 h-8 mr-3"}/>
@@ -735,14 +733,13 @@ const ViewerPage = () => {
                                                                             className="text-red-500"/></button>
                                                                 </div>
                                                                 <div>
-                                                                    <div
-                                                                        style={{display: expandedGroups.includes(index0) ? "block" : "none"}}>
+                                                                    <div style={{display: expandedGroups.includes(index0) ? "block" : "none"}}>
                                                                         {groupName[index0] ? (
-                                                                            <div>
+                                                                            <div className="bg-white">
                                                                                 {groupName[index0].map((group, index) =>
                                                                                     (
                                                                                         <div key={index}
-                                                                                             className="flex items-center hover:bg-green-100">
+                                                                                             className="ml-2.5 mr-2.5 flex items-center hover:bg-green-100">
                                                                                             {annCheckboxList[index0] === true ? (
                                                                                                 <>
                                                                                                     <input
@@ -790,12 +787,14 @@ const ViewerPage = () => {
                                                                         )
                                                                         }
                                                                     </div>
-
                                                                 </div>
                                                             </>
                                                         )
                                                     })}
                                                 </div>
+                                            </div>
+                                            <div className="flex justify-center">
+                                                <button className="border-1 bg-green-300 rounded-lg m-2 p-2.5 font-sans font-bold">Add Series</button>
                                             </div>
                                         </>
                                     )}

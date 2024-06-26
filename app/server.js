@@ -9,3 +9,5 @@ app.use('/api', controllers);
 const server = app.listen(3000, () => {});
 
 viteExpress.bind(app, server);
+
+console.log('Server running at http://localhost:3000')

@@ -103,6 +103,7 @@ const SearchHeader = ({State}) => {
                             <div className="flex flex-fill w-full ">
                                 <div className="flex items-center me-2 font-bold">StudyDate&nbsp;:</div>
                                 <input
+                                    type="date"
                                     className="border-2 m-2 p-2 rounded-lg text-black w-full"
                                     name="StudyDate"
                                     value={parameter.StudyDate}
