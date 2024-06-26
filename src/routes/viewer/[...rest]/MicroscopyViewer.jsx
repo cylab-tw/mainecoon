@@ -31,7 +31,7 @@ import {Icon} from "@iconify/react";
 import {getAnnotations} from "../../../lib/dicom-webs/series.js";
 import {MultiPoint} from "ol/geom";
 
-const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,group, drawType, drawColor, save, undoState, onMessageChange}) => {
+const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,group, drawType, drawColor, save, undoState, onMessageChange,layers}) => {
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState(undefined);
     let touch = false;
@@ -53,6 +53,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
     const [accessionNumber, setAccessionNumber] = useState('');
     const [groupName, setGroupName] = group;
     const [undo, setUndo] = undoState;
+    const [layer,setLayer] = layers;
 
 
     const enableDragPan = () => {
@@ -667,8 +668,9 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
                                 return
                             }
                         })
-
                         onMessageChange(mapRef.current.getLayers());
+                        setLayer(mapRef.current.getLayers());
+
                     })
                     .catch((error) => {
                         setErrorMessage('Failed to load annotations.');
@@ -678,6 +680,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
                 })}
 
                 mapRef.current.getView().fit(extent, {size: mapRef.current.getSize()});
+                console.log("layer0000", mapRef.current.getLayers())
             } catch (error) {
                 setErrorMessage('Unexpected error occurred.');
                 setLoading(false);
@@ -687,7 +690,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
 
         if (images) fetchData();
     }, [images, annotations]);
-    console.log("colorChecked", color)
+
 
     return (
         <div className={`relative w-full flex grow ${loading ? 'loading' : ''}`}>

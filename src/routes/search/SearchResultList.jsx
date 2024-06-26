@@ -41,8 +41,8 @@ const SearchResultList = ({state}) => {
     return (
         <>
             {/*-ms-overflow-style*/}
-            <div className="flex-grow w-full"
-                 onScroll={onScroll}
+            <div className="flex-grow w-full "
+                 // onScroll={onScroll}
                  ref={searchResultListRef}
             >
                     <div className="w-full">
@@ -56,8 +56,8 @@ const SearchResultList = ({state}) => {
                                 <td className="p-2 font-bold bg-green-600 text-white">Accession Number</td>
                                 <td className="p-2 font-bold bg-green-600 text-white">Study Date</td>
                                 <td className="p-2 font-bold bg-green-600 text-white">Preview</td>
-                                <td className="p-2 font-bold bg-green-600 text-white">SM&emsp;</td>
-                                <td className="p-2 font-bold bg-green-600 text-white">ANN&nbsp;</td>
+                                {/*<td className="p-2 font-bold bg-green-600 text-white">SM&emsp;</td>*/}
+                                {/*<td className="p-2 font-bold bg-green-600 text-white">ANN&nbsp;</td>*/}
                             </tr>
                             </thead>
                             <tbody>

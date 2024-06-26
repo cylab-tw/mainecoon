@@ -20,10 +20,10 @@ function Modal({ isOpen, onClose, children }) {
     }
 
     return (
-        <div className={`fixed flex top-16 rounded-lg shadow-2xl w-fit h-fit  transition-opacity duration-500 ${modalState}`}
+        <div className={`fixed flex top-16 mt-1.5 rounded-lg shadow-lg shadow-gray-500 w-fit h-fit transition-opacity duration-500 ${modalState}`}
              style={{zIndex: 1000}}>
             <div
-                className="bg-green-600 pl-4 pr-4 rounded-lg"
+                className="bg-white border border-black pl-4 pr-4 p-2 rounded-lg"
                 style={{
                     height: 'fit-content',
                     maxHeight: 'calc(100vh - 40px)',

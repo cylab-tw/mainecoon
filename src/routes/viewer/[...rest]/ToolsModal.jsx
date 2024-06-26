@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 
-function Modal({ isOpen, onClose, children }) {
+function Modal({isOpen, onClose, children}) {
     //isOpen:打開編輯，pop-up編輯視窗
     //onClose:X按鈕
     const [modalState, setModalState] = useState('opacity-0');
@@ -20,19 +20,18 @@ function Modal({ isOpen, onClose, children }) {
     }
 
     return (
-        <div className={`fixed flex top-16 rounded-lg shadow-2xl w-fit h-fit  transition-opacity duration-500 ${modalState}`}
-             style={{zIndex: 1000}}>
-            <div
-                className="bg-green-600 pl-4 pr-4 rounded-lg"
+        <div
+            className={`fixed top-16 mt-1.5 left-1/2 transform -translate-x-1/2 flex items-center rounded-lg shadow-2xl w-fit h-fit transition-opacity duration-500 ${modalState}`}
+            style={{zIndex: 1000}}>
+
+            <div className="bg-green-600 pl-4 pr-4 rounded-lg"
                 style={{
                     height: 'fit-content',
-                    maxHeight: 'calc(100vh - 40px)',
+                    maxHeight: 'calc(100vh - 50px)',
                     overflowY: 'auto',
                 }}
-                onMouseLeave={onClose}
             >
                 {children}
-                <button className="absolute top-2 right-2 text-lg" onMouseLeave={onClose}></button>
             </div>
         </div>
 

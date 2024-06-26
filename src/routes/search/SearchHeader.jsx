@@ -1,5 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import Modal from './SearchHeaderModal';
+import {Icon} from "@iconify/react";
+import PatientDetails from "../viewer/[...rest]/PatientDetails.jsx";
 
 const SearchHeader = ({State}) => {
 
@@ -30,7 +32,7 @@ const SearchHeader = ({State}) => {
     });
 
     const searchBtnOnClick = async () => {
-        setState({...state,parameter,timeStamp:Date.now()})
+        setState({...state, parameter, timeStamp: Date.now()})
     };
 
 
@@ -134,3 +136,4 @@ export const useOutsideClick = (ref, callback) => {
 };
 
 export {SearchHeader};
+

@@ -38,7 +38,7 @@ const SearchResult = ({qidorsSingleStudy, onMessageChange}) => {
         // navigate(`../viewer/J4Care?studyUid=${studyInstanceUID}`);
         // navigate(`../viewer?server=NTUNHS&studyUid=${studyInstanceUID}`);
         location.href = `../viewer?server=NTUNHS&studyUid=${studyInstanceUID}`;
-        // navigate(`../viewer?server=Google&studyUid=${studyInstanceUID}`);
+        // location.href = `../viewer?server=Google&studyUid=${studyInstanceUID}`;
         // navigate(`../viewer?server=J4Care&studyUid=${studyInstanceUID}`);
     }
 
@@ -83,7 +83,7 @@ const SearchResult = ({qidorsSingleStudy, onMessageChange}) => {
 
     return (
         <>
-            <tr className=" m-2 hover:bg-gray-100 cursor-pointer group" key={patientID} onClick={OnClick}>
+            <tr className="m-2 hover:bg-gray-100 cursor-pointer group max-h-2" key={patientID} onClick={OnClick}>
                 <td className="border-2 border-l-0 group-first:border-t-0 p-2.5 group-last:border-b-0">{patientID?.length ? patientID : "NotFound"}</td>
                 <td className="border-2 group-first:border-t-0 p-2.5 group-last:border-b-0">{patientName?.length ? patientName : "NotFound"}</td>
                 <td className="border-2 w-1/12 p-2.5 text-center group-first:border-t-0 group-last:border-b-0">{patientBirthDate?.length ? changeDateFormat(patientBirthDate) : ""}</td>
@@ -118,17 +118,26 @@ const SearchResult = ({qidorsSingleStudy, onMessageChange}) => {
                         </td>
                 }
                 <td className="border-2  p-2.5 group-first:border-t-0 group-last:border-b-0">{accessionNumber?.length ? accessionNumber : "NotFound"}</td>
-                <td className="border-2 w-1/12 p-2.5 text-center  group-first:border-t-0 group-last:border-b-0">{studyDate?.length ? changeDateFormat(studyDate) : ""}</td>
-                <td className="border-2 w-1/12 p-2.5 text-center border-r-0 group-first:border-t-0 group-last:border-b-0 space-y-3">
-                    {SM?.map((seriesUid) => <img key={seriesUid} src={toDicomWebUrl({
-                        baseUrl: combineUrl,
-                        studyUid: StudyInstanceUID,
-                        seriesUid,
-                        pathname: "/thumbnail"
-                    })}/>)}
+                <td className="border-2 w-1/12 p-2.5 text-center group-first:border-t-0 group-last:border-b-0">{studyDate?.length ? changeDateFormat(studyDate) : ""}</td>
+                <td className="border-2 w-1/12 p-2.5 text-center border-r-0 group-first:border-t-0 group-last:border-b-0">
+                    <div className="flex flex-wrap">
+                        {SM?.map((seriesUid) => (
+                            <img
+                                key={seriesUid}
+                                src={toDicomWebUrl({
+                                    baseUrl: combineUrl,
+                                    studyUid: StudyInstanceUID,
+                                    seriesUid,
+                                    pathname: "/thumbnail"
+                                })}
+                                className="h-12 w-12 m-1" // 添加 margin 以便图片之间有间隔
+                            />
+                        ))}
+                    </div>
                 </td>
-                <td className="border-2 w-1/12 p-2.5 text-center  group-first:border-t-0 group-last:border-b-0">{SMt}</td>
-                <td className="border-2 w-1/12 p-2.5 text-center  group-first:border-t-0 group-last:border-b-0">{ANN}</td>
+
+                {/*<td className="border-2 w-1/12 p-2.5 text-center  group-first:border-t-0 group-last:border-b-0">{SMt}</td>*/}
+                {/*<td className="border-2 w-1/12 p-2.5 text-center  group-first:border-t-0 group-last:border-b-0">{ANN}</td>*/}
             </tr>
         </>
     );
