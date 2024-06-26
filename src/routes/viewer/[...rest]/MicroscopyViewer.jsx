@@ -32,7 +32,6 @@ import {getAnnotations} from "../../../lib/dicom-webs/series.js";
 import {MultiPoint} from "ol/geom";
 
 const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,group, drawType, drawColor, save, undoState, onMessageChange,layers}) => {
-    const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState(undefined);
     let touch = false;
     let currentFeature = null;
@@ -55,6 +54,118 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
     const [undo, setUndo] = undoState;
     const [layer,setLayer] = layers;
 
+    function lightenColor(color) {
+        const [r, g, b] = color.match(/\d+/g).map(Number);
+
+        // 淺50%
+        const newR = Math.min(Math.floor(r * 1.5), 255);
+        const newG = Math.min(Math.floor(g * 1.5), 255);
+        const newB = Math.min(Math.floor(b * 1.5), 255);
+
+        const opacity = 0.2;
+        const rgbaColor = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+
+        return rgbaColor;
+    }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (images.length === 0) return;
+            const ViewerID = "ViewerID";
+            try {
+                const {extent, layer, resolutions, view} =
+                    computePyramidInfo(baseUrl, studyUid, seriesUid, images);
+                document.getElementById(ViewerID).innerHTML = '';
+                const vector = new VectorLayer({source: sourceRef.current});
+                const savedEllipsesLayer = new VectorLayer({
+                    source: savedEllipsesSourceRef.current
+                });
+                const savedRectangleLayer = new VectorLayer({
+                    source: savedRectangleSourceRef.current
+                });
+                mapRef.current = new Map({
+                    controls: defaultControls().extend([
+                        new MousePosition({
+                            coordinateFormat: (c) => (c ? `${c[0].toFixed(2)}, ${-c[1].toFixed(2)}` : ''),
+                            className: 'm-1.5 text-center text-sm ',
+                        }),
+                        new OverviewMap({
+                            collapsed: false,
+                            collapseLabel: '\u00AB',
+                            label: '\u00BB',
+                            layers: [
+                                new TileLayer({
+                                    source: layer.getSource() ?? undefined , // 確保使用相同的圖層源，或者提供一個替代方案
+                                })
+                            ],
+                            tipLabel: 'Overview Map'
+                        }),
+                        new ScaleLine(),
+                        new FullScreen(),
+                        new Rotate(),
+                        new ZoomSlider(),
+                        new ZoomToExtent(),
+                        new Zoom(),
+                        new Attribution()
+                    ]),
+                    // target: 'map',
+                    target: ViewerID,
+                    layers: [layer, vector, savedEllipsesLayer, savedRectangleLayer],
+                    view,
+                });
+
+                {annotations.map((annotation) => {
+                    computeAnnotationFeatures(annotation, resolutions)
+                        .then(({features0,annGroupName0}) => {
+                            groupName.push(annGroupName0)
+                            features0.map((feature) => {
+                                const color1 = getRandomColor();
+                                color.push(color1)
+
+
+                                if (feature.length > 0) {
+                                    let fill;
+                                    if (annotation[0].graphicType === "POLYGON") {
+                                        fill = new Fill({
+                                            color: lightenColor(color1)
+                                        });
+                                    }
+
+                                    const style = new Style({
+                                        stroke: new Stroke({
+                                            color: color1,
+                                            width: 1
+                                        }),
+                                        fill: fill
+                                    });
+
+                                    const source = new VectorSource({features: feature});
+                                    const newLayer = new VectorLayer({source,extent, style});
+                                    newLayer.setVisible(false);
+                                    mapRef.current.addLayer(newLayer);
+
+                                }else{
+                                    return
+                                }
+                            })
+                            onMessageChange(mapRef.current.getLayers());
+                            setLayer(mapRef.current.getLayers());
+
+                        })
+                        .catch((error) => {
+                            setErrorMessage('Failed to load annotations.');
+                            console.error(error);
+                        })
+                })}
+                mapRef.current.getView().fit(extent, {size: mapRef.current.getSize()});
+            } catch (error) {
+                setErrorMessage('Unexpected error occurred.');
+                console.error('error:', error);
+            }
+        };
+
+        if (images) fetchData();
+    }, [images, annotations]);
 
     const enableDragPan = () => {
         if (mapRef.current) {
@@ -66,11 +177,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
             if (pinchZoom) pinchZoom.setActive(true);
         }
     };
-    useEffect(() => {
-        console.log("currentFeature", currentFeature)
-    }, [currentFeature]);
-
-
 
     useEffect(() => {
         if (drawType) {
@@ -582,133 +688,25 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
 
 
     const getRandomColor = () => {
-        const letters = '0123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-        let color = '#';
-        for (let i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
+        let color = 'rgba(';
+        for (let i = 0; i < 3; i++) {
+            let component = Math.floor(Math.random() * 256);
+            color += component;
+            if (i < 2) {
+                color += ', ';
+            }
         }
+        color += ', 1)';
         return color;
     };
+
     const [color, setColor] = useState([]);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            if (images.length === 0) {
-                setLoading(false);
-                return;
-            }
-            setLoading(true);
-            const ViewerID = "ViewerID";
-            try {
-                const {extent, layer, resolutions, view} =
-                    computePyramidInfo(baseUrl, studyUid, seriesUid, images);
-                document.getElementById(ViewerID).innerHTML = '';
-                const vector = new VectorLayer({source: sourceRef.current});
-                const savedEllipsesLayer = new VectorLayer({
-                    source: savedEllipsesSourceRef.current
-                });
-                const savedRectangleLayer = new VectorLayer({
-                    source: savedRectangleSourceRef.current
-                });
-                mapRef.current = new Map({
-                    controls: defaultControls().extend([
-                        new MousePosition({
-                            coordinateFormat: (c) => (c ? `${c[0].toFixed(2)}, ${-c[1].toFixed(2)}` : ''),
-                            className: 'm-1.5 text-center text-sm ',
-                        }),
-                        new OverviewMap({
-                            collapsed: false,
-                            collapseLabel: '\u00AB',
-                            label: '\u00BB',
-                            layers: [
-                                new TileLayer({
-                                    source: layer.getSource() ?? undefined , // 確保使用相同的圖層源，或者提供一個替代方案
-                                })
-                            ],
-                            tipLabel: 'Overview Map'
-                        }),
-                        new ScaleLine(),
-                        new FullScreen(),
-                        new Rotate(),
-                        new ZoomSlider(),
-                        new ZoomToExtent(),
-                        new Zoom(),
-                        new Attribution()
-                    ]),
-                    // target: 'map',
-                    target: ViewerID,
-                    layers: [layer, vector, savedEllipsesLayer, savedRectangleLayer],
-                    view,
-                });
-
-                {annotations.map((annotation) => {
-                    computeAnnotationFeatures(annotation, resolutions)
-                    .then(({features0,annGroupName0}) => {
-                        groupName.push(annGroupName0)
-                        features0.map((feature) => {
-                            // const color = getRandomColor();
-                            const color1 = getRandomColor();
-                            color.push(color1)
-
-
-                            if (feature.length > 0) {
-                                const style = new Style({
-                                    stroke: new Stroke({
-                                        color: color1,
-                                        width: 1
-                                    })
-                                });
-
-                                const source = new VectorSource({features: feature});
-                                const newLayer = new VectorLayer({source,extent, style});
-                                newLayer.setVisible(false);
-                                mapRef.current.addLayer(newLayer);
-
-                            }else{
-                                return
-                            }
-                        })
-                        onMessageChange(mapRef.current.getLayers());
-                        setLayer(mapRef.current.getLayers());
-
-                    })
-                    .catch((error) => {
-                        setErrorMessage('Failed to load annotations.');
-                        console.error(error);
-                    })
-                    .finally(() => setLoading(false));
-                })}
-
-                mapRef.current.getView().fit(extent, {size: mapRef.current.getSize()});
-                console.log("layer0000", mapRef.current.getLayers())
-            } catch (error) {
-                setErrorMessage('Unexpected error occurred.');
-                setLoading(false);
-                console.error('error:', error);
-            }
-        };
-
-        if (images) fetchData();
-    }, [images, annotations]);
 
 
     return (
-        <div className={`relative w-full flex grow ${loading ? 'loading' : ''}`}>
+        <div className={`relative w-full flex grow`}>
             <div id="ViewerID" className="h-full w-full"/>
-            {/*<div className={`absolute inset-0 z-10 flex items-end justify-center  ${!loading ? 'hidden' : ''}`}>*/}
-                {/*<span className="loader border-green-500"/>*/}
-
-                {/*<Icon icon="svg-spinners:12-dots-scale-rotate" width="24" height="24" />*/}
-                {/*<div className={`absolute left-1/2 -translate-x-1/2 transition-all duration-300 ${loading ? 'bottom-2' : '-bottom-8'}`}>*/}
-                {/*    <div className="flex items-center gap-3 rounded-full border bg-white/75 px-2 py-1 text-xs shadow">*/}
-                {/*        /!*<span className="loader h-4 w-4 border-2 border-green-500"/>*!/*/}
-                {/*        <Icon icon="svg-spinners:12-dots-scale-rotate" width="28" height="28" className="text-green-400" />*/}
-                {/*        <p className="text-lg">Loading Annotations...</p>*/}
-                {/*    </div>*/}
-                {/*</div>*/}
-            {/*</div>*/}
-            <div
-                className={`absolute inset-0 z-10 flex items-center justify-center bg-black/40 ${!errorMessage ? 'hidden' : ''}`}>
+            <div className={`absolute inset-0 z-10 flex items-center justify-center bg-black/40 ${!errorMessage ? 'hidden' : ''}`}>
                 <p>{errorMessage}</p>
             </div>
         </div>
@@ -776,7 +774,6 @@ MicroscopyViewer.propTypes = {
     seriesUid: PropTypes.any,
     images: PropTypes.any,
     annotations: PropTypes.any,
-
 };
 
 export default MicroscopyViewer;

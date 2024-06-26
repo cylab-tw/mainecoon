@@ -156,6 +156,22 @@ const ViewerPage = () => {
         setAnnAccessionNumber(ann)
     }, [wadoSeries]);
 
+    // 依據annAccessionNumber抓出對應的annotations
+    useEffect(() => {
+        async function processAnnotations() {
+            let annList = annCheckboxList
+            const promises = annAccessionNumber.map(async (ann) => {
+                const key = ann[0];
+                const instances = await getAnnotations(baseUrl, studyUid, key);
+                return instances;
+            });
+            setAnnCheckboxList(annList)
+            const instances = await Promise.all(promises);
+            setAnnotations(instances);
+        }
+
+        processAnnotations();
+    }, [annAccessionNumber]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -250,22 +266,7 @@ const ViewerPage = () => {
         setAnnCheckboxList(checkboxList)
     }, [groupName]);
 
-    // 依據annAccessionNumber抓出對應的annotations
-    useEffect(() => {
-        async function processAnnotations() {
-            let annList = annCheckboxList
-            const promises = annAccessionNumber.map(async (ann) => {
-                const key = ann[0];
-                const instances = await getAnnotations(baseUrl, studyUid, key);
-                return instances;
-            });
-            setAnnCheckboxList(annList)
-            const instances = await Promise.all(promises);
-            setAnnotations(instances);
-        }
 
-        processAnnotations();
-    }, [annAccessionNumber]);
 
 
     if (images.length === 0 || !smSeriesUid) {
@@ -793,9 +794,9 @@ const ViewerPage = () => {
                                                     })}
                                                 </div>
                                             </div>
-                                            <div className="flex justify-center">
-                                                <button className="border-1 bg-green-300 rounded-lg m-2 p-2.5 font-sans font-bold">Add Series</button>
-                                            </div>
+                                            {/*<div className="flex justify-center">*/}
+                                            {/*    <button className="border-1 bg-green-300 rounded-lg m-2 p-2.5 font-sans font-bold">Add Series</button>*/}
+                                            {/*</div>*/}
                                         </>
                                     )}
                                 </div>
