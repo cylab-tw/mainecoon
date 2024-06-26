@@ -25,7 +25,7 @@ const ViewerPage = () => {
     const [wadoSeries, setWadoSeries] = useState([]);
     const [smAccessionNumber, setSmAccessionNumber] = useState([]);
     const [annAccessionNumber, setAnnAccessionNumber] = useState([]);
-    const [drawType, setDrawType] = useState([]);
+    const [drawType, setDrawType] = useState(null);
     const [save, setSave] = useState(false)
     const [layers, setLayers] = useState({})
     const [labelOpen, setLabelOpen] = useState([1, 1, 1, 0, 1, 1])
@@ -405,7 +405,7 @@ const ViewerPage = () => {
                             <div className={`!h-100 w-6/12 border-4 border-black rounded-2xl m-3`}>
                                 <div className="flex flex-col w-full h-full">
                                     <div className="p-5 m-2 overflow-y-scroll scrollbar-thin scrollbar-webkit">
-                                        <p className="font-bold text-xl bg-green-300 mt-1 mb-1">Gross Description:</p>
+                                        <p className="font-bold text-xl bg-green-300 mt-1 mb-1 p-2">Gross Description</p>
                                         <p>The specimen is received in three parts, all fresh.</p>
                                         <p className="font-bold text-lg">Part #1 </p>
                                         <p>which is labeled &quot;?metastatic tumor in jugular vein lymph
@@ -416,7 +416,7 @@ const ViewerPage = () => {
                                             is &quot;ganglion&quot;. The remainder of part #1 of the specimen is
                                             submitted
                                             as frozen section control #1.</p>
-                                        <p className="font-bold text-lg">Part #2 </p>
+                                        <p className="font-bold text-lg ">Part #2 </p>
                                         <p className="whitespace-pre-line">is labeled &quot;resection of floor of mouth continuous with tongue and
                                             mandible
                                             plus left radical neck dissection&quot;. As received in the frozen section
@@ -470,7 +470,7 @@ const ViewerPage = () => {
                                             measures approximately 1.0 x 0.5 x 0.2 cm. The specimen is submitted in its
                                             entirety for
                                             sectioning on three levels.</p>
-                                        <p className="font-bold text-xl bg-green-300 mt-1 mb-1">Microscopic Description:</p>
+                                        <p className="font-bold text-xl bg-green-300 mt-1 mb-1 p-2">Microscopic Description</p>
                                         <p>Microscopic examination of frozen section control #1 confirms the original
                                             frozen section
                                             diagnosis of &quot;ganglion&quot;.</p>
@@ -507,7 +507,7 @@ const ViewerPage = () => {
                                             of the tissue in level V reveals 1 lymph node which is negative for
                                             metastatic
                                             tumor.</p>
-                                        <p className="font-bold text-xl bg-green-300 mt-1 mb-1">Diagnosis:</p>
+                                        <p className="font-bold text-xl bg-green-300 mt-1 mb-1 p-2">Diagnosis</p>
                                         <ol className="list-decimal list-inside pl-4">
                                             <li>Squamous cell carcinoma, left floor of mouth</li>
                                             <li>Squamous cell carcinoma, in extranodal connective tissue of neck at
