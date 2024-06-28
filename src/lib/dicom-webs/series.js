@@ -45,6 +45,24 @@ export const getSeriesInfo = async (baseUrl, studyUid, seriesUid) => {
 };
 
 /**
+ * Extracts value of Pixel Spacing attribute from metadata.
+ *
+ * @private
+ * @param {object} metadata - Metadata of a DICOM VL Whole Slide Microscopy Image instance
+ * @returns {number[]} Spacing between pixel columns and rows in millimeter
+ */
+function getPixelSpacing(metadata) {
+    const functionalGroup = metadata[DicomTags.SharedFunctionalGroupsSequence]?.Value?.[0] ;
+    const pixelMeasures = functionalGroup?.[DicomTags.PixelMeasuresSequence]?.Value?.[0];
+    if (!pixelMeasures) return [1, 1];
+
+    return [
+        Number(pixelMeasures[DicomTags.PixelSpacing]?.Value?.[0]) || 1,
+        Number(pixelMeasures[DicomTags.PixelSpacing]?.Value?.[1]) || 1,
+    ];
+}
+
+/**
  * Sorts imaging information by the total pixel matrix size and number of frames.
  * @param {Object} a - The first imaging information.
  * @param {Object} b - The second imaging information.
@@ -81,7 +99,7 @@ export const getImagingInfo = async (baseUrl, studyUid, seriesUid) => {
                 numberOfFrames: metadata[DicomTags.NumberOfFrames]?.Value?.[0],
                 rows: metadata[DicomTags.Rows]?.Value?.[0],
                 columns: metadata[DicomTags.Columns]?.Value?.[0],
-                pixelSpacing: metadata[DicomTags.PixelSpacing]?.Value,
+                pixelSpacing: getPixelSpacing(metadata),
                 totalPixelMatrixColumns: metadata[DicomTags.TotalPixelMatrixColumns]?.Value?.[0],
                 totalPixelMatrixRows: metadata[DicomTags.TotalPixelMatrixRows]?.Value?.[0],
             };

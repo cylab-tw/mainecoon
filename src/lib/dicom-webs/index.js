@@ -30,6 +30,8 @@ const DicomTags = {
     AnnotationGroupSequence: '006A0002',
     GraphicType: '00700023',
     GroupName: '006A0005',
+    PixelMeasuresSequence : '00289110',
+    SharedFunctionalGroupsSequence : '52009229',
 };
 
 // 定義 DICOM Web URL 的解析函數

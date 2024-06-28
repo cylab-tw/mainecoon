@@ -232,8 +232,12 @@ export const computePyramidInfo = (baseUrl, studyUid, seriesUid, images) => {
         resolution: Math.round(baseTotalPixelMatrixColumns / image.totalPixelMatrixColumns),
     }));
 
+    console.log("123", pyramidPixelSpacings);
     const extent = [0, -(baseTotalPixelMatrixRows + 1), baseTotalPixelMatrixColumns, -1];
-    const projection = new Projection({ code: 'DICOM', units: 'm', global: true, extent: extent });
+    const projection = new Projection({ code: 'DICOM', units: 'm', global: true, extent: extent ,
+        getPointResolution: (resolution, point) => (resolution*pyramidPixelSpacings[pyramidPixelSpacings.length-1][0])/1000,
+
+    });
 
     const tileGrid = new TileGrid({
         extent: extent,
