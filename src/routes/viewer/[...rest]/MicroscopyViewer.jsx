@@ -118,6 +118,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
                     computeAnnotationFeatures(annotation, resolutions)
                         .then(({features0,annGroupName0}) => {
                             groupName.push(annGroupName0)
+                            console.log("features0",features0)
                             features0.map((feature) => {
                                 const color1 = getRandomColor();
                                 color.push(color1)
@@ -459,14 +460,12 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,annotations,grou
                 console.log("feeeaaatures", features, sourceRef.current.getFeatures())
                 console.log("test",features?.toReversed().slice(0, 1))
                 for (const feature of features?.toReversed().slice(0, 1) ?? []) {
-                    console.log("feature999", feature)
                     sourceRef.current.removeFeature(feature);
                 }
                 console.log("feeeaaatures", features, sourceRef.current.getFeatures())
         }
 
         setUndo([...undo.slice(0, undo.length - 1)]);
-        console.log("features888", features)
 
     }
 

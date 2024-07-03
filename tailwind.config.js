@@ -32,7 +32,10 @@ export default {
                         borderRadius: "50px",
                         border: "0.5px solid white"
                     }
-                }
+                },
+                ".custom-height": {
+                    height: "calc(100vh - 1rem)"
+                },
             }
             addUtilities(newUtilities, ["responsive", "hover"])
         }

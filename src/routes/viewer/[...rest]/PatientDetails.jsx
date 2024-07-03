@@ -1,6 +1,4 @@
 import React, {useState,useEffect} from "react";
-import {combineUrl} from "../../../lib/search/index.js";
-import {QIDO_RS_Response} from "../../../lib/search/QIDO_RS.jsx";
 
 const PatientDetails = ({label,detail}) => {
 

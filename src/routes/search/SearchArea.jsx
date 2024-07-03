@@ -3,6 +3,7 @@ import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {SearchResultList} from "../search/SearchResultList.jsx";
 import {firstQuery} from "../../lib/search/index.js";
 import {Icon} from "@iconify/react";
+import {ServerContext} from "../../lib/ServerContext.jsx";
 
 
 
@@ -28,6 +29,9 @@ const Main = () => {
 
     const [pageLimit, setPageLimit] = useState(state.parameter.limit || 10);
     const [pageOffset, setPageOffset] = useState(state.parameter.offset || 0);
+    const [server,setServer] = useContext(ServerContext)
+    console.log("server",server)
+
     const handlePageLimit = (e) => {
         const {name, value} = e.target;
         if (name === "offset") {
@@ -74,10 +78,11 @@ const Main = () => {
     useEffect( () => {
         const { limit, offset } = state.parameter;
         setHandlePrePageChange(offset > 0)
-        firstQuery({...state.parameter,limit:1,offset:limit + offset}).then(({ result } ) => {
+        console.log("firstserver",server)
+        firstQuery({...state.parameter,limit:1,offset:limit + offset},server).then(({ result } ) => {
             setHandleNextPageChange(result.length > 0)
         })
-    }, [state]);
+    }, [state,server!== undefined]);
 
     return (
         <div className="flex flex-col h-full ">

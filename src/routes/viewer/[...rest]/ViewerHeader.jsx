@@ -14,7 +14,9 @@ const ViewerPageHeader = ({detail,annColor, drawType, undo, save,isLeftOpen,labe
     const [saveAnnotations, setSaveAnnotations] = save;
     const [isLeftDrawerOpen, setIsLeftDrawerOpen] = isLeftOpen;
     const [isShowReport, setIsShowReport] = isReportOpen;
-
+    const [isMouseOn, setIsMouseOn] = useState(false);
+    const [isMouseOnPatient, setIsMouseOnPatient] = useState(false);
+    const [isMouseOnCase, setIsMouseOnCase] = useState(false);
 
     const updateDrawType = (e, type) => {
         let prevButton = e.target;
@@ -43,10 +45,6 @@ const ViewerPageHeader = ({detail,annColor, drawType, undo, save,isLeftOpen,labe
         target.querySelector('svg.animate-bounce').classList.remove('animate-bounce');
     }
 
-    const [isMouseOn, setIsMouseOn] = useState(false);
-    const [isMouseOnPatient, setIsMouseOnPatient] = useState(false);
-    const [isMouseOnCase, setIsMouseOnCase] = useState(false);
-
     const mouseOnFun = () => {setIsMouseOn(!isMouseOn);};
     const mouseOnPatientFun = () => {setIsMouseOnPatient(!isMouseOnPatient);}
     const mouseOnCaseFun = () => {setIsMouseOnCase(!isMouseOnCase);}
@@ -69,7 +67,7 @@ const ViewerPageHeader = ({detail,annColor, drawType, undo, save,isLeftOpen,labe
 
     return (
         <>
-            <div className="bg-green-500 text-white p-1 ">
+            <div className="bg-green-500 text-white p-1 h-fit">
                 <div className="flex flex-row ">
                     <div className="flex">
                         <Link to="/" className={"w-14 h-14 flex flex-column justify-center items-center ml-3 mt-1"}>
@@ -79,7 +77,6 @@ const ViewerPageHeader = ({detail,annColor, drawType, undo, save,isLeftOpen,labe
                             <h1 className="text-2xl mt-1 ml-2 mr-5 font-bold font-serif">MAINECOON</h1>
                         </div>
                     </div>
-
 
                     <div className="text-black flex w-full justify-start text-center m-2 font-bold gap-2">
                         <div>
@@ -120,16 +117,13 @@ const ViewerPageHeader = ({detail,annColor, drawType, undo, save,isLeftOpen,labe
 
                     <div className="flex justify-end items-center w-full">
                         <div ref={myRef} onClick={mouseOnFun}>
-                            <button
-                                className="bg-white hover:bg-yellow-500 rounded-lg p-2 mr-1 mb-1 block"
-                            >
+                            <button className="bg-white hover:bg-yellow-500 rounded-lg p-2 mr-1 mb-1 block">
                                 <Icon icon="mdi:tag-edit" className="text-black h-6 w-6"/>
                             </button>
                         </div>
                         <div className="flex flex-row m-2 gap-2">
                             <button className="bg-white hover:bg-yellow-500 rounded-lg p-2 mr-1 mb-1 block"
-                                    onClick={handleViewer}
-                            >
+                                    onClick={handleViewer}>
                                 <Icon icon="fa6-regular:hand" className="animate-bounce text-black h-6 w-6"/>
                             </button>
                             <button className="relative bg-white hover:bg-yellow-500 rounded-lg p-2 mr-1 mb-1 block"
@@ -155,11 +149,6 @@ const ViewerPageHeader = ({detail,annColor, drawType, undo, save,isLeftOpen,labe
                             >
                                 <Icon icon="gg:undo" className="text-black h-6 w-6"/>
                             </button>
-                            <select
-                                className="bg-white w-fit h-10 justify-center flex mx-2 p-2 rounded-lg mb-1 text-black">
-                                <option value="NTUNHS">NTUNHS</option>
-                                <option value="GOOGLE">GOOGLE</option>
-                            </select>
                             <button className="ml-4 mr-1 mb-1" style={{transform: 'rotate(180deg)'}}>
                                 <Icon icon="fluent:list-28-filled" className="text-black h-6 w-6"/>
                             </button>

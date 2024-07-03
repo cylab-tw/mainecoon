@@ -9,7 +9,7 @@ const parseDicomwebUrls = (urls) => {
 
 
 // const PUBLIC_DICOMWEB_URLS = 'J4Care=https://development.j4care.com:11443/dcm4chee-arc/aets/DCM4CHEE/rs,Google=https://dicomwebproxy-bqmq3usc3a-uc.a.run.app/dicomWeb';
-const PUBLIC_DICOMWEB_URLS = 'NTUNHS=https://ditto.dicom.tw/dicom-web,J4Care=https://development.j4care.com:11443/dcm4chee-arc/aets/DCM4CHEE/rs,Google=https://dicomwebproxy-bqmq3usc3a-uc.a.run.app/dicomWeb';
+const PUBLIC_DICOMWEB_URLS = 'NTUNHS=https://ditto.dicom.tw/dicom-web,J4Care=https://development.j4care.com:11443/dcm4chee-arc/aets/DCM4CHEE/rs,GOOGLE=https://dicomwebproxy-bqmq3usc3a-uc.a.run.app/dicomWeb';
 
 const DICOMWEB_URLS = parseDicomwebUrls(PUBLIC_DICOMWEB_URLS);
 
@@ -17,6 +17,7 @@ const DICOMWEB_URLS = parseDicomwebUrls(PUBLIC_DICOMWEB_URLS);
 
 // Function to get the DICOM web URL directly without setting state
 export const getDicomwebUrl = (name) => {
+    console.log("name",name)
     const serverIndex = DICOMWEB_URLS.findIndex(server => server.name === name);
     return DICOMWEB_URLS[serverIndex === -1 ? 0 : serverIndex].url;
 };

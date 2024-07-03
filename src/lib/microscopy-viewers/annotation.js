@@ -9,6 +9,7 @@ import { multipartDecode } from '../utils/multipart';
 
 /**
  * Decodes base64 encoded data into an ArrayBuffer and converts it into a Float64Array or Float32Array based on the VR value.
+ *
  * @param {string | ArrayBuffer[]} encodedData - The encoded data.
  * @param {string} vr - The value representation to decide the data type for decoding.
  * @returns {Float64Array | Float32Array} The decoded coordinate data.
@@ -307,6 +308,7 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
             default:
                 console.error('Unrecognized graphic type: ', graphicType);
         }
+
         features0.push(features)
     }
     return {features0,annGroupName0};

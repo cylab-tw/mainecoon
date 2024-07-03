@@ -1,8 +1,6 @@
 import React, {useState} from "react";
 import PatientDetails from "./PatientDetails.jsx";
 import {Icon} from "@iconify/react";
-import {combineUrl} from "../../../lib/search/index.js";
-import {QIDO_RS_Response} from "../../../lib/search/QIDO_RS.jsx";
 
 const LeftDrawer = ({detail,labelOpen,isLabelOpen,smAccessionNumber,seriesUid,smSeriesUid}) => {
     const [isLabelOpenDrawer,setIsLabelOpenDrawer] = isLabelOpen;

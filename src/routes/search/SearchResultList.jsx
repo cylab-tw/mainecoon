@@ -1,7 +1,8 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import SearchResult from "./SearchResult.jsx";
-import {firstQuery, hasNext} from "../../lib/search/index.js";
+import {firstQuery} from "../../lib/search/index.js";
 import L_Modal from "../imageReport/LoadingModal.jsx";
+import {ServerContext} from "../../lib/ServerContext.jsx";
 
 const SearchResultList = ({state}) => {
     const searchResultListRef = useRef();
@@ -21,11 +22,11 @@ const SearchResultList = ({state}) => {
             }
         }
     }
-
+    const [server,setServer] = useContext(ServerContext)
     const [isLoading, setIsLoading] = useState(true);
     useEffect( () => {
         setIsLoading(true);
-        firstQuery(state.parameter).then(({ result } ) => {
+        firstQuery(state.parameter,server).then(({ result } ) => {
             setResults(Array.isArray(result) ? result : [])
             setIsLoading(false);
             return result
@@ -35,7 +36,7 @@ const SearchResultList = ({state}) => {
             // console.log("offset", limit + offset)
             // console.log("result", result)
         })
-    }, [state]);
+    }, [state,server]);
 
 
     return (
@@ -45,17 +46,17 @@ const SearchResultList = ({state}) => {
                  // onScroll={onScroll}
                  ref={searchResultListRef}
             >
-                    <div className="w-full">
+                    <div className="h-full">
                         <table className="w-full mr-2">
-                            <thead className="sticky top-0 z-10 bg-green-600 ">
-                            <tr className="h-12 ">
-                                <td className="p-2 font-bold bg-green-600 rounded-lt-xl text-white">PatientID</td>
-                                <td className="p-2 font-bold bg-green-600 text-white">Name</td>
-                                <td className="p-2 font-bold bg-green-600 text-white">BirthDate</td>
-                                <td className="p-2 font-bold bg-green-600 text-white">Sex</td>
-                                <td className="p-2 font-bold bg-green-600 text-white">Accession Number</td>
-                                <td className="p-2 font-bold bg-green-600 text-white">Study Date</td>
-                                <td className="p-2 font-bold bg-green-600 text-white">Preview</td>
+                            <thead className="sticky top-0 bg-green-600 ">
+                            <tr className="h-12 text-left font-bold text-white">
+                                <td className="px-3 py-2">PatientID</td>
+                                <td className="px-3 py-2">Name</td>
+                                <td className="px-3 py-2">Birth Date</td>
+                                <td className="px-3 py-2">Sex</td>
+                                <td className="px-3 py-2">Accession Number</td>
+                                <td className="px-3 py-2">Study Date</td>
+                                <td className="px-3 py-2">Preview</td>
                                 {/*<td className="p-2 font-bold bg-green-600 text-white">SM&emsp;</td>*/}
                                 {/*<td className="p-2 font-bold bg-green-600 text-white">ANN&nbsp;</td>*/}
                             </tr>

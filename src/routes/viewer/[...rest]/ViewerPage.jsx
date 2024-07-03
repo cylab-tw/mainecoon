@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import MicroscopyViewer from './MicroscopyViewer'; // 引入 MicroscopyViewer 組件
 import {getAnnotations, getImagingInfo, getSeriesInfo} from '../../../lib/dicom-webs/series';
 import {DICOMWEB_URLS} from '../../../lib/dicom-webs';
@@ -8,6 +8,8 @@ import {QIDO_RS_Response} from "../../../lib/search/QIDO_RS.jsx";
 import {Icon} from "@iconify/react";
 import ViewerPageHeader from "./ViewerHeader.jsx";
 import LeftDrawer from "./LeftDrawer.jsx"
+import {ServerContext} from "../../../lib/ServerContext.jsx";
+import {Report} from "../../report/Report.jsx";
 
 const ViewerPage = () => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -45,6 +47,7 @@ const ViewerPage = () => {
     const [color, setColor] = useState([])
     const [seriesId, setSeriesId] = useState([])
     const [data, setData] = useState([]);
+    const [dicomWebServer,setDicomWebServer] = useContext(ServerContext)
 
     function formatDate(inputDate) {
         const year = inputDate.substring(0, 4);
@@ -94,10 +97,11 @@ const ViewerPage = () => {
     }
 
     useEffect(() => {
+        console.log("dicomWebServer",dicomWebServer)
         try {
             // 找出第1個series
             const fetchSeries = async () => {
-                const seriesResult = await fetch(`${combineUrl}/studies/${studyUid}/series`)
+                const seriesResult = await fetch(`${combineUrl(server)}/studies/${studyUid}/series`)
                 const seriesJson = await seriesResult.json()
                 seriesJson.map((series) => {
                     seriesId.push(series["0020000E"]?.Value[0])
@@ -107,7 +111,7 @@ const ViewerPage = () => {
 
             const fetchDetails = async () => {
                 try {
-                    const response = await fetch(`${combineUrl}/studies?ModalitiesInStudy=SM&StudyInstanceUID=${studyUid}`);
+                    const response = await fetch(`${combineUrl(server)}/studies?ModalitiesInStudy=SM&StudyInstanceUID=${studyUid}`);
                     const data = await response.json();
                     setData(data)
                 } catch (e) {
@@ -117,7 +121,8 @@ const ViewerPage = () => {
 
             const fetchMetadata = async () => {
                 try {
-                    const result = await fetch(`${combineUrl}/studies/${studyUid}/series`)
+                    console.log("combineUrl",combineUrl(server))
+                    const result = await fetch(`${combineUrl(server)}/studies/${studyUid}/series`)
                     if (result) {
                         const data = await result.json();
                         setWadoSeries(data);
@@ -133,7 +138,7 @@ const ViewerPage = () => {
         } catch (e) {
             console.log(e)
         }
-    }, [])
+    }, [dicomWebServer])
 
 
     useEffect(() => {
@@ -173,6 +178,7 @@ const ViewerPage = () => {
         processAnnotations();
     }, [annAccessionNumber]);
 
+
     useEffect(() => {
         const fetchData = async () => {
             if (studyUid === null || seriesUid === null || studyUid === "" || seriesUid === "") return;
@@ -196,7 +202,7 @@ const ViewerPage = () => {
                 console.log("seriesUid", seriesUid)
                 if (studyUid === null || seriesUid === null || studyUid === "" || seriesUid === "") return;
 
-                const url = `${combineUrl}/studies/${studyUid}/series/${seriesUid}/metadata`
+                const url = `${combineUrl(server)}/studies/${studyUid}/series/${seriesUid}/metadata`
                 const response = await fetch(url)
                 const data = await response.json();
                 const SpecimenDescriptionSequence = data[0]?.["00400560"]?.Value[0]
@@ -253,7 +259,7 @@ const ViewerPage = () => {
 
         fetchData();
         fetchDetails()
-    }, [server, studyUid, seriesUid]);
+    }, [server, studyUid, seriesUid,dicomWebServer]);
 
 
     // 依據groupName長度，設定checkboxList佔位(全設為false)
@@ -265,8 +271,6 @@ const ViewerPage = () => {
         }
         setAnnCheckboxList(checkboxList)
     }, [groupName]);
-
-
 
 
     if (images.length === 0 || !smSeriesUid) {
@@ -367,7 +371,7 @@ const ViewerPage = () => {
 
     const handleDeleteAnn = (index) => {
         const newIndex = index + 1
-        fetch(`${combineUrl}/studies/${studyUid}/series/${seriesId[newIndex]}`, {
+        fetch(`${combineUrl(server)}/studies/${studyUid}/series/${seriesId[newIndex]}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -380,7 +384,7 @@ const ViewerPage = () => {
 
     return (
         <>
-            <div className="flex h-full w-auto flex-col">
+            <div className="flex custom-height w-auto flex-col">
                 <ViewerPageHeader annColor={[annColor, setAnnColor]}
                                   drawType={[drawType, setDrawType]}
                                   undo={[undo, setUndo]}
@@ -390,7 +394,7 @@ const ViewerPage = () => {
                                   labelOpen={labelOpen}
                                   detail={detail}
                 />
-                <div className={`h-full w-full flex grow `}>
+                <div className={`h-full w-full flex grow`}>
                     {isLeftOpen &&
                         <LeftDrawer labelOpen={labelOpen}
                                     isLabelOpen={[labelOpen, setLabelOpen]}
@@ -402,122 +406,7 @@ const ViewerPage = () => {
                     }
                     {isReportOpen && (
                         <>
-                            <div className={`!h-100 w-6/12 border-4 border-black rounded-2xl m-3`}>
-                                <div className="flex flex-col w-full h-full">
-                                    <div className="p-5 m-2 overflow-y-scroll scrollbar-thin scrollbar-webkit">
-                                        <p className="font-bold text-xl bg-green-300 mt-1 mb-1 p-2">Gross Description</p>
-                                        <p>The specimen is received in three parts, all fresh.</p>
-                                        <p className="font-bold text-lg">Part #1 </p>
-                                        <p>which is labeled &quot;?metastatic tumor in jugular vein lymph
-                                            node&quot; consists of an elliptical
-                                            fragment of light whitish-tan tissue which measures approximately 0.3 x 0.2
-                                            x 0.2 cm. The
-                                            specimen is examined by the frozen section technique, and the diagnosis
-                                            is &quot;ganglion&quot;. The remainder of part #1 of the specimen is
-                                            submitted
-                                            as frozen section control #1.</p>
-                                        <p className="font-bold text-lg ">Part #2 </p>
-                                        <p className="whitespace-pre-line">is labeled &quot;resection of floor of mouth continuous with tongue and
-                                            mandible
-                                            plus left radical neck dissection&quot;. As received in the frozen section
-                                            room,
-                                            the specimen consists of a grossly identifiable left radical neck dissection
-                                            and also the entire left ascending ramus of the mandible, the posterior
-                                            three-fourths of the left mandible proper, the left lateral portion of the
-                                            tongue,
-                                            and the submental and submaxillary salivary glands. The main lesion is
-                                            identified
-                                            on the left side of the floor by the mouth. There is a craterform lesion
-                                            which
-                                            measures approximately 1.2 x 0.5 cm in greatest dimensions. With the
-                                            assistance
-                                            of Dr. U. No Whoo, the specimen is properly oriented. Two areas of interest
-                                            are
-                                            defined. The first of these is the anterior tongue margin. The second of
-                                            these is
-                                            the medial tongue margin. Fragments from each of these areas are
-                                            examined by the frozen section technique. The diagnosis on frozen section #2
-                                            (anterior tongue margin) is &quot;no tumor seen&quot; and on frozen section
-                                            #3
-                                            (medial tongue margin) is &quot;no tumor seen&quot;. Two additional areas of
-                                            special interest are identified. The first of these is that portion of the
-                                            left radical neck
-                                            dissection which was nearest to the carotoid artery. A fragment of tissue
-                                            from this
-                                            area is excised and submitted for sectioning labeled &quot;CM&quot;. The
-                                            second area
-                                            of interest is that portion of the left radical neck dissection which
-                                            bordered
-                                            upon the anterior aspect of the vertebral column. A fragment of tissue is
-                                            excised from
-                                            this area and submitted for sectioning labeled &quot;VM&quot;. After having
-                                            been
-                                            photographed in several positions, the specimen is blocked further. A
-                                            section is
-                                            taken through the main tumor mass and submitted for sectioning
-                                            labeled &quot;T
-                                            POST&quot;. Attention is directed to the left radical neck dissection
-                                            proper.
-                                            This part of the specimen is divided into the appropriate five levels. Each
-                                            level is
-                                            examined for lymph nodes which are dissected free and submitted in their
-                                            entirety for sectioning. The remainder of the specimen is saved.</p>
-                                        <p className="font-bold text-lg">Part #3 </p>
-                                        <p>of the specimen, labeled &quot;anterior margin of inferior
-                                            mandible&quot; consists of
-                                            an irregular fragment of fibrous connective and skeletal muscular tissues
-                                            and
-                                            measures approximately 1.0 x 0.5 x 0.2 cm. The specimen is submitted in its
-                                            entirety for
-                                            sectioning on three levels.</p>
-                                        <p className="font-bold text-xl bg-green-300 mt-1 mb-1 p-2">Microscopic Description</p>
-                                        <p>Microscopic examination of frozen section control #1 confirms the original
-                                            frozen section
-                                            diagnosis of &quot;ganglion&quot;.</p>
-                                        <p>Microscopic examination of frozen section
-                                            control #2 confirms the original frozen section diagnosis of &quot;no tumor
-                                            seen&quot;.</p>
-                                        <p>Microscopic examination of frozen section control #3 confirms
-                                            the original frozen section diagnosis of &quot;no tumor seen&quot;.</p>
-                                        <p>Microscopic examination of part #2 of the specimen reveals foci of moderately
-                                            well
-                                            differentiated squamous cell carcinoma in the floor of the left side of the
-                                            mouth.
-                                            The residual tumor is surrounded by large amounts of dense fibrous
-                                            connective
-                                            tissue. Microscopic examination of the section labeled CM which represents
-                                            the
-                                            carotoid margin reveals squamous cell carcinoma extending to within 0.1 cm
-                                            of the
-                                            surgical margin.</p>
-                                        <p>Microscopic examination of section labeled VM representing the vertebral
-                                            margin fails to reveal evidence of tumor in this location. Microscopic
-                                            examination of the tissue in level I reveals section of fibrotic and
-                                            atrophic
-                                            submaxillary salivary gland. There is also one lymph node in level I which
-                                            is
-                                            negative for metastatic tumor. Microscopic examination of the tissue in
-                                            level II
-                                            reveals sections of 11 lymph nodes none of which contains numerous foci of
-                                            squamous
-                                            cell carcinoma. Microscopic examination of the tissue in level IV reveals
-                                            sections
-                                            of 6 lymph nodes, none of which contains metastatic tumor. Microscopic
-                                            examination
-                                            of the tissue in level V reveals 1 lymph node which is negative for
-                                            metastatic
-                                            tumor.</p>
-                                        <p className="font-bold text-xl bg-green-300 mt-1 mb-1 p-2">Diagnosis</p>
-                                        <ol className="list-decimal list-inside pl-4">
-                                            <li>Squamous cell carcinoma, left floor of mouth</li>
-                                            <li>Squamous cell carcinoma, in extranodal connective tissue of neck at
-                                                level III
-                                            </li>
-                                            <li>Nineteen cervical lymph nodes, no pathologic diagnosis.</li>
-                                        </ol>
-                                    </div>
-                                </div>
-                            </div>
+                            <Report/>
                         </>
                     )}
 
@@ -543,55 +432,58 @@ const ViewerPage = () => {
                                     {labelOpen[3] === 0 ? (
                                         <>
                                             <div className="flex flex-row items-center bg-green-300  justify-between">
-                                                <div className="bg-opacity-100 flex z-30">
-                                                    <button
-                                                        className="flex items-center bg-gray-400 hover:bg-gray-600 text-white font-bold rounded-r-lg p-3"
-                                                        onClick={RightDrawer}>
-                                                        {'>>'}
-                                                    </button>
+                                                <div className="flex text-left">
+                                                    <div className="bg-opacity-100 flex z-30">
+                                                        <button
+                                                            className="flex items-center bg-gray-400 hover:bg-gray-600 text-white font-bold rounded-r-lg p-3"
+                                                            onClick={RightDrawer}>
+                                                            {'>>'}
+                                                        </button>
+                                                    </div>
+                                                    <div className="flex items-center" value={3}
+                                                         onClick={(e) => handleLabelOpen(e, 3)}>
+                                                        <label
+                                                            className="ml-5 text-lg mt-2 font-bold font-sans mb-2 flex ">
+                                                            Slide label
+                                                            <Icon icon="fluent:slide-text-sparkle-24-filled" width="28"
+                                                                  height="28" className="ml-3 text-white"/>
+                                                        </label>
+                                                    </div>
                                                 </div>
-                                                <div className="flex items-center" value={3}
-                                                     onClick={(e) => handleLabelOpen(e, 3)}>
-                                                    <label
-                                                        className="ml-5 text-lg mt-2 font-bold font-sans mb-2 flex items-center ">
-                                                        Slide label
-                                                        <Icon icon="fluent:slide-text-sparkle-24-filled" width="28"
-                                                              height="28" className="ml-3 text-white"/>
-                                                    </label>
-                                                </div>
-                                                <div className="mr-1">
+                                                <div className="mr-5">
                                                     <Icon icon="line-md:chevron-small-down" width="24" height="24"/>
                                                 </div>
                                             </div>
                                             <div>
-                                                <img
-                                                    src={`${combineUrl}/studies/${studyUid}/series/${seriesUid}/label`}
-                                                    className="h-32 w-full border object-cover"
-                                                    alt=""
-                                                />
+                                                {/*<img*/}
+                                                {/*    src={`${combineUrl(server)}/studies/${studyUid}/series/${seriesUid}/label`}*/}
+                                                {/*    className="h-32 w-full border object-cover"*/}
+                                                {/*    alt=""*/}
+                                                {/*/>*/}
                                             </div>
                                         </>
                                     ) : (
                                         <>
-                                            <div
-                                                className="flex flex-row items-center bg-green-300  justify-between">
-                                                <div className="bg-opacity-100 flex z-30">
-                                                    <button
-                                                        className="flex items-center bg-gray-400 hover:bg-gray-600 text-white font-bold rounded-r-lg p-3"
-                                                        onClick={RightDrawer}>
-                                                        {'>>'}
-                                                    </button>
+                                            <div className="flex flex-row items-center bg-green-300 justify-between">
+                                                <div className="flex text-left">
+                                                    <div className="bg-opacity-100 flex z-30">
+                                                        <button
+                                                            className="flex items-center bg-gray-400 hover:bg-gray-600 text-white font-bold rounded-r-lg p-3"
+                                                            onClick={RightDrawer}>
+                                                            {'>>'}
+                                                        </button>
+                                                    </div>
+                                                    <div className="flex items-center" value={3}
+                                                         onClick={(e) => handleLabelOpen(e, 3)}>
+                                                        <label
+                                                            className="ml-5 text-lg mt-2 font-bold font-sans mb-2 flex items-center ">
+                                                            Slide label
+                                                            <Icon icon="fluent:slide-text-sparkle-24-filled" width="28"
+                                                                  height="28" className="ml-3 text-white"/>
+                                                        </label>
+                                                    </div>
                                                 </div>
-                                                <div className="flex items-center" value={3}
-                                                     onClick={(e) => handleLabelOpen(e, 3)}>
-                                                    <label
-                                                        className="ml-5 text-lg mt-2 font-bold font-sans mb-2 flex items-center ">
-                                                        Slide label
-                                                        <Icon icon="fluent:slide-text-sparkle-24-filled" width="28"
-                                                              height="28" className="ml-3 text-white"/>
-                                                    </label>
-                                                </div>
-                                                <div className="mr-1">
+                                                <div className="mr-5">
                                                     <Icon icon="line-md:chevron-small-up" width="24" height="24"/>
                                                 </div>
                                             </div>
@@ -605,11 +497,11 @@ const ViewerPage = () => {
                                              value={4} onClick={(e) => handleLabelOpen(e, 4)}>
                                             <div className="flex items-center">
                                                 <label
-                                                    className="ml-28 text-lg mt-2 font-bold font-sans mb-2 ">Specimens</label>
+                                                    className="ml-5 text-lg mt-2 font-bold font-sans mb-2 ">Specimens</label>
                                                 <Icon icon="pajamas:details-block" width="28" height="28"
                                                       className="ml-3 text-white"/>
                                             </div>
-                                            <div className="mr-1">
+                                            <div className="mr-5">
                                                 <Icon icon="line-md:chevron-small-down" width="24" height="24"/>
                                             </div>
                                         </div>
@@ -703,7 +595,8 @@ const ViewerPage = () => {
                                                     {annAccessionNumber.map((series, index0) => {
                                                         return (
                                                             <>
-                                                                <div key={index0} className="mt-2.5 ml-2.5 mr-2.5 flex items-center hover:bg-green-100">
+                                                                <div key={index0}
+                                                                     className="mt-2.5 ml-2.5 mr-2.5 flex items-center hover:bg-green-100">
                                                                     {
                                                                         annCheckboxList[index0] === true ? (
                                                                             <>
@@ -734,7 +627,8 @@ const ViewerPage = () => {
                                                                             className="text-red-500"/></button>
                                                                 </div>
                                                                 <div>
-                                                                    <div style={{display: expandedGroups.includes(index0) ? "block" : "none"}}>
+                                                                    <div
+                                                                        style={{display: expandedGroups.includes(index0) ? "block" : "none"}}>
                                                                         {groupName[index0] ? (
                                                                             <div className="bg-white">
                                                                                 {groupName[index0].map((group, index) =>

@@ -1,10 +1,11 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {Icon} from "@iconify/react";
 import {QIDO_RS_Response} from "../../lib/search/QIDO_RS.jsx"
 import {useNavigate} from "react-router-dom";
 import {combineUrl} from "../../lib/search/index.js";
 import {toDicomWebUrl} from "../../lib/dicom-webs";
 import {set} from "lodash";
+import {ServerContext} from "../../lib/ServerContext.jsx";
 
 const SearchResult = ({qidorsSingleStudy, onMessageChange}) => {
 
@@ -31,13 +32,16 @@ const SearchResult = ({qidorsSingleStudy, onMessageChange}) => {
     }
 
     const navigate = useNavigate();
+    const currentURL = window.location.href;
+    console.log(currentURL);
+    const [server,setServer] = useContext(ServerContext)
 
     function OnClick() {
         const studyInstanceUID = getQidorsSingleStudyMetadataValue(qidorsSingleStudy, QIDO_RS_Response.StudyInstanceUID, "StudyInstanceUID, NotFound");
         // navigate(`../image/${studyInstanceUID}`);
         // navigate(`../viewer/J4Care?studyUid=${studyInstanceUID}`);
         // navigate(`../viewer?server=NTUNHS&studyUid=${studyInstanceUID}`);
-        location.href = `../viewer?server=NTUNHS&studyUid=${studyInstanceUID}`;
+        location.href = `../viewer?server=${server}&studyUid=${studyInstanceUID}`;
         // location.href = `../viewer?server=Google&studyUid=${studyInstanceUID}`;
         // navigate(`../viewer?server=J4Care&studyUid=${studyInstanceUID}`);
     }
@@ -48,7 +52,7 @@ const SearchResult = ({qidorsSingleStudy, onMessageChange}) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const result = await fetch(`${combineUrl}/studies/${StudyInstanceUID}/series`)
+                const result = await fetch(`${combineUrl(server)}/studies/${StudyInstanceUID}/series`)
                 const metadatas = await result.json();
                 setSM(metadatas?.map((metadata) => {
                     const Attribute = metadata?.["00080060"]?.Value;
@@ -125,7 +129,7 @@ const SearchResult = ({qidorsSingleStudy, onMessageChange}) => {
                             <img
                                 key={seriesUid}
                                 src={toDicomWebUrl({
-                                    baseUrl: combineUrl,
+                                    baseUrl: combineUrl(server),
                                     studyUid: StudyInstanceUID,
                                     seriesUid,
                                     pathname: "/thumbnail"
