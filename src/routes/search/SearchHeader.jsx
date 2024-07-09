@@ -1,14 +1,12 @@
 import React, {useEffect, useRef, useState} from 'react';
 import Modal from './SearchHeaderModal';
-import {Icon} from "@iconify/react";
-import PatientDetails from "../viewer/[...rest]/PatientDetails.jsx";
 
 const SearchHeader = ({State}) => {
 
     const [isMouseOn, setIsMouseOn] = useState(false);
     const [state, setState] = State;
     const [parameter, setParameter] = useState(state.parameter);
-
+    const myRef = useRef(null);
     const queryParameterHandler = (e) => {
         const {name, value} = e.target;
         setParameter(prevState => ({
@@ -17,16 +15,16 @@ const SearchHeader = ({State}) => {
         }));
     };
 
-
     const mouseOnFun = () => {
-        setIsMouseOn(true);
+        setIsMouseOn(true)
     };
+
     // IPAD觸控
     const mouseOutFun = () => {
-        setIsMouseOn(false);
+        setIsMouseOn(false)
     };
 
-    const myRef = useRef(null);
+
     useOutsideClick(myRef, () => {
         mouseOutFun()
     });
@@ -34,7 +32,6 @@ const SearchHeader = ({State}) => {
     const searchBtnOnClick = async () => {
         setState({...state, parameter, timeStamp: Date.now()})
     };
-
 
     return (
         <>
@@ -52,8 +49,7 @@ const SearchHeader = ({State}) => {
                                         queryParameterHandler(e)
                                     }}
                                 />
-                                <button className="border-2 m-2 rounded-lg px-2 " onClick={searchBtnOnClick}>Search
-                                </button>
+                                <button className="border-2 m-2 rounded-lg px-2 " onClick={searchBtnOnClick}>Search</button>
                             </div>
                         </div>
                     </div>
@@ -67,9 +63,7 @@ const SearchHeader = ({State}) => {
                                     className="border-2 m-2 p-2 rounded-lg text-black w-full"
                                     name="PatientName"
                                     value={parameter.PatientName}
-                                    onChange={(e) => {
-                                        queryParameterHandler(e)
-                                    }}
+                                    onChange={(e) => {queryParameterHandler(e)}}
                                 />
                             </div>
                         </div>
@@ -80,9 +74,7 @@ const SearchHeader = ({State}) => {
                                     className="border-2 m-2 p-2 rounded-lg text-black w-full"
                                     name="StudyInstanceUID"
                                     value={parameter.StudyInstanceUID}
-                                    onChange={(e) => {
-                                        queryParameterHandler(e)
-                                    }}
+                                    onChange={(e) => {queryParameterHandler(e)}}
                                 />
                             </div>
                         </div>
@@ -93,9 +85,7 @@ const SearchHeader = ({State}) => {
                                     className="border-2 m-2 p-2 rounded-lg text-black w-full"
                                     name="AccessionNumber"
                                     value={parameter.AccessionNumber}
-                                    onChange={(e) => {
-                                        queryParameterHandler(e)
-                                    }}
+                                    onChange={(e) => {queryParameterHandler(e)}}
                                 />
                             </div>
                         </div>
@@ -107,9 +97,7 @@ const SearchHeader = ({State}) => {
                                     className="border-2 m-2 p-2 rounded-lg text-black w-full"
                                     name="StudyDate"
                                     value={parameter.StudyDate}
-                                    onChange={(e) => {
-                                        queryParameterHandler(e)
-                                    }}
+                                    onChange={(e) => {queryParameterHandler(e)}}
                                 />
                             </div>
                         </div>
@@ -125,11 +113,9 @@ export const useOutsideClick = (ref, callback) => {
         const handleClickOutside = event => {
             if (ref.current && !ref.current.contains(event.target)) {
                 callback(event);
-                // ref.current.dispatchEvent(new CustomEvent('click-outside'));
             }
         };
         document.addEventListener('click', handleClickOutside);
-
         return () => {
             document.removeEventListener('click', handleClickOutside);
         };

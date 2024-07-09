@@ -3,11 +3,10 @@ import mainecoon from "../../../assests/mainecoon.png"
 import {Link} from 'react-router-dom';
 import {Icon} from "@iconify/react";
 import Modal from "./ToolsModal.jsx";
-import DetailsModal from "./DetailsModal.jsx";
 import {useOutsideClick} from "../../search/SearchHeader.jsx";
 import PatientDetails from "./PatientDetails.jsx";
 
-const ViewerPageHeader = ({detail,annColor, drawType, undo, save,isLeftOpen,labelOpen,isReportOpen,studyUid}) => {
+const ViewerPageHeader = ({detail, annColor, drawType, undo, save, isLeftOpen, labelOpen, isReportOpen, studyUid}) => {
     const [drawColor, setDrawColor] = annColor
     const [drawOfType, setDrawOfType] = drawType;
     const [undoDraw, setUndoDraw] = undo;
@@ -45,17 +44,27 @@ const ViewerPageHeader = ({detail,annColor, drawType, undo, save,isLeftOpen,labe
         target.querySelector('svg.animate-bounce').classList.remove('animate-bounce');
     }
 
-    const mouseOnFun = () => {setIsMouseOn(!isMouseOn);};
-    const mouseOnPatientFun = () => {setIsMouseOnPatient(!isMouseOnPatient);}
-    const mouseOnCaseFun = () => {setIsMouseOnCase(!isMouseOnCase);}
+    const mouseOnFun = () => {
+        setIsMouseOn(!isMouseOn);
+    };
+    const mouseOnPatientFun = () => {
+        setIsMouseOnPatient(!isMouseOnPatient);
+    }
+    const mouseOnCaseFun = () => {
+        setIsMouseOnCase(!isMouseOnCase);
+    }
 
     // IPAD觸控
     const mouseOutFun = () => {
         setIsMouseOn(false);
         handleViewer();
     };
-    const mouseOutPatientFun = () => {setIsMouseOnPatient(false);};
-    const mouseOutCaseFun = () => {setIsMouseOnCase(false);};
+    const mouseOutPatientFun = () => {
+        setIsMouseOnPatient(false);
+    };
+    const mouseOutCaseFun = () => {
+        setIsMouseOnCase(false);
+    };
 
     const myRef = useRef(null);
     const myPatientDetailsRef = useRef(null);
@@ -93,25 +102,21 @@ const ViewerPageHeader = ({detail,annColor, drawType, undo, save,isLeftOpen,labe
                         </div>
                         <div>
                             <button className="flex bg-white hover:bg-yellow-500 rounded-lg p-2 mr-1 mb-1 block"
-                                    ref={myPatientDetailsRef}
-                                    onMouseOver={mouseOnPatientFun}
-                                    onMouseLeave={mouseOutPatientFun}
-                            ><Icon icon="bi:people-circle" width="24" height="24" className="mr-1"/>Patient
+                                    ref={myPatientDetailsRef} onMouseOver={mouseOnPatientFun} onMouseLeave={mouseOutPatientFun}>
+                                <Icon icon="bi:people-circle" width="24" height="24" className="mr-1"/>Patient
                             </button>
-                            <DetailsModal isOpen={isMouseOnPatient} onClose={mouseOutPatientFun}>
-                                <PatientDetails labelOpen={labelOpen} detail={detail} label={"Patient"} studyUid={studyUid}/>
-                            </DetailsModal>
+                            <div className={`relative bg-white z-10 ${isMouseOnPatient ? '' : 'hidden'}`}>
+                                    <PatientDetails detail={detail} label={"Patient"} style={"ViewerHeader"}/>
+                            </div>
                         </div>
                         <div>
                             <button className="flex bg-white hover:bg-yellow-500 rounded-lg p-2 mr-1 mb-1 block"
-                                    ref={myCaseDetailsRef}
-                                    onMouseOver={mouseOnCaseFun}
-                                    onMouseLeave={mouseOutCaseFun}
-                            ><Icon icon="fluent:document-data-16-filled" width="24" height="24" className="mr-1"/>Case
+                                    ref={myCaseDetailsRef} onMouseOver={mouseOnCaseFun} onMouseLeave={mouseOutCaseFun}
+                            ><Icon icon="fluent:document-data-16-filled" width="24" height="24" className="mr-1"/>Study
                             </button>
-                            <DetailsModal isOpen={isMouseOnCase} onClose={mouseOutCaseFun}>
-                                <PatientDetails labelOpen={labelOpen} detail={detail}  label={"Case"} studyUid={studyUid}/>
-                            </DetailsModal>
+                            <div className={`relative bg-white z-10 ${isMouseOnCase ? '' : 'hidden'}`}>
+                                <PatientDetails detail={detail} label={"Study"} style={"ViewerHeader"}/>
+                            </div>
                         </div>
                     </div>
 

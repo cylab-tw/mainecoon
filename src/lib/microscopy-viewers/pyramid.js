@@ -251,7 +251,7 @@ export const computePyramidInfo = (baseUrl, studyUid, seriesUid, images) => {
         source: new XYZ({
             tileLoadFunction: (tile, src) => {
                 const image = tile.getImage();
-                console.log("image",image)
+                // console.log("image",image)
                 image.src = src;
                 image.fetchPriority = 'high';
             },

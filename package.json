@@ -1,5 +1,5 @@
 {
-  "name": "ntunhsatm",
+  "name": "MaineCoon",
   "private": true,
   "version": "1.0.0",
   "description": "create a HTTP Server to demonstrate an ATM database",
@@ -11,8 +11,9 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
   },
   "keywords": [
-    "Database",
-    "NTUNHS"
+    "DITTO",
+    "NTUNHS",
+    "MaineCoon"
   ],
   "author": "C.Y. Lien",
   "contributors": [
@@ -28,7 +29,6 @@
     "csy-dicomweb-wado-rs-uri": "^0.5.6",
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
-    "lodash": "^4.17.21",
     "ol": "^9.1.0",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",

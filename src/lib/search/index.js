@@ -1,16 +1,12 @@
 import dicomWebServerConfig from "../../config/DICOMWebServer.config.js";
 import QIDO from "csy-dicomweb-qido-rs";
 import {QIDO_RS_Response} from "./QIDO_RS.jsx";
-import {useContext} from "react";
-import {ServerContext} from "../ServerContext.jsx";
 
 function getQidorsConfig(server) {
-    // const [server,setServer] = useContext(ServerContext)\
     if(server === undefined){
         return [];
     }
     const qidorsConfig = dicomWebServerConfig[server].QIDO;
-    // const qidorsConfig = dicomWebServerConfig.GOOGLE.QIDO;
     let result = {
         queryLevel: "studies",
         hostname: qidorsConfig.hostname,
@@ -66,9 +62,49 @@ function combineUrl(server){
     const hostname = config.hostname;
     const port = config.port ? `:${config.port}` : '';
     const pathname = config.pathname;
-
-    console.log("url",`${protocol}${hostname}${port}${pathname}`)
     return `${protocol}${hostname}${port}${pathname}`;
+}
+
+function formatDate(inputDate) {
+    const year = inputDate.substring(0, 4);
+    const month = inputDate.substring(4, 6);
+    const day = inputDate.substring(6, 8);
+    return `${year}-${month}-${day}`;
+}
+
+function formatSlashDate(date) {
+    const year = date.slice(0, 4);
+    const month = date.slice(4, 6);
+    const day = date.slice(6, 8);
+    return `${year}/${month}/${day}`;
+}
+
+function formatTime(inputTime) {
+    const hours = inputTime.substring(0, 2);
+    const minutes = inputTime.substring(2, 4);
+    const seconds = inputTime.substring(4, 6);
+    return `${hours}:${minutes}:${seconds}`;
+}
+
+function getQidorsSingleStudyMetadataValue(qidorsSingleStudy, metadataTag, defaultValue) {
+    const metadataValue = qidorsSingleStudy[metadataTag]?.Value;
+    return metadataValue !== undefined && metadataValue.length > 0 ? metadataValue[0] : defaultValue;
+}
+
+function fetchPatientDetails(data){
+    const patientID = data ? getQidorsSingleStudyMetadataValue(data, QIDO_RS_Response.PatientID, "NotFound") : "loading"
+    const patientName = data ? (getQidorsSingleStudyMetadataValue(data, QIDO_RS_Response.PatientName, "NotFound")?.Alphabetic) : "loading"
+    const rawPatientBirthDate = data ? getQidorsSingleStudyMetadataValue(data, QIDO_RS_Response.PatientBirthDate, "NotFound") : "loading";
+    const patientBirthDate = rawPatientBirthDate !== "NotFound" && rawPatientBirthDate !== "loading" ? formatSlashDate(rawPatientBirthDate) : rawPatientBirthDate;
+    const patientSex = data ? (getQidorsSingleStudyMetadataValue(data, QIDO_RS_Response.PatientSex, "NotFound")) : "loading"
+    const accessionNumber = data ? (getQidorsSingleStudyMetadataValue(data, QIDO_RS_Response.AccessionNumber, "NotFound")) : "loading"
+    const rawStudyDate = data ? getQidorsSingleStudyMetadataValue(data, QIDO_RS_Response.StudyDate, "NotFound") : "loading";
+    const studyDate = rawStudyDate !== "NotFound" ? formatSlashDate(rawStudyDate) : rawStudyDate;
+    const rawStudyTime = data ? getQidorsSingleStudyMetadataValue(data, QIDO_RS_Response.StudyTime, "NotFound") : "loading";
+    const studyTime = rawStudyTime !== "NotFound" ? formatTime(rawStudyTime) : rawStudyTime;
+
+    const studyInstanceUID = data ? (getQidorsSingleStudyMetadataValue(data, QIDO_RS_Response.StudyInstanceUID, "NotFound")) : "loading"
+    return {patientID,patientName,patientBirthDate,patientSex,accessionNumber,studyDate,studyTime,studyInstanceUID}
 }
 
 const hasNext = (parameter) => {
@@ -88,4 +124,7 @@ const hasNext = (parameter) => {
     })
     return fetchNext
 }
-export {firstQuery,combineUrl,hasNext}
+
+
+
+export {firstQuery,combineUrl,formatDate,formatSlashDate,formatTime,getQidorsSingleStudyMetadataValue,fetchPatientDetails}

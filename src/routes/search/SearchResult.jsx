@@ -1,60 +1,27 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {Icon} from "@iconify/react";
-import {QIDO_RS_Response} from "../../lib/search/QIDO_RS.jsx"
-import {useNavigate} from "react-router-dom";
-import {combineUrl} from "../../lib/search/index.js";
-import {toDicomWebUrl} from "../../lib/dicom-webs";
-import {set} from "lodash";
+import {combineUrl, fetchPatientDetails} from "../../lib/search/index.js";
 import {ServerContext} from "../../lib/ServerContext.jsx";
+import {Link} from "react-router-dom";
 
-const SearchResult = ({qidorsSingleStudy, onMessageChange}) => {
+const SearchResult = ({qidorsSingleStudy}) => {
 
-    const [SM, setSM] = useState([]);
-    const patientID = getQidorsSingleStudyMetadataValue(qidorsSingleStudy, QIDO_RS_Response.PatientID, "NotFound");
-    const patientName = getQidorsSingleStudyMetadataValue(qidorsSingleStudy, QIDO_RS_Response.PatientName, "")?.Alphabetic;
-    const patientBirthDate = getQidorsSingleStudyMetadataValue(qidorsSingleStudy, QIDO_RS_Response.PatientBirthDate, "");
-    const patientSex = getQidorsSingleStudyMetadataValue(qidorsSingleStudy, QIDO_RS_Response.PatientSex, "NotFound");
-    const accessionNumber = getQidorsSingleStudyMetadataValue(qidorsSingleStudy, QIDO_RS_Response.AccessionNumber, "NotFound");
-    const studyDate = getQidorsSingleStudyMetadataValue(qidorsSingleStudy, QIDO_RS_Response.StudyDate, "");
-    const StudyInstanceUID = getQidorsSingleStudyMetadataValue(qidorsSingleStudy, QIDO_RS_Response.StudyInstanceUID, "NotFound");
-    const [SMt,setSMt] = useState('');
-    const [ANN,setANN] = useState('');
-    function getQidorsSingleStudyMetadataValue(qidorsSingleStudy, metadataTag, defaultValue) {
-        const metadataValue = qidorsSingleStudy[metadataTag]?.Value;
-        return metadataValue !== undefined && metadataValue.length > 0 ? metadataValue[0] : defaultValue;
-    }
+    const [previewImage, setPreviewImage] = useState([]);
+    const patientDetails = fetchPatientDetails(qidorsSingleStudy);
+    const studyInstanceUID = patientDetails.studyInstanceUID;
+    const [SM, setSM] = useState('');
+    const [ANN, setANN] = useState('');
+    const [server, setServer] = useContext(ServerContext)
 
-    function formatDate(inputDate) {
-        const year = inputDate.substring(0, 4);
-        const month = inputDate.substring(4, 6);
-        const day = inputDate.substring(6, 8);
-        return `${year}-${month}-${day}`;
-    }
+    function OnClick() {location.href = `../viewer?server=${server}&studyUid=${studyInstanceUID}`;}
 
-    const navigate = useNavigate();
-    const currentURL = window.location.href;
-    console.log(currentURL);
-    const [server,setServer] = useContext(ServerContext)
-
-    function OnClick() {
-        const studyInstanceUID = getQidorsSingleStudyMetadataValue(qidorsSingleStudy, QIDO_RS_Response.StudyInstanceUID, "StudyInstanceUID, NotFound");
-        // navigate(`../image/${studyInstanceUID}`);
-        // navigate(`../viewer/J4Care?studyUid=${studyInstanceUID}`);
-        // navigate(`../viewer?server=NTUNHS&studyUid=${studyInstanceUID}`);
-        location.href = `../viewer?server=${server}&studyUid=${studyInstanceUID}`;
-        // location.href = `../viewer?server=Google&studyUid=${studyInstanceUID}`;
-        // navigate(`../viewer?server=J4Care&studyUid=${studyInstanceUID}`);
-    }
-
-
-    let X = 0
-    let Y = 0
+    let X = 0, Y = 0
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const result = await fetch(`${combineUrl(server)}/studies/${StudyInstanceUID}/series`)
+                const result = await fetch(`${combineUrl(server)}/studies/${studyInstanceUID}/series`)
                 const metadatas = await result.json();
-                setSM(metadatas?.map((metadata) => {
+                setPreviewImage(metadatas?.map((metadata) => {
                     const Attribute = metadata?.["00080060"]?.Value;
                     if (Attribute && Attribute.length > 0) {
                         if (Attribute[0] === "SM") {
@@ -67,81 +34,71 @@ const SearchResult = ({qidorsSingleStudy, onMessageChange}) => {
                         return false
                     }
                 }).filter(Boolean))
-                setSMt(X)
+                setSM(X)
                 setANN(Y)
             } catch (error) {
                 console.error('Error during fetch:', error);
             }
         };
         fetchData();
+    }, [studyInstanceUID]);
 
-    }, [StudyInstanceUID]);
+    const genderData = {
+        F: {bgColor: "bg-pink-500", icon: "ph:gender-female-bold", label: "F",},
+        M: {bgColor: "bg-blue-600", icon: "tdesign:gender-male", label: "M",},
+        default: {bgColor: "bg-green-600/80", icon: "ion:male-female", label: "O"},
+    };
 
-
-    function changeDateFormat(date) {
-        const year = date.slice(0, 4);
-        const month = date.slice(4, 6);
-        const day = date.slice(6, 8);
-        return `${year}/${month}/${day}`;
-    }
+    const gender = genderData[patientDetails.patientSex] || genderData.default;
 
     return (
         <>
-            <tr className="m-2 hover:bg-gray-100 cursor-pointer group max-h-2" key={patientID} onClick={OnClick}>
-                <td className="border-2 border-l-0 group-first:border-t-0 p-2.5 group-last:border-b-0">{patientID?.length ? patientID : "NotFound"}</td>
-                <td className="border-2 group-first:border-t-0 p-2.5 group-last:border-b-0">{patientName?.length ? patientName : "NotFound"}</td>
-                <td className="border-2 w-1/12 p-2.5 text-center group-first:border-t-0 group-last:border-b-0">{patientBirthDate?.length ? changeDateFormat(patientBirthDate) : ""}</td>
-                {patientSex === 'F' ?
-                    <td className="border-2 w-10 p-2.5  text-center group-first:border-t-0 group-last:border-b-0">
-                        <div className="flex items-center justify-center">
-                            <div
-                                className="rounded-md bg-pink-500 w-16 p-1 scale-[0.91] mx-auto flex items-center justify-center">
-                                <Icon icon="ph:gender-female-bold" width="24" height="24" className="text-white"/>
-                                <span className="mx-2 text-white">F</span>
-                            </div>
+            <tr className="m-2 hover:bg-gray-100 cursor-pointer group max-h-2" key={patientDetails.patientID} onClick={OnClick}>
+                <td className="border-2 border-l-0 group-first:border-t-0 p-2.5 group-last:border-b-0">
+                    {patientDetails.patientID?.length ? patientDetails.patientID : "NotFound"}
+                </td>
+                <td className="border-2 group-first:border-t-0 p-2.5 group-last:border-b-0">
+                    {patientDetails.patientName?.length ? patientDetails.patientName : "NotFound"}
+                </td>
+                <td className="border-2 w-1/12 p-2.5 text-center group-first:border-t-0 group-last:border-b-0">
+                    {patientDetails.patientBirthDate?.length ? patientDetails.patientBirthDate : ""}
+                </td>
+                <td className="border-2 w-10 p-2.5 text-center group-first:border-t-0 group-last:border-b-0">
+                    <div className="flex items-center justify-center">
+                        <div className={`rounded-md ${gender.bgColor} w-16 p-1 scale-[0.90] mx-auto flex items-center justify-center`}>
+                            <Icon icon={gender.icon} width="24" height="24" className="text-white"/>
+                            <span className="mx-2 text-white">{gender.label}</span>
                         </div>
-                    </td> :
-                    patientSex === 'M' ?
-                        <td className="border-2 w-10 p-2.5  group-first:border-t-0 group-last:border-b-0">
-                            <div className="flex items-center justify-center">
-                                <div
-                                    className="rounded-md bg-blue-600 w-16 p-1 scale-[0.90] mx-auto flex items-center justify-center">
-                                    <Icon icon="tdesign:gender-male" width="24" height="24" className="text-white"/>
-                                    <span className="mx-2 text-white">M</span>
-                                </div>
-                            </div>
-                        </td> :
-                        <td className="border-2 w-10 p-2.5 text-center group-first:border-t-0 group-last:border-b-0">
-                            <div className="flex items-center  justify-center">
-                                <div
-                                    className="rounded-md bg-green-600/80 p-1 scale-[0.90] mx-auto flex items-center justify-center ">
-                                    <Icon icon="ion:male-female" width="24" height="24" className="text-white"/>
-                                    <span className="mx-2 text-white">O</span>
-                                </div>
-                            </div>
-                        </td>
-                }
-                <td className="border-2  p-2.5 group-first:border-t-0 group-last:border-b-0">{accessionNumber?.length ? accessionNumber : "NotFound"}</td>
-                <td className="border-2 w-1/12 p-2.5 text-center group-first:border-t-0 group-last:border-b-0">{studyDate?.length ? changeDateFormat(studyDate) : ""}</td>
+                    </div>
+                </td>
+                <td className="border-2 p-2.5 group-first:border-t-0 group-last:border-b-0">
+                    {patientDetails.accessionNumber?.length ? patientDetails.accessionNumber : "NotFound"}
+                </td>
+                <td className="border-2 w-1/12 p-2.5 text-center group-first:border-t-0 group-last:border-b-0">
+                    {patientDetails.studyDate?.length ? patientDetails.studyDate : ""}
+                </td>
                 <td className="border-2 w-1/12 p-2.5 text-center border-r-0 group-first:border-t-0 group-last:border-b-0">
-                    <div className="flex flex-wrap">
-                        {SM?.map((seriesUid) => (
-                            <img
+                    <div className="flex flex-wrap w-72">
+                        {previewImage?.map((seriesUid) => (
+                            <Link
                                 key={seriesUid}
-                                src={toDicomWebUrl({
-                                    baseUrl: combineUrl(server),
-                                    studyUid: StudyInstanceUID,
-                                    seriesUid,
-                                    pathname: "/thumbnail"
-                                })}
-                                className="h-12 w-12 m-1" // 添加 margin 以便图片之间有间隔
-                            />
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    location.href = `../viewer?server=${server}&studyUid=${studyInstanceUID}&seriesUid=${seriesUid}`;
+                                    console.log(server, studyInstanceUID, seriesUid);
+                                }}
+                                className="mr-2"
+                            >
+                                <img
+                                    key={seriesUid}
+                                    src={`${combineUrl(server)}/studies/${studyInstanceUID}/series/${seriesUid}/thumbnail`}
+                                    className="break-all border bg-white text-xs h-[70px] w-[70px] object-cover"
+                                    alt={seriesUid}
+                                />
+                            </Link>
                         ))}
                     </div>
                 </td>
-
-                {/*<td className="border-2 w-1/12 p-2.5 text-center  group-first:border-t-0 group-last:border-b-0">{SMt}</td>*/}
-                {/*<td className="border-2 w-1/12 p-2.5 text-center  group-first:border-t-0 group-last:border-b-0">{ANN}</td>*/}
             </tr>
         </>
     );

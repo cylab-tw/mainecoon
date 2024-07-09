@@ -7,21 +7,21 @@ import {ServerContext} from "../../lib/ServerContext.jsx";
 const SearchResultList = ({state}) => {
     const searchResultListRef = useRef();
     const [results, setResults] = useState([]);
-    function onScroll() {
-        if (searchResultListRef.current) {
-            const clientHeight = searchResultListRef.current.clientHeight;
-            const scrollHeight = searchResultListRef.current.scrollHeight;
-            const scrollTop = searchResultListRef.current.scrollTop;
-
-            // 卷軸觸底行為
-            if (scrollTop + clientHeight === scrollHeight) {
-                // 下一階段查詢 不是空的才查詢
-                // if (!isNextQueryEmpty) {
-                //     dispatch(getNextTenResult(queryParameter));
-                // }
-            }
-        }
-    }
+    // function onScroll() {
+    //     if (searchResultListRef.current) {
+    //         const clientHeight = searchResultListRef.current.clientHeight;
+    //         const scrollHeight = searchResultListRef.current.scrollHeight;
+    //         const scrollTop = searchResultListRef.current.scrollTop;
+    //
+    //         // 卷軸觸底行為
+    //         if (scrollTop + clientHeight === scrollHeight) {
+    //             // 下一階段查詢 不是空的才查詢
+    //             // if (!isNextQueryEmpty) {
+    //             //     dispatch(getNextTenResult(queryParameter));
+    //             // }
+    //         }
+    //     }
+    // }
     const [server,setServer] = useContext(ServerContext)
     const [isLoading, setIsLoading] = useState(true);
     useEffect( () => {

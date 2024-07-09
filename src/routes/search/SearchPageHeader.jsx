@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useState} from "react";
+import {useContext} from "react";
 import mainecoon from "../../assests/mainecoon.png"
 import { Link } from 'react-router-dom';
 import {SearchHeader} from "./SearchHeader.jsx";
@@ -8,7 +8,6 @@ import {ServerContext} from "../../lib/ServerContext.jsx";
 const SearchPageHeader = ({initialState}) => {
     const {state, setState} = (initialState);
     const [server,setServer] = useContext(ServerContext)
-    console.log("SearchPageHeaderserver",server)
     return <>
         <div className="sticky m-0 top-0 p-0 w-full z-50">
             <div className="text-white bg-green-600 p-1 ">

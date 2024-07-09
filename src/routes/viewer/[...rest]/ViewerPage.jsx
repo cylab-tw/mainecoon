@@ -2,9 +2,8 @@ import React, {useContext, useEffect, useState} from 'react';
 import MicroscopyViewer from './MicroscopyViewer'; // 引入 MicroscopyViewer 組件
 import {getAnnotations, getImagingInfo, getSeriesInfo} from '../../../lib/dicom-webs/series';
 import {DICOMWEB_URLS} from '../../../lib/dicom-webs';
-import {combineUrl} from "../../../lib/search/index.js";
+import {combineUrl, fetchPatientDetails} from "../../../lib/search/index.js";
 import {getDicomwebUrl} from '../../../lib/dicom-webs/server';
-import {QIDO_RS_Response} from "../../../lib/search/QIDO_RS.jsx";
 import {Icon} from "@iconify/react";
 import ViewerPageHeader from "./ViewerHeader.jsx";
 import LeftDrawer from "./LeftDrawer.jsx"
@@ -15,12 +14,12 @@ const ViewerPage = () => {
     const searchParams = new URLSearchParams(window.location.search);
     const server = searchParams.get('server') || DICOMWEB_URLS[0].name;
     const studyUid = searchParams.get('studyUid');
+    const seriesUidUrl = searchParams.get('seriesUid');
     const [seriesUid, setSeriesUid] = useState('');
     const [baseUrl, setBaseUrl] = useState('');
     const [images, setImages] = useState([]);
     const [annotations, setAnnotations] = useState([]);
     const [smSeriesUid, setSmSeriesUid] = useState('');
-    // const [data, setData] = useState([]);
     const [isLeftOpen, setIsLeftOpen] = useState(false);
     const [isReportOpen, setIsReportOpen] = useState(true);
     const [isRightOpen, setIsRightOpen] = useState(true);
@@ -48,56 +47,11 @@ const ViewerPage = () => {
     const [seriesId, setSeriesId] = useState([])
     const [data, setData] = useState([]);
     const [dicomWebServer,setDicomWebServer] = useContext(ServerContext)
-
-    function formatDate(inputDate) {
-        const year = inputDate.substring(0, 4);
-        const month = inputDate.substring(4, 6);
-        const day = inputDate.substring(6, 8);
-        return `${year}-${month}-${day}`;
-    }
-
-    function formatTime(inputTime) {
-        const hours = inputTime.substring(0, 2);
-        const minutes = inputTime.substring(2, 4);
-        const seconds = inputTime.substring(4, 6);
-        return `${hours}:${minutes}:${seconds}`;
-    }
-
-    function getQidorsSingleStudyMetadataValue(qidorsSingleStudy, metadataTag, defaultValue) {
-        const metadataValue = qidorsSingleStudy[metadataTag]?.Value;
-        return metadataValue !== undefined && metadataValue.length > 0 ? metadataValue[0] : defaultValue;
-    }
-
-    let detail = {
-        patientID: "loading",
-        patientName: "loading",
-        patientBirthDate: "loading",
-        patientSex: "loading",
-        accessionNumber: "loading",
-        studyDate: "loading",
-        studyTime: "loading"
-    };
-
-    const patientID = data[0] ? getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientID, "NotFound") : "loading"
-    const patientName = data[0] ? (getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientName, "NotFound")?.Alphabetic) : "loading"
-    const patientBirthDate = data[0] ? (getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientBirthDate, "NotFound")) : "loading"
-    const patientSex = data[0] ? (getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.PatientSex, "NotFound")) : "loading"
-    const accessionNumber = data[0] ? (getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.AccessionNumber, "NotFound")) : "loading"
-    const studyDate = data[0] ? (formatDate(getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.StudyDate, " NotFound"))) : "loading"
-    const studyTime = data[0] ? (formatTime(getQidorsSingleStudyMetadataValue(data[0], QIDO_RS_Response.StudyTime, " NotFound"))) : "loading"
-
-    detail = {
-        patientID: patientID,
-        patientName: patientName,
-        patientBirthDate: patientBirthDate,
-        patientSex: patientSex,
-        accessionNumber: accessionNumber,
-        studyDate: studyDate,
-        studyTime: studyTime,
-    }
+    const patientDetails = fetchPatientDetails(data[0])
 
     useEffect(() => {
         console.log("dicomWebServer",dicomWebServer)
+        console.log("seriesUidUrl",seriesUidUrl)
         try {
             // 找出第1個series
             const fetchSeries = async () => {
@@ -131,8 +85,11 @@ const ViewerPage = () => {
                     console.error('Error fetching metadata:', error);
                 }
             };
-
-            fetchSeries()
+            if(seriesUidUrl === null || seriesUidUrl === ""){
+                fetchSeries()
+            }else{
+                setSeriesUid(seriesUidUrl)
+            }
             fetchMetadata()
             fetchDetails();
         } catch (e) {
@@ -337,8 +294,6 @@ const ViewerPage = () => {
         setColor(newColorArray);
     }
 
-    console.log("layers", layers)
-    console.log("color", color)
     // 處理annGroup選單
     const handleAnnDrawer = (index) => {
         if (expandedGroups.includes(index)) {
@@ -392,7 +347,7 @@ const ViewerPage = () => {
                                   isLeftOpen={[isLeftOpen, setIsLeftOpen]}
                                   isReportOpen={[isReportOpen, setIsReportOpen]}
                                   labelOpen={labelOpen}
-                                  detail={detail}
+                                  detail={patientDetails}
                 />
                 <div className={`h-full w-full flex grow`}>
                     {isLeftOpen &&
@@ -401,14 +356,10 @@ const ViewerPage = () => {
                                     smAccessionNumber={smAccessionNumber}
                                     seriesUid={[seriesUid, setSeriesUid]}
                                     smSeriesUid={[smSeriesUid, setSmSeriesUid]}
-                                    detail={detail}
+                                    detail={patientDetails}
                         />
                     }
-                    {isReportOpen && (
-                        <>
-                            <Report/>
-                        </>
-                    )}
+                    {isReportOpen && (<Report/>)}
 
                     <MicroscopyViewer
                         baseUrl={baseUrl}

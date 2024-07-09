@@ -51,17 +51,17 @@ const LeftDrawer = ({detail,labelOpen,isLabelOpen,smAccessionNumber,seriesUid,sm
                         isOpen={labelOpen[0] !== 0}
                         handleToggle={(e) => handleLabelOpen(e, 0)}
                     >
-                        <PatientDetails labelOpen={labelOpen} detail={detail} label={"Patient"} />
+                        <PatientDetails labelOpen={labelOpen} detail={detail} label={"Patient"} style={"Patient"}/>
                     </Section>
                 </div>
                 <div>
                     <Section
-                        label="Case"
+                        label="Study"
                         icon="fluent:document-data-16-filled"
                         isOpen={labelOpen[1] !== 0}
                         handleToggle={(e) => handleLabelOpen(e, 1)}
                     >
-                        <PatientDetails labelOpen={labelOpen} detail={detail} label={"Case"} />
+                        <PatientDetails labelOpen={labelOpen} detail={detail} label={"Study"} style={"Patient"}/>
                     </Section>
                 </div>
                 <div>
