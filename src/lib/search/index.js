@@ -22,7 +22,6 @@ async function getQidorsResponse(parameter,server){
     if(server === undefined){
         return [];
     }
-    console.log("getQidorsResponse",server)
     const qido = new QIDO();
 
     await qido.init();
@@ -44,6 +43,7 @@ async function getQidorsResponse(parameter,server){
     await qido.query();
     const result = qido.response
 
+
     return {qidoConfig,result};
 }
 
@@ -51,7 +51,6 @@ const firstQuery = async (parameter,server) =>{
     if(server === undefined){
         return [];
     }
-    console.log("firstQuery",server)
     const {qidoConfig,result} = await getQidorsResponse(parameter,server)
     return {qidoConfig,result};
 }

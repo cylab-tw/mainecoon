@@ -1,3 +1,5 @@
+import dicomWebServerConfig from "../../config/DICOMWebServer.config";
+import {combineUrl} from "../../lib/search/index.js";
 // 定義 DICOM JSON 的類型
 const DicomJson = {};
 
@@ -30,30 +32,38 @@ const DicomTags = {
     AnnotationGroupSequence: '006A0002',
     GraphicType: '00700023',
     GroupName: '006A0005',
-    PixelMeasuresSequence : '00289110',
-    SharedFunctionalGroupsSequence : '52009229',
+    PixelMeasuresSequence: '00289110',
+    SharedFunctionalGroupsSequence: '52009229',
 };
 
 // 定義 DICOM Web URL 的解析函數
 const parseDicomwebUrls = (urls) => {
     return urls.split(',').map(url => {
         const [name, urlValue] = url.split('=');
-        return { name, url: urlValue || name };
+        return {name, url: urlValue || name};
     });
 };
 
-const PUBLIC_DICOMWEB_URLS = 'NTUNHS=https://ditto.dicom.tw/dicom-web,J4Care=https://development.j4care.com:11443/dcm4chee-arc/aets/DCM4CHEE/rs,Google=https://dicomwebproxy-bqmq3usc3a-uc.a.run.app/dicomWeb';
+const server = dicomWebServerConfig
+const key = Object.keys(server)
+let DicomwebUrls = []
+key.map((server) => {
+    const url = combineUrl(server)
+    const publicDicomwebUrls = `${server}=${url}`
+    DicomwebUrls.push(publicDicomwebUrls)
+})
 
-// const PUBLIC_DICOMWEB_URLS = 'J4Care=https://development.j4care.com:11443/dcm4chee-arc/aets/DCM4CHEE/rs,Google=https://dicomwebproxy-bqmq3usc3a-uc.a.run.app/dicomWeb';
+DicomwebUrls = DicomwebUrls.join(',')
 
+
+const PUBLIC_DICOMWEB_URLS = DicomwebUrls;
 const DICOMWEB_URLS = parseDicomwebUrls(PUBLIC_DICOMWEB_URLS);
-
 
 
 // 將輸入轉換為 DICOM Web URL
 const toDicomWebUrl = (input) => {
     if (typeof input === 'object') {
-        const { baseUrl, studyUid, seriesUid, instanceUid, frame, pathname, searchParams } = input;
+        const {baseUrl, studyUid, seriesUid, instanceUid, frame, pathname, searchParams} = input;
         let url = baseUrl || '';
         if (studyUid) url += `/studies/${studyUid}`;
         if (seriesUid) url += `/series/${seriesUid}`;
@@ -87,4 +97,4 @@ const fetchDicomJson = async (input, fetcher = fetch) => {
 };
 
 // 導出模塊的內容
-export { DicomJson, DicomTags, DICOMWEB_URLS, toDicomWebUrl, fetchDicomJson };
+export {DicomJson, DicomTags, DICOMWEB_URLS, toDicomWebUrl, fetchDicomJson};

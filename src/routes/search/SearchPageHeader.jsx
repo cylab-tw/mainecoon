@@ -7,7 +7,7 @@ import {ServerContext} from "../../lib/ServerContext.jsx";
 
 const SearchPageHeader = ({initialState}) => {
     const {state, setState} = (initialState);
-    const [server,setServer] = useContext(ServerContext)
+
     return <>
         <div className="sticky m-0 top-0 p-0 w-full z-50">
             <div className="text-white bg-green-600 p-1 ">
@@ -23,7 +23,6 @@ const SearchPageHeader = ({initialState}) => {
                             <SearchHeader State={[state, setState]}/>
                         </div>
                     </div>
-                    <Server server={[server,setServer]}/>
                 </div>
             </div>
         </div>

@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import dicomWebServerConfig from "../../config/DICOMWebServer.config.js";
+import {combineUrl} from "../search/index.js";
 
 const parseDicomwebUrls = (urls) => {
     return urls.split(',').map(url => {
@@ -7,9 +9,19 @@ const parseDicomwebUrls = (urls) => {
     });
 };
 
+const server = dicomWebServerConfig
+const key = Object.keys(server)
+let DicomwebUrls = []
+key.map((server) => {
+    const url = combineUrl(server)
+    const publicDicomwebUrls = `${server}=${url}`
+    DicomwebUrls.push(publicDicomwebUrls)
+})
 
-// const PUBLIC_DICOMWEB_URLS = 'J4Care=https://development.j4care.com:11443/dcm4chee-arc/aets/DCM4CHEE/rs,Google=https://dicomwebproxy-bqmq3usc3a-uc.a.run.app/dicomWeb';
-const PUBLIC_DICOMWEB_URLS = 'NTUNHS=https://ditto.dicom.tw/dicom-web,J4Care=https://development.j4care.com:11443/dcm4chee-arc/aets/DCM4CHEE/rs,GOOGLE=https://dicomwebproxy-bqmq3usc3a-uc.a.run.app/dicomWeb';
+DicomwebUrls = DicomwebUrls.join(',')
+
+
+const PUBLIC_DICOMWEB_URLS = DicomwebUrls;
 
 const DICOMWEB_URLS = parseDicomwebUrls(PUBLIC_DICOMWEB_URLS);
 

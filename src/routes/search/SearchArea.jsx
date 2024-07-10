@@ -4,6 +4,7 @@ import {SearchResultList} from "../search/SearchResultList.jsx";
 import {firstQuery} from "../../lib/search/index.js";
 import {Icon} from "@iconify/react";
 import {ServerContext} from "../../lib/ServerContext.jsx";
+import Server from "./Server.jsx";
 
 
 const Main = () => {
@@ -74,16 +75,16 @@ const Main = () => {
     useEffect(() => {
         const {limit, offset} = state.parameter;
         setHandlePrePageChange(offset > 0)
-        console.log("firstserver", server)
         firstQuery({...state.parameter, limit: 1, offset: limit + offset}, server).then(({result}) => {
             setHandleNextPageChange(result.length > 0)
         })
     }, [state, server !== undefined]);
 
+
     return (
         <div className="flex flex-col h-full ">
             <div>
-                <SearchPageHeader initialState={{state, setState}}/>
+                <Server server={[server,setServer]} initialState={{state, setState}}/>
             </div>
             <div className="h-full m-4 overflow-auto bg-white border">
                 <SearchResultList state={state}/>

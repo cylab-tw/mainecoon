@@ -50,8 +50,6 @@ const ViewerPage = () => {
     const patientDetails = fetchPatientDetails(data[0])
 
     useEffect(() => {
-        console.log("dicomWebServer",dicomWebServer)
-        console.log("seriesUidUrl",seriesUidUrl)
         try {
             // 找出第1個series
             const fetchSeries = async () => {
@@ -75,7 +73,6 @@ const ViewerPage = () => {
 
             const fetchMetadata = async () => {
                 try {
-                    console.log("combineUrl",combineUrl(server))
                     const result = await fetch(`${combineUrl(server)}/studies/${studyUid}/series`)
                     if (result) {
                         const data = await result.json();
@@ -141,7 +138,6 @@ const ViewerPage = () => {
             if (studyUid === null || seriesUid === null || studyUid === "" || seriesUid === "") return;
 
             const baseUrl = getDicomwebUrl(server);
-            console.log("baseUrl", baseUrl)
             setBaseUrl(baseUrl);
 
             const series = await getSeriesInfo(baseUrl, studyUid, seriesUid);
@@ -150,7 +146,6 @@ const ViewerPage = () => {
 
             const imagingInfo = await getImagingInfo(baseUrl, studyUid, smSeriesUidd);
             setImages(imagingInfo);
-            console.log("imagingInfo", imagingInfo)
         };
 
         const fetchDetails = async () => {

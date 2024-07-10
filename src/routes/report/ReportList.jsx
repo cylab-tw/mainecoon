@@ -40,7 +40,6 @@ const ReportList = ({studyInstanceUID}) => {
             try {
                 const result = await queryReports(seriesInstanceUIDList);
                 if (result) {
-                    console.log("resulttt", result)
                     setIsLoading(false)
                     setReportResults(result)
                 }

@@ -7,7 +7,6 @@ let options = buildServerConfig()
 function buildServerConfig (){
     const server = dicomWebServerConfig
     const options = Object.keys(server).map(getInitWADOService)
-    console.log("options",options)
 }
 function getInitWADOService(key) {
     const wadoConfig = dicomWebServerConfig[key].WADO;
