@@ -1,12 +1,10 @@
 import React, {useContext, useState} from 'react'
 import {ServerContext} from "../../lib/ServerContext.jsx";
 import {Icon} from "@iconify/react";
-import SearchPageHeader from "./SearchPageHeader.jsx";
 import dicomWebServerConfig from "../../config/DICOMWebServer.config.js";
 
-const Server = ({initialState}) => {
+const Server = () => {
     const [server, setServer] = useContext(ServerContext)
-    const {state, setState} = (initialState)
     const [dropdown, setDropdown] = useState(false)
     const handleChangeServer = (e, selectedServer) => {
         setServer(selectedServer);
@@ -22,7 +20,7 @@ const Server = ({initialState}) => {
 
     return (
         <div className="flex">
-            <SearchPageHeader initialState={{state, setState}}/>
+
             <div className="flex bg-green-600 items-center font-bold font-sans text-black">
                 <div className="relative z-10 mr-3 ml-3">
                     <div

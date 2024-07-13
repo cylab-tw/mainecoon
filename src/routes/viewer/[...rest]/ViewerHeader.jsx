@@ -3,8 +3,8 @@ import mainecoon from "../../../assests/mainecoon.png"
 import {Link} from 'react-router-dom';
 import {Icon} from "@iconify/react";
 import Modal from "./ToolsModal.jsx";
-import {useOutsideClick} from "../../search/SearchHeader.jsx";
 import PatientDetails from "./PatientDetails.jsx";
+import {useOutsideClick} from "../../search/SearchPageHeader.jsx";
 
 const ViewerPageHeader = ({detail, annColor, drawType, undo, save, isLeftOpen, labelOpen, isReportOpen, studyUid}) => {
     const [drawColor, setDrawColor] = annColor

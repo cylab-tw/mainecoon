@@ -3,7 +3,7 @@ import './index.css'
 import { createRoot } from "react-dom/client";
 import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom';
 import ViewerPage from './routes/viewer/[...rest]/ViewerPage';
-import Search from "./routes/search/SearchArea.jsx"
+import Search from "./routes/search/SearchPage.jsx"
 import {ServerProvider} from "./lib/ServerContext.jsx";
 
 
