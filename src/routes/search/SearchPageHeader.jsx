@@ -35,13 +35,29 @@ const SearchPageHeader = ({setSearchResults, pageLimit, pageOffset, setHandleNex
     useEffect(() => {
         setIsLoading(true);
         const searchUrl = CombineSearchURL(parameter, server, pageLimit, pageOffset);
-        fetch(searchUrl).then(response => response.json()).then(data => {
-            {
-                data.length - pageLimit < 0 ? setHandleNextPageChange(false) : setHandleNextPageChange(true)
-            }
-            setSearchResults(data)
-            setIsLoading(false)
-        })
+        fetch(searchUrl)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    return [];
+                }
+            })
+            .then(data => {
+                if (data.length - pageLimit < 0) {
+                    setHandleNextPageChange(false);
+                } else {
+                    setHandleNextPageChange(true);
+                }
+                setSearchResults(data);
+                setIsLoading(false);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                setSearchResults([]);
+                setIsLoading(false);
+            });
+
     }, [server, pageLimit, pageOffset])
 
     const mouseOnFun = () => {

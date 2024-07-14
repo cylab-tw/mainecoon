@@ -10,7 +10,6 @@ const Server = () => {
         setServer(selectedServer);
         setDropdown(!dropdown)
     }
-
     function toggleDropdown() {
         setDropdown(!dropdown)
     }

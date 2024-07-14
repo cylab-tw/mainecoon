@@ -1,32 +1,12 @@
-import React, {useState} from "react";
+import React from "react";
 import PatientDetails from "./PatientDetails.jsx";
-import {Icon} from "@iconify/react";
+import DescriptionPlate from "./DescriptionPlate.jsx";
+import {combineUrl} from "../../../lib/search/index.js";
 
-const LeftDrawer = ({detail,labelOpen,isLabelOpen,smAccessionNumber,seriesUid,smSeriesUid}) => {
-    const [isLabelOpenDrawer,setIsLabelOpenDrawer] = isLabelOpen;
-    const [seriesUId,setSeriesUId] = seriesUid;
-    const [smSeriesUId,setSmSeriesUId] = smSeriesUid;
+const LeftDrawer = ({detail, labelOpen, isLabelOpen, smAccessionNumber, seriesUid, studyUid, server}) => {
+    const [isLabelOpenDrawer, setIsLabelOpenDrawer] = isLabelOpen;
+    const [seriesUId, setSeriesUId] = seriesUid;
 
-    const Section = ({label, icon, isOpen, handleToggle, children}) => (
-        <div className="flex flex-col bg-green-50 w-full h-full border-end">
-            <div className={`flex flex-row items-center bg-green-300 mt-2 justify-between`} onClick={handleToggle}>
-                <div className="flex items-center">
-                    <label className="ml-5 text-lg mt-2 font-bold font-sans mb-2 flex items-center">
-                        {label}
-                        <Icon icon={icon} width="28" height="28" className="ml-3 text-white"/>
-                    </label>
-                </div>
-                <div className="mr-1">
-                    <Icon icon={isOpen ? "line-md:chevron-small-up" : "line-md:chevron-small-down"}
-                          width="24"
-                          height="24"/>
-                </div>
-            </div>
-            {/*<div className={`transition-all duration-500 ease-in-out ${isOpen ? 'max-h-screen' : 'max-h-0 overflow-hidden'}`}>*/}
-            {isOpen && children}
-            {/*</div>*/}
-        </div>
-    );
     const handleLabelOpen = (e, value) => {
         e.preventDefault();
         // const value = parseInt(e.currentTarget.getAttribute('value'));
@@ -34,59 +14,59 @@ const LeftDrawer = ({detail,labelOpen,isLabelOpen,smAccessionNumber,seriesUid,sm
         newLabelOpen[value] = newLabelOpen[value] === 0 ? 1 : 0;
         setIsLabelOpenDrawer(newLabelOpen);
     }
-    function navigateTo(e) {
-        const value = e.target.value
-        setSeriesUId(value)
-        setSmSeriesUId(value)
-    }
 
+    function navigateTo(e) {
+        setSeriesUId(e.target.value)
+    }
 
     return (
         <div className={`!h-100 w-3/12 overflow-auto `}>
             <div className="flex flex-col w-full h-full border-end">
                 <div>
-                    <Section
+                    <DescriptionPlate
                         label="Patient"
                         icon="bi:people-circle"
                         isOpen={labelOpen[0] !== 0}
-                        handleToggle={(e) => handleLabelOpen(e, 0)}
+                        onClick={(e) => handleLabelOpen(e, 0)}
                     >
-                        <PatientDetails labelOpen={labelOpen} detail={detail} label={"Patient"} style={"Patient"}/>
-                    </Section>
+                        <PatientDetails labelOpen={labelOpen} detail={detail} label="Patient" style="Patient"/>
+                    </DescriptionPlate>
                 </div>
                 <div>
-                    <Section
+                    <DescriptionPlate
                         label="Study"
                         icon="fluent:document-data-16-filled"
                         isOpen={labelOpen[1] !== 0}
-                        handleToggle={(e) => handleLabelOpen(e, 1)}
+                        onClick={(e) => handleLabelOpen(e, 1)}
                     >
-                        <PatientDetails labelOpen={labelOpen} detail={detail} label={"Study"} style={"Patient"}/>
-                    </Section>
+                        <PatientDetails labelOpen={labelOpen} detail={detail} label="Study" style="Patient"/>
+                    </DescriptionPlate>
                 </div>
                 <div>
-                    <Section
+                    <DescriptionPlate
                         label="Series"
                         icon="fluent:document-data-16-filled"
                         isOpen={labelOpen[2] !== 0}
-                        handleToggle={(e) => handleLabelOpen(e, 2)}
+                        onClick={(e) => handleLabelOpen(e, 2)}
                     >
-                        <div className="bg-green-50">
-                            <div className="p-1.5">
-                                {smAccessionNumber.map((series, index) => (
-                                    <div key={index}>
-                                        <button
-                                            className="text-lg w-full mt-2 p-1.5 hover:bg-green-100"
-                                            onClick={(e) => navigateTo(e, series[0])}
-                                            value={series[0]}
-                                        >
-                                            {series[1]}
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </Section>
+                        {smAccessionNumber.map((series, index) => {
+                            const [seriesUID, seriesName] = series;
+                            return (
+                                <div key={index}
+                                     className={`${seriesUID === seriesUid[0] ? "bg-gray-200" : ""} hover:bg-green-100 pb-2`}>
+                                    <button
+                                        className="text-sm font-bold font-sans w-full p-2 text-left"
+                                        onClick={(e) => navigateTo(e, seriesUID)}
+                                        value={seriesUID}>{seriesName}</button>
+                                    <img
+                                        key={seriesUid}
+                                        src={`${combineUrl(server)}/studies/${studyUid}/series/${seriesUID}/thumbnail`}
+                                        className="break-all border bg-white text-xs mx-4 w-11/12 h-[100px] object-cover"
+                                    />
+                                </div>
+                            );
+                        })}
+                    </DescriptionPlate>
                 </div>
             </div>
         </div>

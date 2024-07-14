@@ -28,11 +28,10 @@ const DICOMWEB_URLS = parseDicomwebUrls(PUBLIC_DICOMWEB_URLS);
 
 
 // Function to get the DICOM web URL directly without setting state
-export const getDicomwebUrl = (name) => {
-    console.log("name",name)
-    const serverIndex = DICOMWEB_URLS.findIndex(server => server.name === name);
-    return DICOMWEB_URLS[serverIndex === -1 ? 0 : serverIndex].url;
-};
+// export const getDicomwebUrl = (name) => {
+//     const serverIndex = DICOMWEB_URLS.findIndex(server => server.name === name);
+//     return DICOMWEB_URLS[serverIndex === -1 ? 0 : serverIndex].url;
+// };
 
 export function useDicomWebServer() {
     const [dicomWebServer, setDicomWebServer] = useState('');
