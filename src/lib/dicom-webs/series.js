@@ -50,7 +50,7 @@ export const getSeriesInfo = async (baseUrl, studyUid, seriesUid) => {
  * @param {object} metadata - Metadata of a DICOM VL Whole Slide Microscopy Image instance
  * @returns {number[]} Spacing between pixel columns and rows in millimeter
  */
-function getPixelSpacing(metadata) {
+export function getPixelSpacing(metadata) {
     const functionalGroup = metadata[DicomTags.SharedFunctionalGroupsSequence]?.Value?.[0] ;
     const pixelMeasures = functionalGroup?.[DicomTags.PixelMeasuresSequence]?.Value?.[0];
     if (!pixelMeasures) return [1, 1];

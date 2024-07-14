@@ -2,8 +2,17 @@ import {Icon} from "@iconify/react";
 import SpecimenList from "./Specimen.jsx";
 import React from "react";
 import DescriptionPlate from "./DescriptionPlate.jsx";
-const RightDrawer = ({labelOpen,handleLabelOpen,Specimen,annAccessionNumber,groupName,annCheckboxList,RightDrawerOpen,
-                         expandedGroups,handleAnnDrawer,handleChecked,handleInnerChecked,handleColorChange,color,handleDeleteAnn}) => {
+const RightDrawer = ({labelOpen,handleLabelOpen,Specimen,annSeries,groupName,annCheckboxList,RightDrawerOpen,
+                         expandedGroups,handleChecked,handleInnerChecked,handleColorChange,color,handleDeleteAnn}) => {
+
+    // 處理annGroup選單
+    const handleAnnDrawer = (index) => {
+        if (expandedGroups.includes(index)) {
+            setExpandedGroups(expandedGroups.filter((item) => item !== index));
+        } else {
+            setExpandedGroups([...expandedGroups, index]);
+        }
+    }
 
     return (
         <div className="!h-100 w-3/12 overflow-auto">
@@ -55,7 +64,7 @@ export default RightDrawer;
 //ann
 //                         <div className="bg-green-50">
 //                             <div>
-//                                 {annAccessionNumber.map((series, index0) => {
+//                                 {annSeries.map((series, index0) => {
 //                                     return (
 //                                         <>
 //                                             <div key={index0}

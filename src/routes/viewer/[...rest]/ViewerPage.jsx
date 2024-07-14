@@ -20,13 +20,13 @@ const ViewerPage = () => {
     const [seriesUID, setSeriesUID] = useState('');
     const [AllSeriesID, setAllSeriesID] = useState([])
 
-    const [smAccessionNumber, setSmAccessionNumber] = useState([]);
-    const [annAccessionNumber, setAnnAccessionNumber] = useState([]);
+    const [smSeries, setSmSeries] = useState([]);
+    const [annSeries, setAnnSeries] = useState([]);
 
     const [images, setImages] = useState([]);
     const [annotations, setAnnotations] = useState([]);
 
-    const [isLeftOpen, setIsLeftOpen] = useState(false);
+    const [isLeftOpen, setIsLeftOpen] = useState(true);
     const [isReportOpen, setIsReportOpen] = useState(true);
     const [isRightOpen, setIsRightOpen] = useState(true);
     const [labelOpen, setLabelOpen] = useState([1, 1, 1, 0, 1, 1])
@@ -54,6 +54,15 @@ const ViewerPage = () => {
 
 
 
+    const RightDrawerOpen = () => { setIsRightOpen(!isRightOpen) };
+
+    const handleLabelOpen = (e, value) => {
+        e.preventDefault();
+        const newLabelOpen = [...labelOpen];
+        newLabelOpen[value] = newLabelOpen[value] === 0 ? 1 : 0;
+        setLabelOpen(newLabelOpen);
+    }
+
     useEffect(() => {
         try {
             const fetchSeries = async () => {
@@ -73,8 +82,8 @@ const ViewerPage = () => {
                             ann.push([seriesId, accessionNumber]);
                         }
                     }
-                    setSmAccessionNumber(sm);
-                    setAnnAccessionNumber(ann);
+                    setSmSeries(sm);
+                    setAnnSeries(ann);
                     if (!seriesUidFromPreviewImage) {
                         setSeriesUID(seriesJson[0]?.["0020000E"]?.Value[0]);
                     } else {
@@ -101,24 +110,6 @@ const ViewerPage = () => {
         }
     }, [server])
 
-
-    // 依據annAccessionNumber抓出對應的annotations
-    useEffect(() => {
-        async function processAnnotations() {
-            let annList = annCheckboxList
-            const promises = annAccessionNumber.map(async (ann) => {
-                const key = ann[0];
-                const instances = await getAnnotations(baseUrl, studyUid, key);
-                return instances;
-            });
-            setAnnCheckboxList(annList)
-            const instances = await Promise.all(promises);
-            setAnnotations(instances);
-        }
-
-        processAnnotations();
-    }, [annAccessionNumber]);
-
     useEffect(() => {
         const fetchData = async () => {
             if (studyUid === null || seriesUID === null || studyUid === "" || seriesUID === "") return;
@@ -144,6 +135,21 @@ const ViewerPage = () => {
         fetchDetails()
     }, [server, studyUid, seriesUID]);
 
+    // 依據annAccessionNumber抓出對應的annotations
+    useEffect(() => {
+        async function processAnnotations() {
+            const promises = annSeries.map(async (ann) => {
+                const key = ann[0];
+                const instances = await getAnnotations(baseUrl, studyUid, key);
+                return instances;
+            });
+            const instances = await Promise.all(promises);
+            console.log("instances", instances)
+            setAnnotations(instances);
+        }
+
+        processAnnotations();
+    }, [annSeries]);
 
     // 依據groupName長度，設定checkboxList佔位(全設為false)
     useEffect(() => {
@@ -154,21 +160,6 @@ const ViewerPage = () => {
         }
         setAnnCheckboxList(checkboxList)
     }, [groupName]);
-
-    // if (images.length === 0 || !seriesUID) {
-    //     return (
-    //         <div className="flex h-full w-full bg-opacity-25 bg-gray-200/10 justify-center items-center">
-    //             {/*<h1>Loading...</h1>*/}
-    //             <div className="flex items-center gap-3 bg-white/75 px-2 py-3">
-    //                 {/*<span className="h-4 w-4 border-2 border-green-500"/>*/}
-    //                 <Icon icon="svg-spinners:6-dots-rotate" width="28" height="28" className="text-green-500"/>
-    //                 <p className="text-xl">Loading</p>
-    //             </div>
-    //         </div>
-    //     );
-    // }
-
-    const RightDrawerOpen = () => {setIsRightOpen(!isRightOpen);};
 
     // 抓回MicroscopyViewer的layers轉為陣列存入 && 確認annotation已加到layer裡面(進到layers裡面就設為true)
     // 4 => 原先layers裡有保底4個layers
@@ -181,7 +172,6 @@ const ViewerPage = () => {
             color.push(layerArray[i].style_.stroke_.color_)
         }
         setColor(color)
-
         setLayers(message)
         setAnnCheckboxList(annList)
     }
@@ -215,22 +205,6 @@ const ViewerPage = () => {
         setColor(newColorArray);
     }
 
-    // 處理annGroup選單
-    const handleAnnDrawer = (index) => {
-        if (expandedGroups.includes(index)) {
-            setExpandedGroups(expandedGroups.filter((item) => item !== index));
-        } else {
-            setExpandedGroups([...expandedGroups, index]);
-        }
-    }
-
-    const handleLabelOpen = (e, value) => {
-        e.preventDefault();
-        const newLabelOpen = [...labelOpen];
-        newLabelOpen[value] = newLabelOpen[value] === 0 ? 1 : 0;
-        setLabelOpen(newLabelOpen);
-    }
-
     // 處理外層checkbox打勾時，內層checkbox全部打勾
     const handleInnerChecked = (e, index, index0) => {
         if (!expandedGroups.includes(index)) {
@@ -253,11 +227,11 @@ const ViewerPage = () => {
                 'Content-Type': 'application/json',
             },
         })
-        const newAnnAccessionNumber = annAccessionNumber.filter((item) => item[0] !== AllSeriesID[newIndex])
-        setAnnAccessionNumber(newAnnAccessionNumber)
+        const newAnnAccessionNumber = annSeries.filter((item) => item[0] !== AllSeriesID[newIndex])
+        setAnnSeries(newAnnAccessionNumber)
     }
 
-
+    console.log("layers", layers)
     return (
         <>
             <div className="flex custom-height w-auto flex-col">
@@ -273,16 +247,15 @@ const ViewerPage = () => {
                 <div className={`h-full w-full flex grow`}>
                     {isLeftOpen &&
                         <LeftDrawer labelOpen={labelOpen}
-                                    isLabelOpen={[labelOpen, setLabelOpen]}
-                                    smAccessionNumber={smAccessionNumber}
+                                    handleLabelOpen={handleLabelOpen}
+                                    smSeries={smSeries}
                                     seriesUid={[seriesUID, setSeriesUID]}
                                     detail={patientDetails}
                                     studyUid={studyUid}
                                     server={server}
-                                    SlideLabel={specimen.Title}
                         />
                     }
-                    {isReportOpen && (<Report/>)}
+                    {/*{isReportOpen && (<Report/>)}*/}
 
                     <MicroscopyViewer
                         baseUrl={baseUrl}
@@ -296,18 +269,16 @@ const ViewerPage = () => {
                         save={save}
                         undoState={[undo, setUndo]}
                         onMessageChange={handleMessageChange}
-                        className="grow"
                         layers={[layers, setLayers]}
                     />
                     {isRightOpen ? (
                             <RightDrawer labelOpen={labelOpen}
                                          handleLabelOpen={handleLabelOpen}
                                          Specimen={specimen}
-                                         annAccessionNumber={annAccessionNumber}
+                                         annSeries={annSeries}
                                          annCheckboxList={annCheckboxList}
                                          groupName={groupName}
                                          expandedGroups={expandedGroups}
-                                         handleAnnDrawer={handleAnnDrawer}
                                          handleChecked={handleChecked}
                                          handleInnerChecked={handleInnerChecked}
                                          handleColorChange={handleColorChange}

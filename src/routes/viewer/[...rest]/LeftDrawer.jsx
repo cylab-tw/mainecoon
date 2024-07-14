@@ -3,17 +3,8 @@ import PatientDetails from "./PatientDetails.jsx";
 import DescriptionPlate from "./DescriptionPlate.jsx";
 import {combineUrl} from "../../../lib/search/index.js";
 
-const LeftDrawer = ({detail, labelOpen, isLabelOpen, smAccessionNumber, seriesUid, studyUid, server}) => {
-    const [isLabelOpenDrawer, setIsLabelOpenDrawer] = isLabelOpen;
+const LeftDrawer = ({detail, labelOpen, smSeries, seriesUid, studyUid, server,handleLabelOpen}) => {
     const [seriesUId, setSeriesUId] = seriesUid;
-
-    const handleLabelOpen = (e, value) => {
-        e.preventDefault();
-        // const value = parseInt(e.currentTarget.getAttribute('value'));
-        const newLabelOpen = [...labelOpen];
-        newLabelOpen[value] = newLabelOpen[value] === 0 ? 1 : 0;
-        setIsLabelOpenDrawer(newLabelOpen);
-    }
 
     function navigateTo(e) {
         setSeriesUId(e.target.value)
@@ -49,7 +40,7 @@ const LeftDrawer = ({detail, labelOpen, isLabelOpen, smAccessionNumber, seriesUi
                         isOpen={labelOpen[2] !== 0}
                         onClick={(e) => handleLabelOpen(e, 2)}
                     >
-                        {smAccessionNumber.map((series, index) => {
+                        {smSeries.map((series, index) => {
                             const [seriesUID, seriesName] = series;
                             return (
                                 <div key={index}

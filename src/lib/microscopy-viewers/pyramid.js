@@ -1,13 +1,14 @@
-import { Geometry, LineString, MultiPoint, Polygon } from 'ol/geom';
-import { Feature } from 'ol';
-import { multipartDecode } from '../utils/multipart';
-import { Projection } from 'ol/proj';
-import { TileGrid } from 'ol/tilegrid';
-import TileLayer from 'ol/layer/WebGLTile';
+import {LineString, MultiPoint, Polygon} from 'ol/geom';
+import {Feature} from 'ol';
+import {multipartDecode} from '../utils/multipart';
+import {Projection} from 'ol/proj';
+import {TileGrid} from 'ol/tilegrid';
+import TileLayer from 'ol/layer/Tile';
 import View from 'ol/View';
-import { XYZ } from 'ol/source';
-import { getCenter } from 'ol/extent';
-import { toDicomWebUrl } from '../dicom-webs';
+import {XYZ} from 'ol/source';
+import {getCenter} from 'ol/extent';
+import {getPixelSpacing} from "../dicom-webs/series.js";
+import {toDicomWebUrl} from "../dicom-webs/index.js";
 
 const decodeCoordinatesData = (encodedData, vr) => {
     let buffer;
@@ -77,17 +78,14 @@ const calculateEllipsePoints = (points) => {
     return pointsOnEllipse;
 };
 
-export const computeAnnotationFeatures = async (
-    annotations,
-    resolutions,
-) => {
+export const computeAnnotationFeatures = async (annotations, resolutions) => {
     const features = [];
 
     if (!annotations) {
         return [];
     }
 
-    for (const { instanceUID, pointsData, indexesData, graphicType } of annotations ?? []) {
+    for (const {instanceUID, pointsData, indexesData, graphicType} of annotations ?? []) {
         let points;
         let indexes;
 
@@ -132,14 +130,14 @@ export const computeAnnotationFeatures = async (
 
         switch (graphicType) {
             case 'POINT':
-                features.push(new Feature({ geometry: new MultiPoint(coordinates) }));
+                features.push(new Feature({geometry: new MultiPoint(coordinates)}));
                 break;
             case 'POLYLINE':
                 if (indexes && coordinates) {
                     for (let i = 0; i < indexes.length; i++) {
                         const coord = coordinates.slice(indexes[i], indexes[i + 1] || coordinates.length);
                         if (coord.length > 1) {
-                            features.push(new Feature({ geometry: new LineString(coord) }));
+                            features.push(new Feature({geometry: new LineString(coord)}));
                         }
                     }
                 }
@@ -151,7 +149,7 @@ export const computeAnnotationFeatures = async (
                         const end = indexes[i + 1] ? Math.floor(indexes[i + 1] / 2) : coordinates.length;
                         const coord = coordinates.slice(start, end).concat([coordinates[start]]);
                         if (coord.length > 1) {
-                            features.push(new Feature({ geometry: new Polygon([coord]) }));
+                            features.push(new Feature({geometry: new Polygon([coord])}));
                         }
                     }
                 }
@@ -161,13 +159,13 @@ export const computeAnnotationFeatures = async (
                 for (let i = 0; i < coordinates.length; i += 4) {
                     const coord = calculateEllipsePoints(coordinates.slice(i, i + 4));
                     const polygon = new Polygon([coord]);
-                    features.push(new Feature({ geometry: polygon }));
+                    features.push(new Feature({geometry: polygon}));
                 }
                 break;
             case 'RECTANGLE':
                 for (let i = 0; i < coordinates.length; i += 4) {
                     const polygon = new Polygon([coordinates.slice(i, i + 4).concat([coordinates[i]])]);
-                    features.push(new Feature({ geometry: polygon }));
+                    features.push(new Feature({geometry: polygon}));
                 }
                 break;
             default:
@@ -180,17 +178,17 @@ export const computeAnnotationFeatures = async (
 };
 
 export const computePyramidInfo = (baseUrl, studyUid, seriesUid, images) => {
-    const pyramidTileSizes = [];
-    const pyramidGridSizes = [];
-    const pyramidResolutions = [];
-    const pyramidOrigins = [];
-    const pyramidPixelSpacings = [];
-    const pyramidImageSizes = [];
-    const pyramidPhysicalSizes = [];
+    const TileSizes = [];
+    const GridSizes = [];
+    const Resolutions = [];
+    const Origins = [];
+    const PixelSpacings = [];
+    const ImageSizes = [];
+    const PhysicalSizes = [];
     const offset = [0, -1];
-    // 因為image是陣列裡面的json ** ，所以我先寫死
-    const baseTotalPixelMatrixColumns = images.length > 0 ? images[images.length - 1].totalPixelMatrixColumns : 0;
-    const baseTotalPixelMatrixRows = images.length > 0 ? images[images.length - 1].totalPixelMatrixRows : 0;
+    const baseImage = images[images.length - 1];
+    const baseTotalPixelMatrixColumns = images.length > 0 ? baseImage.totalPixelMatrixColumns : 0;
+    const baseTotalPixelMatrixRows = images.length > 0 ? baseImage.totalPixelMatrixRows : 0;
 
     for (let j = images.length - 1; j >= 0; j--) {
         const image = images[j];
@@ -198,64 +196,75 @@ export const computePyramidInfo = (baseUrl, studyUid, seriesUid, images) => {
         const rows = image.rows;
         const totalPixelMatrixColumns = image.totalPixelMatrixColumns;
         const totalPixelMatrixRows = image.totalPixelMatrixRows;
-        const pixelSpacing = image.pixelSpacing || [1, 1];
-
+        const pixelSpacing = getPixelSpacing(image)
         const nColumns = Math.ceil(totalPixelMatrixColumns / columns);
         const nRows = Math.ceil(totalPixelMatrixRows / rows);
 
-        pyramidTileSizes.push([columns, rows]);
-        pyramidGridSizes.push([nColumns, nRows]);
-        pyramidPixelSpacings.push(pixelSpacing);
+        TileSizes.push([columns, rows]);
+        GridSizes.push([nColumns, nRows]);
+        PixelSpacings.push(pixelSpacing);
 
-        pyramidImageSizes.push([totalPixelMatrixColumns, totalPixelMatrixRows]);
-        pyramidPhysicalSizes.push([
-            (totalPixelMatrixColumns * pixelSpacing[1]).toFixed(4),
-            (totalPixelMatrixRows * pixelSpacing[0]).toFixed(4),
+        ImageSizes.push([totalPixelMatrixColumns, totalPixelMatrixRows]);
+        PhysicalSizes.push([
+            (totalPixelMatrixColumns * (pixelSpacing?.[1] || 1)).toFixed(4),
+            (totalPixelMatrixRows * (pixelSpacing?.[0] || 1)).toFixed(4),
         ]);
 
         const zoomFactor = Math.round(baseTotalPixelMatrixColumns / totalPixelMatrixColumns);
-        pyramidResolutions.push(zoomFactor);
+        Resolutions.push(zoomFactor);
 
-        pyramidOrigins.push(offset);
+        Origins.push(offset);
     }
 
-    pyramidResolutions.reverse();
-    pyramidTileSizes.reverse();
-    pyramidGridSizes.reverse();
-    pyramidOrigins.reverse();
-    pyramidPixelSpacings.reverse();
-    pyramidImageSizes.reverse();
-    pyramidPhysicalSizes.reverse();
+    Resolutions.reverse();
+    TileSizes.reverse();
+    GridSizes.reverse();
+    Origins.reverse();
+    PixelSpacings.reverse();
+    ImageSizes.reverse();
+    PhysicalSizes.reverse();
+
+    const result = computePyramid(images, baseUrl, studyUid, seriesUid, Resolutions, TileSizes, GridSizes, Origins, PixelSpacings, ImageSizes, PhysicalSizes, baseTotalPixelMatrixColumns, baseTotalPixelMatrixRows);
+    return result;
+};
+
+
+const computePyramid = (images, baseUrl, studyUid, seriesUid, Resolutions, TileSizes, GridSizes, Origins, PixelSpacings, ImageSizes, PhysicalSizes, baseTotalPixelMatrixColumns, baseTotalPixelMatrixRows) => {
+
+    const basePixelSpacing = PixelSpacings[PixelSpacings.length - 1];
+    const extent = [0, -(baseTotalPixelMatrixRows + 1), baseTotalPixelMatrixColumns, -1];
 
     const resolutions = images.map(image => ({
         instanceUID: image.instanceUID,
         resolution: Math.round(baseTotalPixelMatrixColumns / image.totalPixelMatrixColumns),
     }));
 
-    const extent = [0, -(baseTotalPixelMatrixRows + 1), baseTotalPixelMatrixColumns, -1];
-    const projection = new Projection({ code: 'DICOM', units: 'm', global: true, extent: extent ,
-        getPointResolution: (resolution, point) => (resolution*pyramidPixelSpacings[pyramidPixelSpacings.length-1][0])/1000,
-
+    const projection = new Projection({
+        code: 'DICOM',
+        units: 'm',
+        global: true,
+        extent: extent,
+        getPointResolution: (resolution, point) =>
+            (resolution * basePixelSpacing?.[0] || 1) / 1000
     });
 
     const tileGrid = new TileGrid({
         extent: extent,
-        origins: pyramidOrigins,
-        resolutions: pyramidResolutions,
-        sizes: pyramidGridSizes,
-        tileSizes: pyramidTileSizes,
+        origins: Origins,
+        resolutions: Resolutions,
+        sizes: GridSizes,
+        tileSizes: TileSizes,
     });
 
     const layer = new TileLayer({
         source: new XYZ({
             tileLoadFunction: (tile, src) => {
                 const image = tile.getImage();
-                // console.log("image",image)
                 image.src = src;
                 image.fetchPriority = 'high';
             },
             tileUrlFunction: ([z, x, y]) => {
-                const { instanceUID, totalPixelMatrixColumns, columns } = images[z];
+                const {instanceUID, totalPixelMatrixColumns, columns} = images[z];
                 const frame = x + y * Math.ceil(totalPixelMatrixColumns / columns) + 1;
                 const url = toDicomWebUrl({
                     baseUrl: baseUrl,
@@ -270,7 +279,7 @@ export const computePyramidInfo = (baseUrl, studyUid, seriesUid, images) => {
             tileGrid: tileGrid,
             projection: projection,
             wrapX: false,
-            maxZoom: pyramidResolutions.length - 1,
+            maxZoom: Resolutions.length - 1,
             minZoom: 0,
         }),
         extent: extent,
@@ -281,7 +290,7 @@ export const computePyramidInfo = (baseUrl, studyUid, seriesUid, images) => {
     const view = new View({
         center: getCenter(extent),
         projection: projection,
-        // resolutions: pyramidResolutions, // FIXME
+        minResolution: Resolutions[Resolutions.length - 1],
         constrainOnlyCenter: false,
         smoothResolutionConstraint: true,
         showFullExtent: true,
@@ -289,5 +298,5 @@ export const computePyramidInfo = (baseUrl, studyUid, seriesUid, images) => {
         zoom: 2,
     });
 
-    return { extent, layer, view, resolutions };
-};
+    return {extent, layer, view, resolutions};
+}
