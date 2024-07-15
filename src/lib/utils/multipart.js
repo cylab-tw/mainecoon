@@ -166,9 +166,7 @@ function multipartEncode(datasets, boundary = guid(), contentType = 'application
 export function multipartDecode(response) {
 	const message = new Uint8Array(response);
 
-	/* Set a maximum length to search for the header boundaries, otherwise
-			 findToken can run for a long time
-		*/
+	/* Set a maximum length to search for the header boundaries, otherwise findToken can run for a long time*/
 	const maxSearchLength = 1000;
 
 	// First look for the multipart mime header
@@ -216,7 +214,6 @@ export function multipartDecode(response) {
 		// Move the offset to the end of the identified boundary
 		offset = boundaryEnd + separator.length;
 	}
-
 	return components;
 }
 
@@ -233,14 +230,3 @@ function guid() {
 	}
 	return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
-
-export default {
-	containsToken,
-	findToken,
-	identifyBoundary,
-	uint8ArrayToString,
-	stringToUint8Array,
-	multipartEncode,
-	multipartDecode,
-	guid,
-};

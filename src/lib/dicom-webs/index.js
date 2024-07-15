@@ -31,7 +31,9 @@ const DicomTags = {
     LongPrimitivePointIndexList: '00660040',
     AnnotationGroupSequence: '006A0002',
     GraphicType: '00700023',
+    GroupUID: '006A0003',
     GroupName: '006A0005',
+    GroupGenerationType : '006A0007',
     PixelMeasuresSequence: '00289110',
     SharedFunctionalGroupsSequence: '52009229',
 };

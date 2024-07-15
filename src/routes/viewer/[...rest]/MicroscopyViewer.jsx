@@ -20,12 +20,13 @@ import {computeAnnotationFeatures} from '../../../lib/microscopy-viewers/annotat
 import {computePyramidInfo} from '../../../lib/microscopy-viewers/pyramid';
 import {Fill, Stroke, Style} from 'ol/style';
 
-const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, group, onMessageChange, layers,}) => {
+const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, group, onMessageChange, layers}) => {
     const [errorMessage, setErrorMessage] = useState(undefined);
     // const sourceRef = useRef(new VectorSource({wrapX: false}));
     const [groupName, setGroupName] = group;
     const [layer, setLayer] = layers;
     const mapRef = useRef(null);
+    const annotationRef = useRef([]);
     const [color, setColor] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -72,8 +73,24 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, gr
                 mapRef.current.on('loadend', () => setLoading(false));
                 mapRef.current.getView().fit(extent, {size: mapRef.current.getSize()});
 
-
-                // {annotations.map((annotation) => {
+                {
+                    annotations.map((annotation) => {
+                        computeAnnotationFeatures(annotation, resolutions).then(({features, groups}) => {
+                            console.log('features:', features);
+                            console.log('groups:', groups);
+                            features.map((feature) => {
+                                if (feature.length > 0) {
+                                    const source = new VectorSource({features: feature});
+                                    const newAnnLayer = new VectorLayer({source, extent});
+                                    newAnnLayer.setVisible(false);
+                                    annotationRef.current.addLayer(newAnnLayer);
+                                } else {
+                                    return
+                                }
+                            })
+                        });
+                    })
+                }
                 //         computeAnnotationFeatures(annotation, resolutions)
                 //             .then(({features0, annGroupName0}) => {
                 //                 groupName.push(annGroupName0)
@@ -104,7 +121,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, gr
                 //                         return
                 //                     }
                 //                 })
-                //                 onMessageChange(mapRef.current.getLayers());
+                onMessageChange(mapRef.current.getLayers());
                 //                 setLayer(mapRef.current.getLayers());
                 //
                 //             })
@@ -113,7 +130,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, gr
                 //                 console.error(error);
                 //             })
                 //     })
-                // }
 
             } catch (error) {
                 setErrorMessage('Unexpected error occurred.');
@@ -124,6 +140,8 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, gr
         if (images) fetchData();
 
     }, [images, annotations]);
+
+    console.log('layer:', layer);
 
     const getRandomColor = () => {
         let color = 'rgba(';

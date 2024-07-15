@@ -13,6 +13,7 @@ const SearchResult = ({Result}) => {
     function OnClick() {location.href = `../viewer?server=${server}&studyUid=${studyInstanceUID}`}
 
     useEffect(() => {
+        let Y=0;
         const fetchData = async () => {
             try {
                 const result = await fetch(`${combineUrl(server)}/studies/${studyInstanceUID}/series`)
@@ -21,9 +22,11 @@ const SearchResult = ({Result}) => {
                     const Attribute = metadata?.["00080060"]?.Value;
                     if (Attribute && Attribute.length > 0) {
                         if (Attribute[0] === "SM") return metadata['0020000E'].Value?.[0]
+                        if(Attribute[0] === "ANN") Y+=1
                         return false
                     }
                 }).filter(Boolean))
+                console.log('ANN',Y)
             } catch (error) {
                 console.error('fetchMetadataFail:', error);
             }

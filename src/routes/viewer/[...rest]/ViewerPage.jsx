@@ -135,64 +135,22 @@ const ViewerPage = () => {
         fetchDetails()
     }, [server, studyUid, seriesUID]);
 
-    // 依據annAccessionNumber抓出對應的annotations
+    // 依據annSeries抓出對應的annotations
     useEffect(() => {
         async function processAnnotations() {
             const promises = annSeries.map(async (ann) => {
-                const key = ann[0];
-                const instances = await getAnnotations(baseUrl, studyUid, key);
+                const seriesUid = ann[0];
+                const instances = await getAnnotations(baseUrl, studyUid, seriesUid);
                 return instances;
             });
             const instances = await Promise.all(promises);
-            console.log("instances", instances)
             setAnnotations(instances);
         }
-
         processAnnotations();
     }, [annSeries]);
 
-    // 依據groupName長度，設定checkboxList佔位(全設為false)
-    useEffect(() => {
-        const length = groupName.length
-        const checkboxList = []
-        for (let i = 0; i < length; i++) {
-            annCheckboxList.push(false)
-        }
-        setAnnCheckboxList(checkboxList)
-    }, [groupName]);
-
-    // 抓回MicroscopyViewer的layers轉為陣列存入 && 確認annotation已加到layer裡面(進到layers裡面就設為true)
-    // 4 => 原先layers裡有保底4個layers
     const handleMessageChange = (message) => {
-        const layerArray = message.array_
-        const annList = [...groupName]
-        let color = []
-        for (let i = 4; i < layerArray.length; i++) {
-            annList[i - 4] = true
-            color.push(layerArray[i].style_.stroke_.color_)
-        }
-        setColor(color)
         setLayers(message)
-        setAnnCheckboxList(annList)
-    }
-
-    // 處理內層checkbox打勾時，外層checkbox也要打勾
-    // num = 0 代表 內層全部打勾，外層打勾
-    // num = 1 代表 外層打勾，內層全部打勾
-    const handleChecked = (_, index, seriesUID, num) => {
-        const newIndex = index + 4;
-        const layerArray = layers.getArray()
-        const length = newIndex
-        if (layerArray[length]) layerArray[length].setVisible(!layerArray[length].values_.visible)
-        if (num == 0) {
-            let checked = false
-            document.querySelectorAll(`[data-index='${seriesUID}']`).forEach(
-                (item) => {
-                    if (item.checked === true)
-                        checked = true
-                })
-            document.getElementById(seriesUID).checked = checked
-        }
     }
 
     const handleColorChange = (index, newcolor) => {
@@ -203,20 +161,6 @@ const ViewerPage = () => {
         const newColorArray = [...color];
         newColorArray[index] = String(newcolor);
         setColor(newColorArray);
-    }
-
-    // 處理外層checkbox打勾時，內層checkbox全部打勾
-    const handleInnerChecked = (e, index, index0) => {
-        if (!expandedGroups.includes(index)) {
-            setExpandedGroups([...expandedGroups, index0]);
-        }
-        // 利用dataset用法，取得data-index的值
-        document.querySelectorAll(`[data-index='${index}']`).forEach(
-            (item) => {
-                item.checked = e.target.checked
-                const groupIndex = Number(item.dataset.groupindex)
-                handleChecked(null, groupIndex, seriesUID, 1)
-            })
     }
 
     const handleDeleteAnn = (index) => {
@@ -231,7 +175,6 @@ const ViewerPage = () => {
         setAnnSeries(newAnnAccessionNumber)
     }
 
-    console.log("layers", layers)
     return (
         <>
             <div className="flex custom-height w-auto flex-col">
@@ -279,8 +222,6 @@ const ViewerPage = () => {
                                          annCheckboxList={annCheckboxList}
                                          groupName={groupName}
                                          expandedGroups={expandedGroups}
-                                         handleChecked={handleChecked}
-                                         handleInnerChecked={handleInnerChecked}
                                          handleColorChange={handleColorChange}
                                          color={color}
                                          handleDeleteAnn={handleDeleteAnn}

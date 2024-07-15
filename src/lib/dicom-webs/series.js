@@ -133,7 +133,9 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
         return annotations.map(annotation => {
             let coordinates = annotation[DicomTags.PointCoordinatesData];
             coordinates ??= annotation[DicomTags.DoublePointCoordinatesData];
-            const name = annotation[DicomTags.GroupName];
+            const groupUid = annotation[DicomTags.GroupUID]?.Value?.[0];
+            const groupName = annotation[DicomTags.GroupName]?.Value?.[0];
+            const groupGenerationType = annotation[DicomTags.GroupGenerationType]?.Value?.[0];
             const indexes = annotation[DicomTags.LongPrimitivePointIndexList];
             const graphicType = annotation[DicomTags.GraphicType]?.Value?.[0];
             const hasIndexes = graphicType === 'POLYLINE' || graphicType === 'POLYGON';
@@ -141,8 +143,8 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
             if (modality === 'ANN') {
                 return {
                     modality,
-                    annGroupName:name,
-                    instanceUID: referencedInstance[DicomTags.ReferencedSOPInstanceUID]?.Value?.[0],
+                    group: {groupUid, groupName,groupGenerationType},
+                    referencedInstanceUID: referencedInstance[DicomTags.ReferencedSOPInstanceUID]?.Value?.[0],
                     pointsData: {
                         vr: coordinates.vr,
                         ...(coordinates.BulkDataURI ? { uri: coordinates.BulkDataURI } : { inlineBinary: coordinates.InlineBinary }),
