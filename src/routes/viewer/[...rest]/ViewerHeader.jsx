@@ -5,8 +5,9 @@ import {Icon} from "@iconify/react";
 import Modal from "./ToolsModal.jsx";
 import PatientDetails from "./PatientDetails.jsx";
 import {useOutsideClick} from "../../search/SearchPageHeader.jsx";
+import GeometryPicker from "./GeometryPicker.jsx";
 
-const ViewerPageHeader = ({detail, annColor, drawType, undo, save, isLeftOpen, labelOpen, isReportOpen, studyUid}) => {
+const ViewerPageHeader = ({detail,annotations, annColor, drawType, undo, save, isLeftOpen, labelOpen, isReportOpen, studyUid}) => {
     const [drawColor, setDrawColor] = annColor
     const [drawOfType, setDrawOfType] = drawType;
     const [undoDraw, setUndoDraw] = undo;
@@ -16,6 +17,7 @@ const ViewerPageHeader = ({detail, annColor, drawType, undo, save, isLeftOpen, l
     const [isMouseOn, setIsMouseOn] = useState(false);
     const [isMouseOnPatient, setIsMouseOnPatient] = useState(false);
     const [isMouseOnCase, setIsMouseOnCase] = useState(false);
+
 
     const updateDrawType = (e, type) => {
         let prevButton = e.target;
@@ -73,6 +75,10 @@ const ViewerPageHeader = ({detail, annColor, drawType, undo, save, isLeftOpen, l
     useOutsideClick(myPatientDetailsRef, () => {mouseOutPatientFun()});
     useOutsideClick(myCaseDetailsRef, () => {mouseOutCaseFun()});
 
+
+    const createAnnotations = (value) => {
+        console.log("value",value)
+    }
 
     return (
         <>
@@ -163,44 +169,7 @@ const ViewerPageHeader = ({detail, annColor, drawType, undo, save, isLeftOpen, l
             </div>
             <Modal isOpen={isMouseOn}>
                 <div className="m-2 mt-3 flex">
-
-                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2 mr-2 mb-2 block"
-                            onClick={(e) => updateDrawType(e, 'Point')}
-                    >
-                        <Icon icon="tabler:point-filled" className="text-black h-6 w-6"/>
-                    </button>
-                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2 mr-2 mb-2 block"
-                            onClick={(e) => updateDrawType(e, 'LineString')}
-                    >
-                        <Icon icon="material-symbols-light:polyline-outline"
-                              className="text-black h-6 w-6"/>
-                    </button>
-                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2 mr-2 mb-2 block"
-                            onClick={(e) => updateDrawType(e, 'Polygon')}
-                    >
-                        <Icon icon="ph:polygon" className="text-black h-6 w-6"/>
-                    </button>
-                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2 mr-2 mb-2 block"
-                            onClick={(e) => updateDrawType(e, 'Rectangle')}
-                    >
-                        <Icon icon="f7:rectangle" className="text-black h-6 w-6"/>
-                    </button>
-                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2 mr-2 mb-2 block"
-                            onClick={(e) => updateDrawType(e, 'Ellipse')}
-                    >
-                        <Icon icon="mdi:ellipse-outline" className="text-black h-6 w-6"/>
-                    </button>
-                    <button className="bg-white hover:bg-yellow-500 rounded-lg p-2 mr-2 mb-2 block"
-                            onClick={(e) => updateDrawType(e, 'ELLIPSE')}
-                    >
-                        <Icon icon="bx:screenshot" className="text-black h-6 w-6"/>
-                    </button>
-                    <button
-                        className="bg-white hover:bg-red-500 text-red-500 hover:text-white rounded-lg p-2 mb-2 block"
-                        onClick={mouseOutFun}
-                    >
-                        <Icon icon="pajamas:close-xs" className="h-6 w-6"/>
-                    </button>
+                    <GeometryPicker onPick={(value)=> createAnnotations(value)}/>
                 </div>
             </Modal>
 

@@ -52,17 +52,22 @@ const calculateEllipsePoints = (points) => {
 };
 
 export const computeAnnotationFeatures = async (annotations, resolutions) => {
-    console.log('annotations:', annotations);
-    console.log('resolutions:', resolutions);
     const features = [];
-    let groups = [];
-    if (annotations.length === 0) return [];
+    let groups;
+    if (Object.keys(annotations).length === 0) return { features, groups };
 
-    for (let index = 0; index < annotations.length; index++) {
-        let feature = []
-        const {group, referencedInstanceUID, pointsData, indexesData, graphicType} = annotations[index];
-        groups.push(group)
-        let points, indexes;
+    const annotation = annotations;
+    const { group, referencedInstanceUID } = annotation[0];
+    groups = group
+
+    const referencedResolution = resolutions.find(res => res.instanceUID === referencedInstanceUID)?.resolution
+        || resolutions[resolutions.length - 1].resolution;
+
+    let points, indexes;
+    await Promise.all(Object.values(group).map(async (g) => {
+        const feature = [];
+        const { pointsData, indexesData, graphicType } = g
+
         if (pointsData.inlineBinary) {
             points = decodeData(pointsData.inlineBinary, pointsData.vr);
         } else if (pointsData.uri) {
@@ -71,36 +76,34 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
             points = decodeData(multipartDecode(await response.arrayBuffer()), vr);
         }
 
-        let referencedResolution = resolutions.find((res) => res.instanceUID === referencedInstanceUID)?.resolution;
-        if (!referencedResolution) {
-            referencedResolution = resolutions[resolutions.length - 1].resolution
-        }
-        points = points?.map((point) => point * referencedResolution)
-
         if (indexesData) {
             if (indexesData.inlineBinary) {
                 indexes = decodeData(indexesData.inlineBinary, indexesData.vr);
             } else if (indexesData.uri) {
                 const response = await fetch(indexesData.uri);
                 const vr = pointsData.vr === 'UR' ? 'OL' : pointsData.vr;
-                indexes = decodeData(multipartDecode(await response.arrayBuffer()),vr);
+                indexes = decodeData(multipartDecode(await response.arrayBuffer()), vr);
             }
         }
 
-        // Decrement indexes by 1 to match the 0-based index
-        indexes = indexes?.map((index) => index - 1);
+        indexes = indexes?.map(index => index - 1);
+        points = points?.map(point => point * referencedResolution);
 
         if (!points || points.length === 0) {
-            continue;
+            console.warn('Missing points data for graphic type:', graphicType);
+        }
+        if (indexes && indexes.length === 0) {
+            console.warn('Missing indexes data for graphic type:', graphicType);
         }
 
         const coordinates = [];
         let hasNegativeCoordinates = false;
 
         for (let i = 0; i < points.length; i += 2) {
-            const [x, y] = [points[i], points[i + 1]];
+            const x = points[i];
+            const y = points[i + 1];
             if (x < 0 || y < 0) hasNegativeCoordinates = true;
-            coordinates.push([points[i], -points[i + 1]]);
+            coordinates.push([x, -y]);
         }
 
         if (hasNegativeCoordinates) {
@@ -108,85 +111,97 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
         }
 
         if ((graphicType === 'POLYLINE' || graphicType === 'POLYGON') && !indexes) {
-            console.warn('Missing indexes data for graphic type: ', graphicType);
-            continue;
+            console.warn('Missing indexes data for graphic type:', graphicType);
         }
 
         switch (graphicType) {
             case 'POINT':
-                feature.push(new Feature({geometry: new MultiPoint(coordinates)}));
+                feature.push(new Feature({ geometry: new MultiPoint(coordinates) }));
                 break;
-            case 'POLYLINE': {
-                let lineStringCoords = [];
-                for (let i = 0; i < indexes.length; i++) {
-                    const coord = coordinates.slice(indexes[i], indexes[i + 1] || coordinates.length);
-                    if (coord && coord.length > 1) {
-                        lineStringCoords.push(coord);
-                        if (lineStringCoords.length > 10000) {
-                            feature.push(new Feature({geometry: new MultiLineString(lineStringCoords)}));
-                            lineStringCoords = [];
-                        }
-                    }
-                }
-                if (lineStringCoords.length > 0) {
-                    feature.push(new Feature({geometry: new MultiLineString(lineStringCoords)}));
-                }
+            case 'POLYLINE':
+                handlePolylineFeature(feature, coordinates, indexes);
                 break;
-            }
-            case 'POLYGON': {
-                let polygonCoords = [];
-                for (let i = 0; i < indexes.length; i++) {
-                    const start = Math.floor(indexes[i] / 2);
-                    const end = Math.floor(indexes[i + 1] / 2) || coordinates.length;
-                    const coord = coordinates.slice(start, end).concat([coordinates[start]]);
-                    if (coord && coord.length > 1) {
-                        polygonCoords.push([coord]);
-                        if (polygonCoords.length > 10000) {
-                            feature.push(new Feature({ geometry: new MultiPolygon(polygonCoords) }));
-                            polygonCoords = [];
-                        }
-                    }
-                }
-                if (polygonCoords.length > 0) {
-                    feature.push(new Feature({ geometry: new MultiPolygon(polygonCoords) }));
-                }
+            case 'POLYGON':
+                handlePolygonFeature(feature, coordinates, indexes);
                 break;
-            }
-            case 'ELLIPSE': {
-                let ellipseCoords = [];
-                for (let i = 0; i < coordinates.length; i += 4) {
-                    const coord = calculateEllipsePoints(coordinates.slice(i, i + 4));
-                    ellipseCoords.push([coord]);
-                    if (ellipseCoords.length > 10000) {
-                        feature.push(new Feature({ geometry: new MultiPolygon(ellipseCoords) }));
-                        ellipseCoords = [];
-                    }
-                }
-                if (ellipseCoords.length > 0) {
-                    feature.push(new Feature({ geometry: new MultiPolygon(ellipseCoords) }));
-                }
+            case 'ELLIPSE':
+                handleEllipseFeature(feature, coordinates);
                 break;
-            }
-            case 'RECTANGLE': {
-                let rectangleCoords = [];
-                for (let i = 0; i < coordinates.length; i += 4) {
-                    const coord = coordinates.slice(i, i + 4).concat([coordinates[i]]);
-                    rectangleCoords.push([coord]);
-                    if (rectangleCoords.length > 10000) {
-                        feature.push(new Feature({ geometry: new MultiPolygon(rectangleCoords) }));
-                        rectangleCoords = [];
-                    }
-                }
-                if (rectangleCoords.length > 0) {
-                    feature.push(new Feature({ geometry: new MultiPolygon(rectangleCoords) }));
-                }
+            case 'RECTANGLE':
+                handleRectangleFeature(feature, coordinates);
                 break;
-            }
             default:
-                console.error('Unrecognized graphic type: ', graphicType);
+                console.error('Unrecognized graphic type:', graphicType);
         }
+        features.push(feature);
+    }));
 
-        features.push(feature)
+    return { features, groups };
+};
+
+
+const handlePolylineFeature = (feature, coordinates, indexes) => {
+    let lineStringCoords = [];
+    for (let i = 0; i < indexes.length; i++) {
+        const coord = coordinates.slice(indexes[i], indexes[i + 1] || coordinates.length);
+        if (coord && coord.length > 1) {
+            lineStringCoords.push(coord);
+            if (lineStringCoords.length > 10000) {
+                feature.push(new Feature({geometry: new MultiLineString(lineStringCoords)}));
+                lineStringCoords = [];
+            }
+        }
     }
-    return {features, groups};
+    if (lineStringCoords.length > 0) {
+        feature.push(new Feature({geometry: new MultiLineString(lineStringCoords)}));
+    }
+};
+
+const handlePolygonFeature = (feature, coordinates, indexes) => {
+    let polygonCoords = [];
+    for (let i = 0; i < indexes.length; i++) {
+        const start = Math.floor(indexes[i] / 2);
+        const end = Math.floor(indexes[i + 1] / 2) || coordinates.length;
+        const coord = coordinates.slice(start, end).concat([coordinates[start]]);
+        if (coord && coord.length > 1) {
+            polygonCoords.push([coord]);
+            if (polygonCoords.length > 10000) {
+                feature.push(new Feature({geometry: new MultiPolygon(polygonCoords)}));
+                polygonCoords = [];
+            }
+        }
+    }
+    if (polygonCoords.length > 0) {
+        feature.push(new Feature({geometry: new MultiPolygon(polygonCoords)}));
+    }
+};
+
+const handleEllipseFeature = (feature, coordinates) => {
+    let ellipseCoords = [];
+    for (let i = 0; i < coordinates.length; i += 4) {
+        const coord = calculateEllipsePoints(coordinates.slice(i, i + 4));
+        ellipseCoords.push([coord]);
+        if (ellipseCoords.length > 10000) {
+            feature.push(new Feature({geometry: new MultiPolygon(ellipseCoords)}));
+            ellipseCoords = [];
+        }
+    }
+    if (ellipseCoords.length > 0) {
+        feature.push(new Feature({geometry: new MultiPolygon(ellipseCoords)}));
+    }
+};
+
+const handleRectangleFeature = (feature, coordinates) => {
+    let rectangleCoords = [];
+    for (let i = 0; i < coordinates.length; i += 4) {
+        const coord = coordinates.slice(i, i + 4).concat([coordinates[i]]);
+        rectangleCoords.push([coord]);
+        if (rectangleCoords.length > 10000) {
+            feature.push(new Feature({geometry: new MultiPolygon(rectangleCoords)}));
+            rectangleCoords = [];
+        }
+    }
+    if (rectangleCoords.length > 0) {
+        feature.push(new Feature({geometry: new MultiPolygon(rectangleCoords)}));
+    }
 };

@@ -232,7 +232,7 @@ export const computePyramidInfo = (baseUrl, studyUid, seriesUid, images) => {
 const computePyramid = (images, baseUrl, studyUid, seriesUid, Resolutions, TileSizes, GridSizes, Origins, PixelSpacings, ImageSizes, PhysicalSizes, baseTotalPixelMatrixColumns, baseTotalPixelMatrixRows) => {
 
     const basePixelSpacing = PixelSpacings[PixelSpacings.length - 1];
-    const extent = [0, -(baseTotalPixelMatrixRows + 1), baseTotalPixelMatrixColumns, -1];
+    const extent = [0, -(baseTotalPixelMatrixRows +1), baseTotalPixelMatrixColumns, -1];
 
     const resolutions = images.map(image => ({
         instanceUID: image.instanceUID,
@@ -279,6 +279,7 @@ const computePyramid = (images, baseUrl, studyUid, seriesUid, Resolutions, TileS
             tileGrid: tileGrid,
             projection: projection,
             wrapX: false,
+            wrapY: false,
             maxZoom: Resolutions.length - 1,
             minZoom: 0,
         }),
@@ -298,5 +299,5 @@ const computePyramid = (images, baseUrl, studyUid, seriesUid, Resolutions, TileS
         zoom: 2,
     });
 
-    return {extent, layer, view, resolutions};
+    return {extent, layer, view, resolutions,PixelSpacings};
 }

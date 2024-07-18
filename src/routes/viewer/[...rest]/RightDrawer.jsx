@@ -1,9 +1,13 @@
 import {Icon} from "@iconify/react";
 import SpecimenList from "./Specimen.jsx";
-import React from "react";
+import React, {useContext, useEffect} from "react";
 import DescriptionPlate from "./DescriptionPlate.jsx";
-const RightDrawer = ({labelOpen,handleLabelOpen,Specimen,annSeries,groupName,annCheckboxList,RightDrawerOpen,
-                         expandedGroups,handleChecked,handleInnerChecked,handleColorChange,color,handleDeleteAnn}) => {
+import Annotaions from "./Annotaions.jsx";
+import LoadingSpin from "./LoadingSpin.jsx";
+
+const RightDrawer = ({
+                         labelOpen, handleLabelOpen, Specimen, annSeries, groupName, annCheckboxList,Loading, Layers,RightDrawerOpen,
+                         expandedGroups, handleChecked, handleInnerChecked, handleColorChange, color, handleDeleteAnn}) => {
 
     // 處理annGroup選單
     const handleAnnDrawer = (index) => {
@@ -39,7 +43,9 @@ const RightDrawer = ({labelOpen,handleLabelOpen,Specimen,annSeries,groupName,ann
                               width="24" height="24"/>
                     </div>
                 </div>
-                {labelOpen[3] !== 0 && <div className=""><div className="p-1.5">Slide Label</div></div>}
+                {labelOpen[3] !== 0 && <div className="">
+                    <div className="p-1.5">Slide Label</div>
+                </div>}
                 <DescriptionPlate label="Specimens"
                                   icon="pajamas:details-block"
                                   isOpen={labelOpen[4] !== 0}
@@ -51,6 +57,9 @@ const RightDrawer = ({labelOpen,handleLabelOpen,Specimen,annSeries,groupName,ann
                                   icon="pajamas:details-block"
                                   isOpen={labelOpen[5] !== 0}
                                   onClick={(e) => handleLabelOpen(e, 5)}>
+
+                    {/*{!Loading ? (<Annotaions Layers={Layers}/>) : (<LoadingSpin/>)}*/}
+                    <Annotaions Layers={Layers} />
                 </DescriptionPlate>
             </div>
         </div>
@@ -58,7 +67,6 @@ const RightDrawer = ({labelOpen,handleLabelOpen,Specimen,annSeries,groupName,ann
 }
 
 export default RightDrawer;
-
 
 
 //ann

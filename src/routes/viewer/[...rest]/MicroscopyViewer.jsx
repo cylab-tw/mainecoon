@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import 'ol/ol.css';
 import {
     Attribution,
@@ -19,129 +19,129 @@ import VectorSource from 'ol/source/Vector';
 import {computeAnnotationFeatures} from '../../../lib/microscopy-viewers/annotation';
 import {computePyramidInfo} from '../../../lib/microscopy-viewers/pyramid';
 import {Fill, Stroke, Style} from 'ol/style';
+import LoadingSpin from "./LoadingSpin.jsx";
+import {AnnotationsContext} from "../../../lib/AnnotaionsContext.jsx";
 
-const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, group, onMessageChange, layers}) => {
+const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, group,Loading, onMessageChange, layers}) => {
     const [errorMessage, setErrorMessage] = useState(undefined);
-    // const sourceRef = useRef(new VectorSource({wrapX: false}));
     const [groupName, setGroupName] = group;
     const [layer, setLayer] = layers;
     const mapRef = useRef(null);
-    const annotationRef = useRef([]);
     const [color, setColor] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = Loading;
+    const [annotationList,setAnnotationList] = useContext(AnnotationsContext)
+    const annotationLayerRef = useRef(null);
 
     function lightenColor(color) {
         const [r, g, b] = color.match(/\d+/g).map(Number);
         const opacity = 0.2;
-        const rgbaColor = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+        const rgbaColor = `rgba(${r}, ${b}, ${b}, ${opacity})`;
         return rgbaColor;
     }
 
     useEffect(() => {
         const fetchData = async () => {
             if (images.length === 0) return;
+
             try {
-                const {extent, layer, resolutions, view} = computePyramidInfo(baseUrl, studyUid, seriesUid, images);
-                document.getElementById("ViewerID").innerHTML = '';
-                // const vector = new VectorLayer({source: sourceRef.current});
+                const {
+                    extent,
+                    layer,
+                    resolutions,
+                    view,
+                    PixelSpacings
+                } = computePyramidInfo(baseUrl, studyUid, seriesUid, images);
+
+                const viewerElement = document.getElementById("ViewerID");
+                while (viewerElement.firstChild) {
+                    viewerElement.removeChild(viewerElement.firstChild);
+                }
+
+                const controls = [
+                    ...defaultControls().getArray(),
+                    new MousePosition({
+                        wrapX: false,
+                        coordinateFormat: (c) => c ? `(${c[0].toFixed(2)}, ${-c[1].toFixed(2)})` : '',
+                        className: 'absolute left-auto right-0 m-2 rounded-sm bg-white/75 px-1 py-0.5 text-xs font-medium',
+                    }),
+                    new OverviewMap({
+                        collapsed: false,
+                        layers: [new TileLayer({source: layer.getSource()})],
+                    }),
+                    ...(PixelSpacings ? [new ScaleLine({units: 'metric', className: 'ol-scale-line'})] : []),
+                    new ScaleLine(),
+                    new FullScreen(),
+                    new Rotate(),
+                    new ZoomSlider(),
+                    new ZoomToExtent(),
+                    new Zoom(),
+                    new Attribution(),
+                ];
+
                 mapRef.current = new Map({
-                    controls:
-                        defaultControls().extend([
-                            new MousePosition({
-                                coordinateFormat: (c) => (c ? `${c[0].toFixed(2)}, ${-c[1].toFixed(2)}` : ''),
-                                className: 'absolute left-auto right-0 m-2 rounded-sm bg-white/75 px-1 py-0.5 text-xs font-medium',
-                            }),
-                            new OverviewMap({
-                                collapsed: false,
-                                layers: [new TileLayer({source: layer.getSource() ?? undefined})],
-                            }),
-                            new ScaleLine(),
-                            new FullScreen(),
-                            new Rotate(),
-                            new ZoomSlider(),
-                            new ZoomToExtent(),
-                            new Zoom(),
-                            new Attribution()
-                        ]),
+                    controls,
                     target: "ViewerID",
                     layers: [layer],
-                    view: view,
-                })
+                    view,
+                });
 
-                mapRef.current.getControls().clear();
                 mapRef.current.on('loadstart', () => setLoading(true));
                 mapRef.current.on('loadend', () => setLoading(false));
                 mapRef.current.getView().fit(extent, {size: mapRef.current.getSize()});
 
-                {
-                    annotations.map((annotation) => {
-                        computeAnnotationFeatures(annotation, resolutions).then(({features, groups}) => {
-                            console.log('features:', features);
-                            console.log('groups:', groups);
-                            features.map((feature) => {
-                                if (feature.length > 0) {
-                                    const source = new VectorSource({features: feature});
-                                    const newAnnLayer = new VectorLayer({source, extent});
-                                    newAnnLayer.setVisible(false);
-                                    annotationRef.current.addLayer(newAnnLayer);
-                                } else {
-                                    return
-                                }
-                            })
-                        });
-                    })
-                }
-                //         computeAnnotationFeatures(annotation, resolutions)
-                //             .then(({features0, annGroupName0}) => {
-                //                 groupName.push(annGroupName0)
-                //                 features0.map((feature) => {
-                //                     const color1 = getRandomColor();
-                //                     color.push(color1)
-                //                     if (feature.length > 0) {
-                //                         let fill;
-                //                         if (annotation[0].graphicType === "POLYGON") {
-                //                             fill = new Fill({
-                //                                 color: lightenColor(color1)
-                //                             });
-                //                         }
-                //
-                //                         const style = new Style({
-                //                             stroke: new Stroke({
-                //                                 color: color1,
-                //                                 width: 1
-                //                             }),
-                //                             fill: fill
-                //                         });
-                //
-                //                         const source = new VectorSource({features: feature});
-                //                         const newLayer = new VectorLayer({source, extent, style});
-                //                         newLayer.setVisible(false);
-                //                         mapRef.current.addLayer(newLayer);
-                //                     } else {
-                //                         return
-                //                     }
-                //                 })
-                onMessageChange(mapRef.current.getLayers());
-                //                 setLayer(mapRef.current.getLayers());
-                //
-                //             })
-                //             .catch((error) => {
-                //                 setErrorMessage('Failed to load annotations.');
-                //                 console.error(error);
-                //             })
-                //     })
+                Object.keys(annotationList).map(async (key) => {
+                    const {features, groups} = await computeAnnotationFeatures(annotationList[key], resolutions);
+                    const annotationGroup = Object.values(groups);
+                    let layer= {}
+                    features.forEach((feature, index) => {
+                        if (feature.length > 0) {
+                            const groupColor = getRandomColor();
+                            const fill = groups.graphicType === "POLYGON" ?
+                                new Fill({color: lightenColor(groupColor)}) : undefined;
 
+                            const style = new Style({
+                                stroke: new Stroke({
+                                    color: groupColor,
+                                    width: 1,
+                                }),
+                                fill,
+                            });
+                            setAnnotationList(prevAnnotations => ({
+                                ...prevAnnotations,
+                                [key]: [
+                                    {
+                                        ...prevAnnotations[key][0],
+                                        group: {
+                                            ...prevAnnotations[key][0].group,
+                                            [annotationGroup[index].groupUid]: {
+                                                ...prevAnnotations[key][0].group[annotationGroup[index].groupUid],
+                                                color: groupColor,
+                                            }
+                                        }
+                                    }
+                                ]
+                            }));
+                            const source = new VectorSource({wrapX: false, features: feature});
+                            const newLayer = new VectorLayer({source, extent, style});
+                            // layer.push(newLayer);
+                            newLayer.setVisible(true);
+                            mapRef.current.addLayer(newLayer);
+                        }
+                    });
+                    onMessageChange({layer : mapRef.current.getLayers()});
+                });
             } catch (error) {
-                setErrorMessage('Unexpected error occurred.');
-                console.error('error:', error);
+                setErrorMessage('Failed to load image.');
+                console.error(error);
             }
         };
 
-        if (images) fetchData();
+        fetchData();
+    }, [baseUrl, studyUid, seriesUid, images]);
 
-    }, [images, annotations]);
-
-    console.log('layer:', layer);
+    useEffect(() => {
+        console.log("annotationListUpdate", annotationList);
+    }, [annotationList]);
 
     const getRandomColor = () => {
         let color = 'rgba(';
@@ -154,18 +154,16 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, annotations, gr
         return color;
     };
 
-
     return (
-        <div id="ViewerID" className={`relative w-full flex grow`}>
+        <div id="ViewerID" className={`relative w-full flex grow bg-gray-100`}>
             {loading ? (
                 <div className="w-full h-full flex items-center justify-center">
-                    <div className="w-10 h-10 border-2 border-t-primary border-b-green-400 rounded-full animate-spin"/>
+                    <div className="w-10 h-10 border-4 border-t-primary border-b-green-400 rounded-full animate-spin"/>
                 </div>
             ) : (
                 <>
                     <div className="h-full w-full"/>
-                    <div
-                        className={`absolute inset-0 z-10 flex items-center justify-center bg-black/40 ${!errorMessage ? 'hidden' : ''}`}>
+                    <div className={`absolute inset-0 z-10 flex items-center justify-center bg-black/40 ${!errorMessage ? 'hidden' : ''}`}>
                         <p>{errorMessage}</p>
                     </div>
                 </>

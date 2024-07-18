@@ -4,12 +4,12 @@ import {combineUrl, fetchPatientDetails} from "../../../lib/search/index.js";
 import {Icon} from "@iconify/react";
 import ViewerPageHeader from "./ViewerHeader.jsx";
 import LeftDrawer from "./LeftDrawer.jsx"
-import {ServerContext} from "../../../lib/ServerContext.jsx";
 import {Report} from "../../report/Report.jsx";
 import {getAnnotations, getImagingInfo, getSeriesInfo} from '../../../lib/dicom-webs/series';
 import {DICOMWEB_URLS} from '../../../lib/dicom-webs';
 import {getSlideLabel, getSpecimenList} from "../../../lib/image/index.js";
 import RightDrawer from "./RightDrawer.jsx";
+import {AnnotationsContext} from "../../../lib/AnnotaionsContext.jsx";
 
 const ViewerPage = () => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -24,7 +24,7 @@ const ViewerPage = () => {
     const [annSeries, setAnnSeries] = useState([]);
 
     const [images, setImages] = useState([]);
-    const [annotations, setAnnotations] = useState([]);
+    const [annotations, setAnnotations] = useState({});
 
     const [isLeftOpen, setIsLeftOpen] = useState(true);
     const [isReportOpen, setIsReportOpen] = useState(true);
@@ -51,7 +51,7 @@ const ViewerPage = () => {
     const [color, setColor] = useState([])
     const [data, setData] = useState([]);
     const patientDetails = fetchPatientDetails(data[0])
-
+    const [annotationList,setAnnotationList] = useContext(AnnotationsContext)
 
 
     const RightDrawerOpen = () => { setIsRightOpen(!isRightOpen) };
@@ -141,17 +141,31 @@ const ViewerPage = () => {
             const promises = annSeries.map(async (ann) => {
                 const seriesUid = ann[0];
                 const instances = await getAnnotations(baseUrl, studyUid, seriesUid);
-                return instances;
+                return { seriesUid, instances };
             });
-            const instances = await Promise.all(promises);
-            setAnnotations(instances);
+            const results = await Promise.all(promises);
+
+            const annotations = {};
+            results.forEach(({ seriesUid, instances }) => {
+                annotations[seriesUid] = instances;
+            });
+
+            setAnnotations(annotations)
+            setAnnotationList(annotations);
         }
+
         processAnnotations();
     }, [annSeries]);
 
+    const [loading, setLoading] = useState(true);
+
     const handleMessageChange = (message) => {
-        setLayers(message)
+        const layer = message.layer
+        const layerArray = layer.array_
+        setLayers(layerArray)
     }
+
+    console.log("layers", layers)
 
     const handleColorChange = (index, newcolor) => {
         const newIndex = index + 4;
@@ -185,6 +199,7 @@ const ViewerPage = () => {
                                   isLeftOpen={[isLeftOpen, setIsLeftOpen]}
                                   isReportOpen={[isReportOpen, setIsReportOpen]}
                                   labelOpen={labelOpen}
+                                  annotations={annotations}
                                   detail={patientDetails}
                 />
                 <div className={`h-full w-full flex grow`}>
@@ -205,7 +220,6 @@ const ViewerPage = () => {
                         studyUid={studyUid}
                         seriesUid={seriesUID}
                         images={images}
-                        annotations={annotations}
                         group={[groupName, setGroupName]}
                         drawType={drawType}
                         drawColor={annColor}
@@ -213,6 +227,8 @@ const ViewerPage = () => {
                         undoState={[undo, setUndo]}
                         onMessageChange={handleMessageChange}
                         layers={[layers, setLayers]}
+                        Loading={[loading, setLoading]}
+                        className="grow"
                     />
                     {isRightOpen ? (
                             <RightDrawer labelOpen={labelOpen}
@@ -226,6 +242,8 @@ const ViewerPage = () => {
                                          color={color}
                                          handleDeleteAnn={handleDeleteAnn}
                                          RightDrawerOpen={RightDrawerOpen}
+                                         Layers={[layers,setLayers]}
+                                         Loading={loading}
                             />
                     ) : (
                         <div className="bg-opacity-0 flex justify-end items-center z-30 mt-2">
