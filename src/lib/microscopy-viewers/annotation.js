@@ -55,9 +55,8 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
     const features = [];
     let groups;
     if (Object.keys(annotations).length === 0) return { features, groups };
-
     const annotation = annotations;
-    const { group, referencedInstanceUID } = annotation[0];
+    const { group, referencedInstanceUID,seriesUid } = annotation[0];
     groups = group
 
     const referencedResolution = resolutions.find(res => res.instanceUID === referencedInstanceUID)?.resolution
@@ -136,7 +135,7 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
         features.push(feature);
     }));
 
-    return { features, groups };
+    return { features, groups,seriesUid };
 };
 
 

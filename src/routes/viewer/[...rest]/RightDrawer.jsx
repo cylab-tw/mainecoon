@@ -6,8 +6,8 @@ import Annotaions from "./Annotaions.jsx";
 import LoadingSpin from "./LoadingSpin.jsx";
 
 const RightDrawer = ({
-                         labelOpen, handleLabelOpen, Specimen, annSeries, groupName, annCheckboxList,Loading, Layers,RightDrawerOpen,
-                         expandedGroups, handleChecked, handleInnerChecked, handleColorChange, color, handleDeleteAnn}) => {
+                         labelOpen, handleLabelOpen, Specimen, Layers,RightDrawerOpen,
+                         expandedGroups,handleDeleteAnn}) => {
 
     // 處理annGroup選單
     const handleAnnDrawer = (index) => {
@@ -58,118 +58,14 @@ const RightDrawer = ({
                                   isOpen={labelOpen[5] !== 0}
                                   onClick={(e) => handleLabelOpen(e, 5)}>
 
-                    {/*{!Loading ? (<Annotaions Layers={Layers}/>) : (<LoadingSpin/>)}*/}
-                    <Annotaions Layers={Layers} />
+                    <Annotaions Layers={Layers}/>
                 </DescriptionPlate>
+                <div className="flex justify-center">
+                    <button className="border-1 bg-green-300 rounded-lg m-2 p-2 font-sans font-bold text-sm">Add Series</button>
+                </div>
             </div>
         </div>
     )
 }
 
 export default RightDrawer;
-
-
-//ann
-//                         <div className="bg-green-50">
-//                             <div>
-//                                 {annSeries.map((series, index0) => {
-//                                     return (
-//                                         <>
-//                                             <div key={index0}
-//                                                  className="mt-2.5 ml-2.5 mr-2.5 flex items-center hover:bg-green-100">
-//                                                 {
-//                                                     annCheckboxList[index0] === true ? (
-//                                                         <>
-//                                                             <input type="checkbox" id={series[0]}
-//                                                                    name={series[0]}
-//                                                                    value={series[0]}
-//                                                                    className="w-6 h-6 flex"
-//                                                                    onChange={(e) => handleInnerChecked(e, series[0], index0)}
-//                                                             />
-//                                                         </>
-//                                                     ) : (
-//                                                         <Icon icon="svg-spinners:6-dots-rotate"
-//                                                               width="24"
-//                                                               height="24"
-//                                                               className="text-green-500"/>
-//                                                     )
-//                                                 }
-//                                                 <p className="text-md w-full mt-2 p-1 ml-2 font-bold"
-//                                                    onClick={(e) => handleAnnDrawer(index0)}>
-//                                                     {series[1]}
-//                                                 </p>
-//                                                 <Icon
-//                                                     icon={expandedGroups.includes(index0) ? "line-md:chevron-small-up" : "line-md:chevron-small-down"}
-//                                                     className={"w-8 h-8 mr-3"}/>
-//                                                 <button onClick={() => handleDeleteAnn(index0)}>
-//                                                     <Icon
-//                                                         icon="tabler:trash" width="24" height="24"
-//                                                         className="text-red-500"/></button>
-//                                             </div>
-//                                             <div>
-//                                                 <div
-//                                                     style={{display: expandedGroups.includes(index0) ? "block" : "none"}}>
-//                                                     {groupName[index0] ? (
-//                                                         <div className="bg-white">
-//                                                             {groupName[index0].map((group, index) =>
-//                                                                 (
-//                                                                     <div key={index}
-//                                                                          className="ml-2.5 mr-2.5 flex items-center hover:bg-green-100">
-//                                                                         {annCheckboxList[index0] === true ? (
-//                                                                             <>
-//                                                                                 <input
-//                                                                                     type="checkbox"
-//                                                                                     id={group}
-//                                                                                     name={group}
-//                                                                                     value={group}
-//                                                                                     className="ml-6 w-6 h-6 flex"
-//                                                                                     data-index={series[0]}
-//                                                                                     data-groupindex={index + index0}
-//                                                                                     onChange={(e) => handleChecked(e, index + index0, series[0], 0)}
-//                                                                                 />
-//                                                                             </>
-//                                                                         ) : (
-//                                                                             <Icon
-//                                                                                 icon="svg-spinners:6-dots-rotate"
-//                                                                                 width="24"
-//                                                                                 height="24"
-//                                                                                 className="ml-6 text-green-500"/>)
-//                                                                         }
-//                                                                         <p className="text-md w-full mt-2 p-1 ml-2 font-bold">
-//                                                                             {group}
-//                                                                         </p>
-//                                                                         <label
-//                                                                             className="contents ">
-//                                                                                             <span
-//                                                                                                 className="h-5 w-10 block"
-//                                                                                                 style={{backgroundColor: color[index + index0]}}></span>
-//                                                                             <input
-//                                                                                 type="color"
-//                                                                                 className="h-[0.01rem] w-[0.01rem] absolute tops left-1/2 invisible"
-//                                                                                 onChange={(e) => handleColorChange(index + index0, e.target.value)}
-//                                                                                 // value={drawColor}
-//                                                                             />
-//                                                                         </label>
-//
-//                                                                     </div>
-//                                                                 )
-//                                                             )}
-//                                                         </div>
-//                                                     ) : (
-//                                                         <Icon icon="svg-spinners:6-dots-rotate"
-//                                                               width="24" height="24"
-//                                                               className="text-green-500"/>
-//                                                     )
-//                                                     }
-//                                                 </div>
-//                                             </div>
-//                                         </>
-//                                     )
-//                                 })}
-//                             </div>
-//                         </div>
-//
-//
-//                         <div className="flex justify-center">
-//                             <button className="border-1 bg-green-300 rounded-lg m-2 p-2.5 font-sans font-bold">Add Series</button>
-//                         </div>

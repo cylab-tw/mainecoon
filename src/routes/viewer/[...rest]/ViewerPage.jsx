@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import MicroscopyViewer from './MicroscopyViewer';
 import {combineUrl, fetchPatientDetails} from "../../../lib/search/index.js";
 import {Icon} from "@iconify/react";
@@ -35,8 +35,6 @@ const ViewerPage = () => {
     const [save, setSave] = useState(false)
     const [layers, setLayers] = useState({})
     const [undo, setUndo] = useState([]);
-
-    const [annCheckboxList, setAnnCheckboxList] = useState([])
     const [annColor, setAnnColor] = useState("#FF0000");
     const [specimen, setSpecimen] = useState({
         "Description": "",
@@ -52,6 +50,7 @@ const ViewerPage = () => {
     const [data, setData] = useState([]);
     const patientDetails = fetchPatientDetails(data[0])
     const [annotationList,setAnnotationList] = useContext(AnnotationsContext)
+
 
 
     const RightDrawerOpen = () => { setIsRightOpen(!isRightOpen) };
@@ -159,14 +158,6 @@ const ViewerPage = () => {
 
     const [loading, setLoading] = useState(true);
 
-    const handleMessageChange = (message) => {
-        const layer = message.layer
-        const layerArray = layer.array_
-        setLayers(layerArray)
-    }
-
-    console.log("layers", layers)
-
     const handleColorChange = (index, newcolor) => {
         const newIndex = index + 4;
         const layerArray = layers.getArray()
@@ -225,7 +216,6 @@ const ViewerPage = () => {
                         drawColor={annColor}
                         save={save}
                         undoState={[undo, setUndo]}
-                        onMessageChange={handleMessageChange}
                         layers={[layers, setLayers]}
                         Loading={[loading, setLoading]}
                         className="grow"
@@ -235,7 +225,6 @@ const ViewerPage = () => {
                                          handleLabelOpen={handleLabelOpen}
                                          Specimen={specimen}
                                          annSeries={annSeries}
-                                         annCheckboxList={annCheckboxList}
                                          groupName={groupName}
                                          expandedGroups={expandedGroups}
                                          handleColorChange={handleColorChange}

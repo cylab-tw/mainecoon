@@ -22,15 +22,12 @@ import {Fill, Stroke, Style} from 'ol/style';
 import LoadingSpin from "./LoadingSpin.jsx";
 import {AnnotationsContext} from "../../../lib/AnnotaionsContext.jsx";
 
-const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, group,Loading, onMessageChange, layers}) => {
+const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,Loading, layers}) => {
     const [errorMessage, setErrorMessage] = useState(undefined);
-    const [groupName, setGroupName] = group;
     const [layer, setLayer] = layers;
     const mapRef = useRef(null);
-    const [color, setColor] = useState([]);
     const [loading, setLoading] = Loading;
     const [annotationList,setAnnotationList] = useContext(AnnotationsContext)
-    const annotationLayerRef = useRef(null);
 
     function lightenColor(color) {
         const [r, g, b] = color.match(/\d+/g).map(Number);
@@ -88,11 +85,11 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, group,Loading, 
                 mapRef.current.on('loadstart', () => setLoading(true));
                 mapRef.current.on('loadend', () => setLoading(false));
                 mapRef.current.getView().fit(extent, {size: mapRef.current.getSize()});
-
+                let tempLayer = {}
                 Object.keys(annotationList).map(async (key) => {
-                    const {features, groups} = await computeAnnotationFeatures(annotationList[key], resolutions);
+                    const {features, groups, seriesUid} = await computeAnnotationFeatures(annotationList[key], resolutions);
                     const annotationGroup = Object.values(groups);
-                    let layer= {}
+
                     features.forEach((feature, index) => {
                         if (feature.length > 0) {
                             const groupColor = getRandomColor();
@@ -123,12 +120,21 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, group,Loading, 
                             }));
                             const source = new VectorSource({wrapX: false, features: feature});
                             const newLayer = new VectorLayer({source, extent, style});
-                            // layer.push(newLayer);
-                            newLayer.setVisible(true);
-                            mapRef.current.addLayer(newLayer);
+                            newLayer.setVisible(false);
+                            mapRef.current.addLayer(newLayer)
+                            tempLayer = {
+                                ...tempLayer,
+                                [seriesUid]: {
+                                    ...(tempLayer[seriesUid] || {}),
+                                    [annotationGroup[index].groupUid]: newLayer
+                                }
+                            }
+
                         }
                     });
-                    onMessageChange({layer : mapRef.current.getLayers()});
+                    // onMessageChange({layer : tempLayer});
+                    setLayer(tempLayer);
+                    // onMessageChange({layer : mapRef.current.getLayers(),seriesUid:seriesUid});
                 });
             } catch (error) {
                 setErrorMessage('Failed to load image.');
@@ -136,12 +142,9 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, group,Loading, 
             }
         };
 
+
         fetchData();
     }, [baseUrl, studyUid, seriesUid, images]);
-
-    useEffect(() => {
-        console.log("annotationListUpdate", annotationList);
-    }, [annotationList]);
 
     const getRandomColor = () => {
         let color = 'rgba(';

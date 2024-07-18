@@ -60,7 +60,6 @@ DicomwebUrls = DicomwebUrls.join(',')
 
 const PUBLIC_DICOMWEB_URLS = DicomwebUrls;
 const DICOMWEB_URLS = parseDicomwebUrls(PUBLIC_DICOMWEB_URLS);
-console.log(DICOMWEB_URLS)
 
 
 // 將輸入轉換為 DICOM Web URL
