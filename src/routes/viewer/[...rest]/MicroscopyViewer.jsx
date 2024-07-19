@@ -36,6 +36,8 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,Loading, layers}
         return rgbaColor;
     }
 
+    console.log("seriesUid",seriesUid)
+
     useEffect(() => {
         const fetchData = async () => {
             if (images.length === 0) return;
@@ -146,16 +148,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,Loading, layers}
         fetchData();
     }, [baseUrl, studyUid, seriesUid, images]);
 
-    const getRandomColor = () => {
-        let color = 'rgba(';
-        for (let i = 0; i < 3; i++) {
-            let component = Math.floor(Math.random() * 256);
-            color += component;
-            if (i < 2) color += ', ';
-        }
-        color += ', 1)';
-        return color;
-    };
+
 
     return (
         <div id="ViewerID" className={`relative w-full flex grow bg-gray-100`}>
@@ -175,4 +168,14 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images,Loading, layers}
     );
 };
 
+export const getRandomColor = () => {
+    let color = 'rgba(';
+    for (let i = 0; i < 3; i++) {
+        let component = Math.floor(Math.random() * 256);
+        color += component;
+        if (i < 2) color += ', ';
+    }
+    color += ', 1)';
+    return color;
+};
 export default MicroscopyViewer;

@@ -1,27 +1,32 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {useContext, useEffect, useState} from "react";
 import LoadingSpin from "./LoadingSpin.jsx";
 import {AnnotationsContext} from "../../../lib/AnnotaionsContext.jsx";
 
-const Annotations = ({ Layers }) => {
+const Annotations = ({Layers}) => {
     const [annotationList, setAnnotationList] = useContext(AnnotationsContext);
     const [isLoading, setIsLoading] = useState(false);
 
     const [layers, setLayers] = Layers;
+
 
     useEffect(() => {
         setIsLoading(Object.keys(layers).length === 0 || Object.keys(annotationList).length === 0);
     }, [layers, annotationList]);
 
     const handleLayerVisibility = (seriesUid, groupUid, type) => {
+        console.log("layers", layers[seriesUid])
+
+
         setAnnotationList((prevAnnotationList) => {
             if (type === 'series') {
                 const allGroupsVisible = Object.keys(prevAnnotationList[seriesUid][0].group).every(
                     (groupUid) => prevAnnotationList[seriesUid][0].group[groupUid].visible
                 );
-                Object.values(layers[seriesUid]).forEach((layer) => {
-                    layer.setVisible(!allGroupsVisible);
-                });
-
+                if (layers[seriesUid]) {
+                    Object.values(layers[seriesUid]).forEach((layer) => {
+                        layer.setVisible(!allGroupsVisible);
+                    });
+                }
                 return {
                     ...prevAnnotationList,
                     [seriesUid]: [{
@@ -36,7 +41,9 @@ const Annotations = ({ Layers }) => {
                     }],
                 };
             } else if (type === 'group') {
-                layers[seriesUid][groupUid].setVisible(!prevAnnotationList[seriesUid][0].group[groupUid].visible);
+                if (layers[seriesUid]){
+                    layers[seriesUid][groupUid].setVisible(!prevAnnotationList[seriesUid][0].group[groupUid].visible);
+                }
                 return {
                     ...prevAnnotationList,
                     [seriesUid]: [
@@ -60,7 +67,7 @@ const Annotations = ({ Layers }) => {
     if (isLoading) {
         return (
             <div className="flex justify-center">
-                <LoadingSpin className="w-8 h-8 mt-5" />
+                <LoadingSpin className="w-8 h-8 mt-5"/>
             </div>
         );
     }
@@ -102,14 +109,16 @@ const Annotations = ({ Layers }) => {
                                             />
                                             <div>
                                                 <div>GroupName : {group[key].groupName}</div>
+                                                <div>GraphicType : {group[key].graphicType}</div>
                                                 <div className="flex items-center">
                                                     Color :
                                                     <span
                                                         className="w-6 h-3 ml-2"
-                                                        style={{ backgroundColor: group[key].color }}
+                                                        style={{backgroundColor: group[key].color}}
                                                     ></span>
                                                 </div>
-                                                <div className="hidden">Visible : {group[key].visible ? "true" : "false"}</div>
+                                                <div className="">Visible
+                                                    : {group[key].visible ? "true" : "false"}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -123,7 +132,7 @@ const Annotations = ({ Layers }) => {
     } else {
         return (
             <div>
-                <LoadingSpin className="w-10 h-10 border-4 mt-2 mr-2" />
+                <LoadingSpin className="w-10 h-10 border-4 mt-2 mr-2"/>
             </div>
         );
     }

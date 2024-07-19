@@ -1,21 +1,71 @@
 import {Icon} from "@iconify/react";
 import SpecimenList from "./Specimen.jsx";
-import React, {useContext, useEffect} from "react";
+import React, {useContext, useEffect,useState} from "react";
 import DescriptionPlate from "./DescriptionPlate.jsx";
 import Annotaions from "./Annotaions.jsx";
-import LoadingSpin from "./LoadingSpin.jsx";
+import {AnnotationsContext} from "../../../lib/AnnotaionsContext.jsx";
+import GeometryPicker from "./GeometryPicker.jsx";
+import Modal from "./ToolsModal.jsx";
+import {getRandomColor} from "./MicroscopyViewer.jsx";
 
 const RightDrawer = ({
                          labelOpen, handleLabelOpen, Specimen, Layers,RightDrawerOpen,
                          expandedGroups,handleDeleteAnn}) => {
 
-    // 處理annGroup選單
+    const [annotationList, setAnnotationList] = useContext(AnnotationsContext);
+    const [isOpen, setIsOpen] = useState(false);
+        // 處理annGroup選單
     const handleAnnDrawer = (index) => {
         if (expandedGroups.includes(index)) {
             setExpandedGroups(expandedGroups.filter((item) => item !== index));
         } else {
             setExpandedGroups([...expandedGroups, index]);
         }
+    }
+
+    useEffect(() => {
+        console.log("annotationList",annotationList)
+    }, [annotationList]);
+
+
+
+    const AddNewSeries = (value) => {
+        const date = new Date();
+        const month = date.getMonth() + 1;
+        const formattedMonth = month < 10 ? `0${month}` : month;
+        const SeriesUiddate = `${date.getFullYear()}${formattedMonth}${date.getDate()}${date.getHours()}${date.getMinutes()}${date.getSeconds()}`
+        setAnnotationList((prevAnnotationList) => {
+            return {
+                ...prevAnnotationList,
+                [`2.16.886.111.100513.6826.${SeriesUiddate}`]:[{
+                    accessionNumber: SeriesUiddate,
+                    editable : true,
+                    group: {
+                        [2]: {
+                            color : getRandomColor(),
+                            dicomJson : {},
+                            graphicType : value,
+                            groupGenerateType : "auto",
+                            groupName : "Group 1",
+                            groupUid : "1",
+                            indexesData : {},
+                            modality : "ANN",
+                            pointsData : {},
+                            seriesUid : "1",
+                            visible : false
+                        }
+                    },
+                    referencedInstanceUID : "1",
+                    seriesUid: "1",
+                    status : false
+                }]
+            };
+        })
+        setIsOpen(false);
+    }
+
+    const openGeometryPicker = () => {
+        setIsOpen(!isOpen);
     }
 
     return (
@@ -60,8 +110,16 @@ const RightDrawer = ({
 
                     <Annotaions Layers={Layers}/>
                 </DescriptionPlate>
-                <div className="flex justify-center">
-                    <button className="border-1 bg-green-300 rounded-lg m-2 p-2 font-sans font-bold text-sm">Add Series</button>
+                <div>
+                    <div className="flex justify-center">
+                        <button className="border-1 bg-green-300 rounded-lg m-2 p-2 font-sans font-bold text-sm"
+                                onClick={openGeometryPicker}>Add Series
+                        </button>
+                    </div>
+
+                    <div className={`m-2 mt-3 flex ${isOpen ? '' : 'hidden'}`}>
+                        <GeometryPicker onPick={(value) => AddNewSeries(value)}/>
+                    </div>
                 </div>
             </div>
         </div>

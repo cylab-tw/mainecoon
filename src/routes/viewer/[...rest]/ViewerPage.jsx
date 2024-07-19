@@ -148,6 +148,7 @@ const ViewerPage = () => {
             results.forEach(({ seriesUid, instances }) => {
                 annotations[seriesUid] = instances;
             });
+            console.log("annotations", annotations);
 
             setAnnotations(annotations)
             setAnnotationList(annotations);

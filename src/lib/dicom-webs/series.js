@@ -155,8 +155,6 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
                         accessionNumber,
                         group: getAnnotationGroup(annotations,modality,seriesUid),
                         referencedInstanceUID: referencedInstance?.[DicomTags.ReferencedSOPInstanceUID]?.Value?.[0],
-                        // graphicType,
-
                         status: false
                     };
             }

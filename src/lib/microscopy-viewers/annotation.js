@@ -66,7 +66,7 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
     await Promise.all(Object.values(group).map(async (g) => {
         const feature = [];
         const { pointsData, indexesData, graphicType } = g
-
+        if(!pointsData || !indexesData) return;
         if (pointsData.inlineBinary) {
             points = decodeData(pointsData.inlineBinary, pointsData.vr);
         } else if (pointsData.uri) {
