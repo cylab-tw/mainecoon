@@ -49,12 +49,12 @@ const SearchResult = ({Result}) => {
                 <td className="border-2 group-first:border-t-0 p-2.5 group-last:border-b-0">{patientDetails.patientName}</td>
                 <td className="border-2 w-1/12 p-2.5 text-center group-first:border-t-0 group-last:border-b-0">{patientDetails.patientBirthDate}</td>
                 <td className="border-2 w-10 p-2.5 text-center group-first:border-t-0 group-last:border-b-0">
-                    <div className="flex items-center justify-center">
-                        <div className={`rounded-md ${gender.bgColor} w-16 py-1 px-2 scale-[0.90] mx-auto flex items-center justify-center font-bold`}>
+                    {/*<div className="flex items-center justify-center">*/}
+                        <div className={`rounded-md ${gender.bgColor} w-16 py-1 px-2  mx-auto flex items-center justify-center font-bold`}>
                             {/*<Icon icon={gender.icon} width="24" height="24" className="text-white"/>*/}
                             <span className="mx-2 text-white">{gender.label}</span>
                         </div>
-                    </div>
+                    {/*</div>*/}
                 </td>
                 <td className="border-2 p-2.5 group-first:border-t-0 group-last:border-b-0">{patientDetails.accessionNumber}</td>
                 <td className="border-2 w-1/12 p-2.5 text-center group-first:border-t-0 group-last:border-b-0">{patientDetails.studyDate}</td>

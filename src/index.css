@@ -21,5 +21,6 @@
 }
 
 .ol-scale-line{
-    @apply !left-auto right-2;
+    @apply !left-auto right-2   ;
+    zoom: 1.4;
 }
