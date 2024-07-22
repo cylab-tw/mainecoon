@@ -3,15 +3,15 @@ import PatientDetails from "./PatientDetails.jsx";
 import DescriptionPlate from "./DescriptionPlate.jsx";
 import {combineUrl} from "../../../lib/search/index.js";
 
-const LeftDrawer = ({detail, labelOpen, smSeries, seriesUid, studyUid, server,handleLabelOpen}) => {
+const LeftDrawer = ({detail, labelOpen, smSeries, seriesUid, studyUid, server, handleLabelOpen}) => {
     const [seriesUId, setSeriesUId] = seriesUid;
 
-    function navigateTo(e) {
-        setSeriesUId(e.target.value)
+    function navigateTo(seriesUID) {
+        setSeriesUId(seriesUID)
     }
 
     return (
-        <div className={`!h-100 w-3/12 overflow-auto `}>
+        <div className={`!h-100 verflow-auto `} style={{width: '450px'}}>
             <div className="flex flex-col w-full h-full border-end">
                 <div>
                     <DescriptionPlate
@@ -43,17 +43,18 @@ const LeftDrawer = ({detail, labelOpen, smSeries, seriesUid, studyUid, server,ha
                         {smSeries.map((series, index) => {
                             const [seriesUID, seriesName] = series;
                             return (
-                                <div key={index}
-                                     className={`${seriesUID === seriesUid[0] ? "bg-gray-200" : ""} hover:bg-green-100 pb-2`}>
-                                    <button
-                                        className="text-sm font-bold font-sans w-full p-2 text-left"
-                                        onClick={(e) => navigateTo(e, seriesUID)}
-                                        value={seriesUID}>{seriesName}</button>
-                                    <img
-                                        key={seriesUid}
-                                        src={`${combineUrl(server)}/studies/${studyUid}/series/${seriesUID}/thumbnail`}
-                                        className="break-all border bg-white text-xs mx-4 w-11/12 h-[100px] object-cover"
-                                    />
+                                <div
+                                    key={seriesUID}
+                                    className={`${seriesUID === seriesUid[0] ? "bg-gray-200" : ""} hover:bg-green-100 w-full`}
+                                    onClick={() => navigateTo(seriesUID)}
+                                >
+                                    <span className="text-sm font-bold font-sans text-left w-full ml-2 mt-4">{seriesName}</span>
+                                    <div className="p-2">
+                                        <img
+                                            src={`${combineUrl(server)}/studies/${studyUid}/series/${seriesUID}/thumbnail`}
+                                            className="break-all border bg-white mr-10 w-full text-xs h-[100px] object-cover"
+                                        />
+                                    </div>
                                 </div>
                             );
                         })}

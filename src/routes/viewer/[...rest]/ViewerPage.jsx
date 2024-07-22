@@ -45,13 +45,10 @@ const ViewerPage = () => {
         "Tissueembeddingmedium": ""
     })
     const [groupName, setGroupName] = useState([]);
-    const [expandedGroups, setExpandedGroups] = useState([]);
     const [color, setColor] = useState([])
     const [data, setData] = useState([]);
     const patientDetails = fetchPatientDetails(data[0])
     const [annotationList,setAnnotationList] = useContext(AnnotationsContext)
-
-
 
     const RightDrawerOpen = () => { setIsRightOpen(!isRightOpen) };
 
@@ -148,12 +145,9 @@ const ViewerPage = () => {
             results.forEach(({ seriesUid, instances }) => {
                 annotations[seriesUid] = instances;
             });
-            console.log("annotations", annotations);
-
             setAnnotations(annotations)
             setAnnotationList(annotations);
         }
-
         processAnnotations();
     }, [annSeries]);
 
@@ -179,6 +173,22 @@ const ViewerPage = () => {
         })
         const newAnnAccessionNumber = annSeries.filter((item) => item[0] !== AllSeriesID[newIndex])
         setAnnSeries(newAnnAccessionNumber)
+    }
+
+    const [newSeriesInfo, setNewSeriesInfo] = useState({action:'',name: '', status: false, type: '', annSeriesUid: '',annGroupUid:'',smSeriesUid:''});
+    const handleMessageChange = (message) => {
+        const {name, type, seriesUid, groupUid, smSeriesUid} = message;
+        if (name === 'addSeries') {
+            setNewSeriesInfo({action:'update',name:name,status: true, type: type,annSeriesUid:seriesUid,annGroupUid: groupUid,smSeriesUid:smSeriesUid});
+        }else if(name === 'addGroup'){
+            setNewSeriesInfo({action:'update',name:name,status: true, type: type,annSeriesUid:seriesUid,annGroupUid: groupUid,smSeriesUid:smSeriesUid});
+        }else if(name === 'currentDraw'){
+            setNewSeriesInfo({action:'update',name:name,status: true, type: type,annSeriesUid:seriesUid,annGroupUid: groupUid,smSeriesUid:smSeriesUid});
+        }else if(name === 'deleteGroup'){
+            setNewSeriesInfo({action:'delete',name:name,status: true, type: type,annSeriesUid:seriesUid,annGroupUid: groupUid,smSeriesUid:smSeriesUid});
+        }else if(name === 'deleteSeries'){
+            setNewSeriesInfo({action:'delete',name:name,status: true, type: type,annSeriesUid:seriesUid,annGroupUid: groupUid,smSeriesUid:smSeriesUid});
+        }
     }
 
     return (
@@ -220,6 +230,7 @@ const ViewerPage = () => {
                         layers={[layers, setLayers]}
                         Loading={[loading, setLoading]}
                         className="grow"
+                        NewSeriesInfo={[newSeriesInfo,setNewSeriesInfo]}
                     />
                     {isRightOpen ? (
                             <RightDrawer labelOpen={labelOpen}
@@ -227,13 +238,14 @@ const ViewerPage = () => {
                                          Specimen={specimen}
                                          annSeries={annSeries}
                                          groupName={groupName}
-                                         expandedGroups={expandedGroups}
                                          handleColorChange={handleColorChange}
                                          color={color}
                                          handleDeleteAnn={handleDeleteAnn}
                                          RightDrawerOpen={RightDrawerOpen}
+                                         onMessageChange={handleMessageChange}
                                          Layers={[layers,setLayers]}
                                          Loading={loading}
+                                         SMseriesUid={seriesUID}
                             />
                     ) : (
                         <div className="bg-opacity-0 flex justify-end items-center z-30 mt-2">

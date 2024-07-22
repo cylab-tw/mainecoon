@@ -85,40 +85,40 @@ const ViewerPageHeader = ({detail,annotations, annColor, drawType, undo, save, i
             <div className="bg-green-500 text-white p-1 h-fit">
                 <div className="flex flex-row ">
                     <div className="flex">
-                        <Link to="/" className={"w-14 h-14 flex flex-column justify-center items-center ml-3 mt-1"}>
+                        <Link to="/" className={"w-14 h-14 flex flex-column items-center ml-1"}>
                             <img src={mainecoon} alt="maincoon"/>
                         </Link>
                         <div className="flex items-center">
-                            <h1 className="text-2xl mt-1 ml-2 mr-5 font-bold font-serif">MAINECOON</h1>
+                            <h1 className="text-2xl ml-2 mr-5 font-bold font-serif tracking-wider">MAINECOON</h1>
                         </div>
                     </div>
 
-                    <div className="text-black flex w-full justify-start text-center m-2 font-bold gap-2">
+                    <div className="text-black flex w-full justify-start items-center text-center font-bold gap-2 text-sm">
                         <div>
-                            <button className="flex bg-white hover:bg-yellow-500 rounded-lg p-2 mr-1 mb-1 block"
+                            <button className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
                                     onClick={() => setIsShowReport(!isShowReport)}
-                            ><Icon icon="tabler:report" width="24" height="24" className="mr-1"/>Report
+                            ><Icon icon="tabler:report" width="20" height="20" className="mr-1"/>Report
                             </button>
                         </div>
                         <div>
-                            <button className="flex bg-white hover:bg-yellow-500 rounded-lg p-2 mr-1 mb-1 block"
+                            <button className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
                                     onClick={() => setIsLeftDrawerOpen(!isLeftDrawerOpen)}
-                            ><Icon icon="fluent:pane-open-24-regular" width="24" height="24" className="mr-1"/>All
+                            ><Icon icon="fluent:pane-open-24-regular" width="20" height="20" className="mr-1"/>All
                             </button>
                         </div>
                         <div>
-                            <button className="flex bg-white hover:bg-yellow-500 rounded-lg p-2 mr-1 mb-1 block"
+                            <button className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
                                     ref={myPatientDetailsRef} onMouseOver={mouseOnPatientFun} onMouseLeave={mouseOutPatientFun}>
-                                <Icon icon="bi:people-circle" width="24" height="24" className="mr-1"/>Patient
+                                <Icon icon="bi:people-circle" width="20" height="20" className="mr-1"/>Patient
                             </button>
                             <div className={`relative bg-white z-10 ${isMouseOnPatient ? '' : 'hidden'}`}>
                                     <PatientDetails detail={detail} label={"Patient"} style={"ViewerHeader"}/>
                             </div>
                         </div>
                         <div>
-                            <button className="flex bg-white hover:bg-yellow-500 rounded-lg p-2 mr-1 mb-1 block"
+                            <button className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
                                     ref={myCaseDetailsRef} onMouseOver={mouseOnCaseFun} onMouseLeave={mouseOutCaseFun}
-                            ><Icon icon="fluent:document-data-16-filled" width="24" height="24" className="mr-1"/>Study
+                            ><Icon icon="fluent:document-data-16-filled" width="20" height="20" className="mr-1"/>Study
                             </button>
                             <div className={`relative bg-white z-10 ${isMouseOnCase ? '' : 'hidden'}`}>
                                 <PatientDetails detail={detail} label={"Study"} style={"ViewerHeader"}/>
@@ -127,41 +127,39 @@ const ViewerPageHeader = ({detail,annotations, annColor, drawType, undo, save, i
                     </div>
 
                     <div className="flex justify-end items-center w-full">
-                        <div ref={myRef} onClick={mouseOnFun}>
-                            <button className="bg-white hover:bg-yellow-500 rounded-lg p-2 mr-1 mb-1 block">
-                                <Icon icon="mdi:tag-edit" className="text-black h-6 w-6"/>
+                        <div ref={myRef} onClick={mouseOnFun} className="mr-2">
+                            <button className="bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block">
+                                <Icon icon="mdi:tag-edit" className="text-black h-5 w-5"/>
                             </button>
                         </div>
-                        <div className="flex flex-row m-2 gap-2">
-                            <button className="bg-white hover:bg-yellow-500 rounded-lg p-2 mr-1 mb-1 block"
-                                    onClick={handleViewer}>
-                                <Icon icon="fa6-regular:hand" className="animate-bounce text-black h-6 w-6"/>
+                        <div className="flex flex-row gap-2">
+                            <button className="bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block" onClick={handleViewer}>
+                                <Icon icon="fa6-regular:hand" className="animate-bounce text-black h-5 w-5"/>
                             </button>
-                            <button className="relative bg-white hover:bg-yellow-500 rounded-lg p-2 mr-1 mb-1 block"
-                                    onClick={handleViewer}>
+                            <button className="relative bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block" onClick={handleViewer}>
                                 <label className="contents ">
-                                    <span className="h-6 w-6 block" style={{backgroundColor: drawColor}}></span>
+                                    <span className="h-5 w-5 block" style={{backgroundColor: drawColor}}></span>
                                     <input
                                         type="color"
-                                        className="h-[0.01rem] w-[0.01rem] absolute tops left-1/2 invisible"
+                                        className="h-5 w-5 absolute tops left-1/2 invisible"
                                         onChange={(e) => setDrawColor(e.target.value)}
                                         value={drawColor}
                                     />
                                 </label>
                             </button>
-                            <button className="bg-white hover:bg-blue-400 rounded-lg p-2 mr-1 mb-1 block"
+                            <button className="bg-white hover:bg-blue-400 rounded-lg p-1.5 mr-1 mb-1 block"
                                     onClick={handleSaveAnnotations}
                             >
-                                <Icon icon="ant-design:save-outlined" className="text-black h-6 w-6"/>
+                                <Icon icon="ant-design:save-outlined" className="text-black h-5 w-5"/>
                             </button>
                             <button
-                                className="bg-white hover:bg-yellow-500 rounded-lg p-2 mr-1 mb-1 block"
+                                className="bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
                                 onClick={undoFeature}
                             >
                                 <Icon icon="gg:undo" className="text-black h-6 w-6"/>
                             </button>
                             <button className="ml-4 mr-1 mb-1" style={{transform: 'rotate(180deg)'}}>
-                                <Icon icon="fluent:list-28-filled" className="text-black h-6 w-6"/>
+                                <Icon icon="fluent:list-28-filled" className="text-black h-5 w-5"/>
                             </button>
                         </div>
                     </div>
@@ -169,7 +167,9 @@ const ViewerPageHeader = ({detail,annotations, annColor, drawType, undo, save, i
             </div>
             <Modal isOpen={isMouseOn}>
                 <div className="m-2 mt-3 flex">
-                    <GeometryPicker onPick={(value)=> createAnnotations(value)}/>
+                    <GeometryPicker className={"flex"}
+                                    buttonClassName={"bg-white mr-2 hover:bg-green-400 hover:text-white"}
+                                    onPick={(value)=> createAnnotations(value)}/>
                 </div>
             </Modal>
 

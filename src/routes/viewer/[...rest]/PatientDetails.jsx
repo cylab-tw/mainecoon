@@ -10,7 +10,7 @@ const PatientDetails = ({label, detail, style}) => {
     );
 
     return (
-        <div className={`${style === "ViewerHeader" ? 'absolute w-64 border-2 text-start bg-white p-4 border-gray-600 shadow-md rounded-lg top-4 '
+        <div className={`${style === "ViewerHeader" ? 'absolute w-64 border-2 text-start bg-white p-4 border-gray-600 shadow-md rounded-lg top-4 left-0 '
             : 'bg-white text-start text-black rounded-lg py-2 ml-1'}`}>
             {label === 'Patient' && (
                 <>

@@ -6,7 +6,7 @@ import mdiVectorPolygon from '@iconify-icons/mdi/vector-polygon';
 import mdiVectorPolyline from '@iconify-icons/mdi/vector-polyline';
 
 /** A button group for picking a geometry type to create/select annotations. */
-export default function GeometryPicker({ className, onClick, onPick }) {
+export default function GeometryPicker({className, buttonClassName, onClick, onPick }) {
     const GraphicType  = {
         Point : 'POINT',
         Polyline : 'POLYLINE',
@@ -24,19 +24,22 @@ export default function GeometryPicker({ className, onClick, onPick }) {
     ];
 
     return (
-        <div className={`flex items-center gap-3 ${className || ''}`}>
+        <div className={`items-center ${className || ''}`}>
             {drawTypes.map((type) => (
+                <div key={type.graphicType} className={`flex flex-col rounded hover:bg-green-300  ${buttonClassName || ''}`}>
                 <button
                     key={type.graphicType}
                     type="button"
-                    className="block rounded bg-white/80 p-1.5"
+                    className="block flex rounded p-2"
                     onClick={(e) => {
                         onClick?.(e);
                         onPick?.(type.graphicType);
                     }}
                 >
-                    <Icon icon={type.icon} className="h-5 w-5" />
+                    <Icon icon={type.icon} className="mr-2 h-5 w-5" />
+                    <span className="text-sm">{type.graphicType}</span>
                 </button>
+                </div>
             ))}
         </div>
     );
