@@ -22,17 +22,17 @@ const Report = ({title, seriesInstanceUID, diagnosticReportUrl}) => {
 
 
     return <>
-        <div className={`h-full w-6/12 border-4 border-black rounded-2xl m-3`}>
-            <div className="flex flex-col w-full h-full">
-                <div className="p-5 m-2 overflow-y-auto scrollbar-thin scrollbar-webkit">
-                    <p className="font-bold text-xl bg-green-300 mt-1 mb-1 p-2">Diagnosis</p>
-                    <ol className="list-decimal list-inside pl-4">
-                        <li>Squamous cell carcinoma, left floor of mouth</li>
-                        <li>Squamous cell carcinoma, in extranodal connective tissue of neck at
-                            level III
-                        </li>
-                        <li>Nineteen cervical lymph nodes, no pathologic diagnosis.</li>
-                    </ol>
+        <div className="w-1/2 mx-3 mb-3 mt-2">
+            <div className="h-full w-full border-2 border-black rounded-2xl">
+                <div className="flex flex-col w-full h-full">
+                    <div className="p-2 m-2 overflow-y-auto scrollbar-thin-report">
+                        <p className="font-bold text-md bg-green-300 mt-1 mb-1 p-2">Diagnosis</p>
+                        <ol className="text-sm list-decimal list-inside pl-4">
+                            <li>Squamous cell carcinoma, left floor of mouth</li>
+                            <li>Squamous cell carcinoma, in extranodal connective tissue of neck at level III</li>
+                            <li>Nineteen cervical lymph nodes, no pathologic diagnosis.</li>
+                        </ol>
+                    </div>
                 </div>
             </div>
         </div>

@@ -15,6 +15,11 @@ export default {
                     scrollbarColor: "rgb(31 29 29) white",
                     borderRadius: "50px",
                 },
+                ".scrollbar-thin-report": {
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "rgb(31 29 29) white",
+                    borderRadius: "25px",
+                },
                 ".scrollbar-html-thin": {
                     scrollbarWidth: "thin",
                     scrollbarColor: "rgb(192 192 192) white",
@@ -34,8 +39,8 @@ export default {
                     }
                 },
                 ".custom-height": {
-                    height: "calc(100vh - 1rem)"
-                },
+                    height: "calc(90vh - 5rem)"
+                }
             }
             addUtilities(newUtilities, ["responsive", "hover"])
         }

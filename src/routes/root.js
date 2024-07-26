@@ -35,7 +35,6 @@ async function checkSpecimenInSeries(studyInstanceUID) {
             const seriesMetadata = await fetchDicom(instancesUrl);
             const series = seriesMetadata[0]
             fs.writeFileSync(`./out/${studyInstanceUID}/${seriesInstanceUID}.json`,JSON.stringify(series,null,4))
-            console.log("series",series)
             const specimenSeq = series['00400560']?.Value?.["00400610"]; // Specimen Preparation Sequence Tag
 
             if (specimenSeq && specimenSeq.Value && specimenSeq.Value.length > 0) {

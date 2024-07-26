@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import MicroscopyViewer from './MicroscopyViewer';
-import {combineUrl, fetchPatientDetails} from "../../../lib/search/index.js";
+import {combineUrl, fetchPatientDetails, generateSeriesUID} from "../../../lib/search/index.js";
 import {Icon} from "@iconify/react";
 import ViewerPageHeader from "./ViewerHeader.jsx";
 import LeftDrawer from "./LeftDrawer.jsx"
@@ -12,45 +12,45 @@ import RightDrawer from "./RightDrawer.jsx";
 import {AnnotationsContext} from "../../../lib/AnnotaionsContext.jsx";
 
 const ViewerPage = () => {
-    const searchParams = new URLSearchParams(window.location.search);
+    const searchParams = new URLSearchParams(window.location.search)
     const server = searchParams.get('server') || DICOMWEB_URLS[0].name;
     const baseUrl = combineUrl(server)
-    const studyUid = searchParams.get('studyUid');
-    const seriesUidFromPreviewImage = searchParams.get('seriesUid');
-    const [seriesUID, setSeriesUID] = useState('');
+    const studyUid = searchParams.get('studyUid')
+    const seriesUidFromPreviewImage = searchParams.get('seriesUid')
+    const [seriesUID, setSeriesUID] = useState('')
     const [AllSeriesID, setAllSeriesID] = useState([])
-
-    const [smSeries, setSmSeries] = useState([]);
-    const [annSeries, setAnnSeries] = useState([]);
-
-    const [images, setImages] = useState([]);
-    const [annotations, setAnnotations] = useState({});
-
-    const [isLeftOpen, setIsLeftOpen] = useState(true);
-    const [isReportOpen, setIsReportOpen] = useState(true);
-    const [isRightOpen, setIsRightOpen] = useState(true);
+    const urlInfo = {server, studyUid, seriesUID}
+    const [smSeries, setSmSeries] = useState([])
+    const [annSeries, setAnnSeries] = useState([])
+    const [images, setImages] = useState([])
+    const [annotations, setAnnotations] = useState({})
+    const [isLeftOpen, setIsLeftOpen] = useState(true)
+    const [isReportOpen, setIsReportOpen] = useState(true)
+    const [isRightOpen, setIsRightOpen] = useState(true)
     const [labelOpen, setLabelOpen] = useState([1, 1, 1, 0, 1, 1])
-
-    const [drawType, setDrawType] = useState(null);
+    const [drawType, setDrawType] = useState(null)
     const [save, setSave] = useState(false)
     const [layers, setLayers] = useState({})
-    const [undo, setUndo] = useState([]);
-    const [annColor, setAnnColor] = useState("#FF0000");
-    const [specimen, setSpecimen] = useState({
-        "Description": "",
-        "Anatomicalstructure": "",
-        "Collectionmethod": "",
-        "Parentspecimen": "",
-        "Tissuefixative": "",
-        "Tissueembeddingmedium": ""
-    })
-    const [groupName, setGroupName] = useState([]);
-    const [color, setColor] = useState([])
-    const [data, setData] = useState([]);
+    const [data, setData] = useState([])
     const patientDetails = fetchPatientDetails(data[0])
-    const [annotationList,setAnnotationList] = useContext(AnnotationsContext)
+    const [annotationList, setAnnotationList] = useContext(AnnotationsContext)
+    const [drawColor, setDrawColor] = useState('rgba(255, 0, 0, 1)')
+    const [loading, setLoading] = useState(true);
+    const [currentDraw, setCurrentDraw] = useState({seriesUid: "", index: ""})
+    const [newSeriesInfo, setNewSeriesInfo] = useState({
+        action: '',
+        name: '',
+        status: false,
+        type: '',
+        annSeriesUid: '',
+        annGroupUid: '',
+        smSeriesUid: ''
+    })
+    const [annotationSeriesUid, setAnnotationSeriesUid] = useState('')
 
-    const RightDrawerOpen = () => { setIsRightOpen(!isRightOpen) };
+    const RightDrawerOpen = () => {
+        setIsRightOpen(!isRightOpen)
+    }
 
     const handleLabelOpen = (e, value) => {
         e.preventDefault();
@@ -59,13 +59,16 @@ const ViewerPage = () => {
         setLabelOpen(newLabelOpen);
     }
 
+
     useEffect(() => {
         try {
             const fetchSeries = async () => {
                 try {
                     const seriesResult = await fetch(`${combineUrl(server)}/studies/${studyUid}/series`);
                     const seriesJson = await seriesResult.json();
+                    console.log('seriesJson', seriesJson)
                     let sm = [], ann = [];
+                    let SeriesUID = ''
                     for (const series of seriesJson) {
                         const attribute = series["00080060"]?.Value[0];
                         const seriesId = series["0020000E"]?.Value[0];
@@ -73,6 +76,7 @@ const ViewerPage = () => {
                         if (attribute === "SM") {
                             const slideTitle = await getSlideLabel(baseUrl, studyUid, seriesId);
                             sm.push([seriesId, slideTitle]);
+                           SeriesUID = seriesId
                         } else if (attribute === "ANN") {
                             const accessionNumber = series["00080050"]?.Value[0] ?? "unknown";
                             ann.push([seriesId, accessionNumber]);
@@ -81,10 +85,12 @@ const ViewerPage = () => {
                     setSmSeries(sm);
                     setAnnSeries(ann);
                     if (!seriesUidFromPreviewImage) {
-                        setSeriesUID(seriesJson[0]?.["0020000E"]?.Value[0]);
+                        setSeriesUID(SeriesUID);
+                        // setSeriesUID(seriesJson[0]?.["0020000E"]?.Value[0]);
                     } else {
                         setSeriesUID(seriesUidFromPreviewImage);
                     }
+
                 } catch (error) {
                     console.error("Error fetching series:", error);
                 }
@@ -106,30 +112,18 @@ const ViewerPage = () => {
         }
     }, [server])
 
+
     useEffect(() => {
         const fetchData = async () => {
             if (studyUid === null || seriesUID === null || studyUid === "" || seriesUID === "") return;
             const series = await getSeriesInfo(baseUrl, studyUid, seriesUID);
             const SeriesUID = series?.modality === 'SM' ? seriesUID : series?.referencedSeriesUid;
             setSeriesUID(SeriesUID);
-            const imagingInfo = await getImagingInfo(baseUrl, studyUid, SeriesUID);
+            const imagingInfo = await getImagingInfo(baseUrl, studyUid, seriesUID);
             setImages(imagingInfo);
         };
-        const fetchDetails = async () => {
-            try {
-                if (studyUid === null || seriesUID === null || studyUid === "" || seriesUID === "") return;
-                const url = `${combineUrl(server)}/studies/${studyUid}/series/${seriesUID}/metadata`
-                const response = await fetch(url)
-                const data = await response.json();
-                const specimenResult = getSpecimenList(data[0])
-                setSpecimen(specimenResult)
-            } catch (e) {
-                console.log('error', e)
-            }
-        }
         fetchData();
-        fetchDetails()
-    }, [server, studyUid, seriesUID]);
+    }, [seriesUID])
 
     // 依據annSeries抓出對應的annotations
     useEffect(() => {
@@ -137,30 +131,90 @@ const ViewerPage = () => {
             const promises = annSeries.map(async (ann) => {
                 const seriesUid = ann[0];
                 const instances = await getAnnotations(baseUrl, studyUid, seriesUid);
-                return { seriesUid, instances };
+                return {seriesUid, instances};
             });
             const results = await Promise.all(promises);
 
             const annotations = {};
-            results.forEach(({ seriesUid, instances }) => {
+            results.forEach(({seriesUid, instances}) => {
                 annotations[seriesUid] = instances;
             });
             setAnnotations(annotations)
             setAnnotationList(annotations);
         }
+
         processAnnotations();
-    }, [annSeries]);
+    }, [annSeries])
 
-    const [loading, setLoading] = useState(true);
+    const handleMessageChange = (message) => {
+        const {name, type, seriesUid, groupUid, smSeriesUid} = message
+        if (name === 'deleteGroup' || name === 'deleteSeries') {
+            setAnnotationSeriesUid('')
+        } else {
+            setAnnotationSeriesUid(seriesUid)
+        }
 
-    const handleColorChange = (index, newcolor) => {
-        const newIndex = index + 4;
-        const layerArray = layers.getArray()
-        const length = newIndex
-        if (layerArray[length]) layerArray[length].style_.stroke_.color_ = newcolor
-        const newColorArray = [...color];
-        newColorArray[index] = String(newcolor);
-        setColor(newColorArray);
+        const actionMap = {
+            addSeries: 'add',
+            addGroup: 'add',
+            currentDraw: 'update',
+            deleteGroup: 'delete',
+            deleteSeries: 'delete',
+            cancel: 'cancel'
+        }
+
+        if (actionMap[name]) {
+            setNewSeriesInfo({
+                action: actionMap[name],
+                name: name,
+                status: true,
+                type: type,
+                annSeriesUid: seriesUid,
+                annGroupUid: groupUid,
+                smSeriesUid: smSeriesUid
+            })
+        }
+    };
+
+    const getDrawType = (value) => {
+        const {name, type} = value;
+        setDrawType(type);
+        if (name === 'cancel') {
+            setAnnotationSeriesUid('')
+            setCurrentDraw({seriesUid: "", index: ""});
+            handleMessageChange({name: 'cancel', type: '', seriesUid: '', groupUid: '', smSeriesUid: ''});
+        } else if (name === 'drawtype') {
+            if (annotationSeriesUid === "") {
+                const seriesUid = generateSeriesUID();
+                handleMessageChange({
+                    name: 'addSeries',
+                    type: type,
+                    seriesUid: seriesUid,
+                    groupUid: '',
+                    smSeriesUid: seriesUID
+                });
+                setCurrentDraw({seriesUid: seriesUid, index: 0});
+            } else {
+                const groupEntries = Object.entries(annotationList[annotationSeriesUid][0].group);
+                const matchingGroups = groupEntries.filter(([key, item]) => item.graphicType === type);
+                if (matchingGroups.length > 0) {
+                    const latestGroupEntry = matchingGroups[matchingGroups.length - 1];
+                    const groupUid = latestGroupEntry[0];
+
+                    handleMessageChange({
+                        name: "currentDraw",
+                        type: type,
+                        seriesUid: annotationSeriesUid,
+                        groupUid: groupUid
+                    });
+                    setCurrentDraw({seriesUid: annotationSeriesUid, index: groupEntries.indexOf(latestGroupEntry)});
+                } else {
+                    handleMessageChange({name: "addGroup", type: type, seriesUid: annotationSeriesUid, groupUid: ""});
+                    const groupLength = Object.keys(annotationList[annotationSeriesUid][0].group).length;
+                    setCurrentDraw({seriesUid: annotationSeriesUid, index: groupLength});
+                }
+            }
+        }
     }
 
     const handleDeleteAnn = (index) => {
@@ -175,36 +229,18 @@ const ViewerPage = () => {
         setAnnSeries(newAnnAccessionNumber)
     }
 
-    const [newSeriesInfo, setNewSeriesInfo] = useState({action:'',name: '', status: false, type: '', annSeriesUid: '',annGroupUid:'',smSeriesUid:''});
-    const handleMessageChange = (message) => {
-        const {name, type, seriesUid, groupUid, smSeriesUid} = message;
-        if (name === 'addSeries') {
-            setNewSeriesInfo({action:'update',name:name,status: true, type: type,annSeriesUid:seriesUid,annGroupUid: groupUid,smSeriesUid:smSeriesUid});
-        }else if(name === 'addGroup'){
-            setNewSeriesInfo({action:'update',name:name,status: true, type: type,annSeriesUid:seriesUid,annGroupUid: groupUid,smSeriesUid:smSeriesUid});
-        }else if(name === 'currentDraw'){
-            setNewSeriesInfo({action:'update',name:name,status: true, type: type,annSeriesUid:seriesUid,annGroupUid: groupUid,smSeriesUid:smSeriesUid});
-        }else if(name === 'deleteGroup'){
-            setNewSeriesInfo({action:'delete',name:name,status: true, type: type,annSeriesUid:seriesUid,annGroupUid: groupUid,smSeriesUid:smSeriesUid});
-        }else if(name === 'deleteSeries'){
-            setNewSeriesInfo({action:'delete',name:name,status: true, type: type,annSeriesUid:seriesUid,annGroupUid: groupUid,smSeriesUid:smSeriesUid});
-        }
-    }
-
     return (
         <>
-            <div className="flex custom-height w-auto flex-col">
-                <ViewerPageHeader annColor={[annColor, setAnnColor]}
-                                  drawType={[drawType, setDrawType]}
-                                  undo={[undo, setUndo]}
+            <div className="flex h-full w-auto flex-col">
+                <ViewerPageHeader drawType={[drawType, setDrawType]}
                                   save={[save, setSave]}
                                   isLeftOpen={[isLeftOpen, setIsLeftOpen]}
                                   isReportOpen={[isReportOpen, setIsReportOpen]}
-                                  labelOpen={labelOpen}
-                                  annotations={annotations}
                                   detail={patientDetails}
+                                  onMessageChange={getDrawType}
+                                  DrawColor={[drawColor, setDrawColor]}
                 />
-                <div className={`h-full w-full flex grow`}>
+                <div className={`custom-height w-full flex grow`}>
                     {isLeftOpen &&
                         <LeftDrawer labelOpen={labelOpen}
                                     handleLabelOpen={handleLabelOpen}
@@ -215,38 +251,32 @@ const ViewerPage = () => {
                                     server={server}
                         />
                     }
-                    {/*{isReportOpen && (<Report/>)}*/}
-
+                    {isReportOpen && (<Report/>)}
                     <MicroscopyViewer
                         baseUrl={baseUrl}
                         studyUid={studyUid}
                         seriesUid={seriesUID}
                         images={images}
-                        group={[groupName, setGroupName]}
-                        drawType={drawType}
-                        drawColor={annColor}
-                        save={save}
-                        undoState={[undo, setUndo]}
                         layers={[layers, setLayers]}
                         Loading={[loading, setLoading]}
                         className="grow"
-                        NewSeriesInfo={[newSeriesInfo,setNewSeriesInfo]}
+                        NewSeriesInfo={[newSeriesInfo, setNewSeriesInfo]}
+                        DrawColor={drawColor}
+                        annotations={annotations}
                     />
                     {isRightOpen ? (
-                            <RightDrawer labelOpen={labelOpen}
-                                         handleLabelOpen={handleLabelOpen}
-                                         Specimen={specimen}
-                                         annSeries={annSeries}
-                                         groupName={groupName}
-                                         handleColorChange={handleColorChange}
-                                         color={color}
-                                         handleDeleteAnn={handleDeleteAnn}
-                                         RightDrawerOpen={RightDrawerOpen}
-                                         onMessageChange={handleMessageChange}
-                                         Layers={[layers,setLayers]}
-                                         Loading={loading}
-                                         SMseriesUid={seriesUID}
-                            />
+                        <RightDrawer labelOpen={labelOpen}
+                                     handleLabelOpen={handleLabelOpen}
+                                     handleDeleteAnn={handleDeleteAnn}
+                                     RightDrawerOpen={RightDrawerOpen}
+                                     onMessageChange={handleMessageChange}
+                                     Layers={[layers, setLayers]}
+                                     Loading={loading}
+                                     SMseriesUid={seriesUID}
+                                     urlInfo={urlInfo}
+                                     drawType={drawType}
+                                     CurrentDraw={[currentDraw, setCurrentDraw]}
+                        />
                     ) : (
                         <div className="bg-opacity-0 flex justify-end items-center z-30 mt-2">
                             <div className="bg-opacity-0 absolute z-30 mt-2">
@@ -257,8 +287,7 @@ const ViewerPage = () => {
                                 </button>
                             </div>
                         </div>
-                    )
-                    }
+                    )}
                 </div>
             </div>
 

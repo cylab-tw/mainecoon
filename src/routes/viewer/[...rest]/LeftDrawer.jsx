@@ -11,9 +11,9 @@ const LeftDrawer = ({detail, labelOpen, smSeries, seriesUid, studyUid, server, h
     }
 
     return (
-        <div className={`!h-100 verflow-auto `} style={{width: '450px'}}>
+        <div className={`!h-100 overflow-auto `} style={{width: '450px'}}>
             <div className="flex flex-col w-full h-full border-end">
-                <div>
+                <div className="border-b border-gray-100/60">
                     <DescriptionPlate
                         label="Patient"
                         icon="bi:people-circle"
@@ -23,7 +23,7 @@ const LeftDrawer = ({detail, labelOpen, smSeries, seriesUid, studyUid, server, h
                         <PatientDetails labelOpen={labelOpen} detail={detail} label="Patient" style="Patient"/>
                     </DescriptionPlate>
                 </div>
-                <div>
+                <div className="border-b border-gray-100/60">
                     <DescriptionPlate
                         label="Study"
                         icon="fluent:document-data-16-filled"
@@ -33,9 +33,9 @@ const LeftDrawer = ({detail, labelOpen, smSeries, seriesUid, studyUid, server, h
                         <PatientDetails labelOpen={labelOpen} detail={detail} label="Study" style="Patient"/>
                     </DescriptionPlate>
                 </div>
-                <div>
+                <div className="border-b border-gray-100/60">
                     <DescriptionPlate
-                        label="Series"
+                        label="Slides"
                         icon="fluent:document-data-16-filled"
                         isOpen={labelOpen[2] !== 0}
                         onClick={(e) => handleLabelOpen(e, 2)}
@@ -48,11 +48,12 @@ const LeftDrawer = ({detail, labelOpen, smSeries, seriesUid, studyUid, server, h
                                     className={`${seriesUID === seriesUid[0] ? "bg-gray-200" : ""} hover:bg-green-100 w-full`}
                                     onClick={() => navigateTo(seriesUID)}
                                 >
-                                    <span className="text-sm font-bold font-sans text-left w-full ml-2 mt-4">{seriesName}</span>
                                     <div className="p-2">
+                                        <span
+                                            className="text-sm font-sans text-left w-full m-0.5">{seriesName}</span>
                                         <img
                                             src={`${combineUrl(server)}/studies/${studyUid}/series/${seriesUID}/thumbnail`}
-                                            className="break-all border bg-white mr-10 w-full text-xs h-[100px] object-cover"
+                                            className="break-all border bg-white  w-full text-xs h-[100px] object-cover"
                                         />
                                     </div>
                                 </div>

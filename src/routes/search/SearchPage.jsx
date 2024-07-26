@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {SearchResultList} from "../search/SearchResultList.jsx";
 import {Icon} from "@iconify/react";
 import SearchPageHeader from "./SearchPageHeader.jsx";
@@ -11,10 +11,14 @@ const Main = () => {
     const [isLoading, setIsLoading] = useState(false);
     const handlePageLimit = (e) => {
         const {name, value} = e.target;
+        let num = value
+        if(num === 0){
+            num = 10
+        }
         if (name === "offset") {
-            setPageOffset(value)
+            setPageOffset(num)
         } else if (name === "limit") {
-            setPageLimit(value)
+            setPageLimit(num)
         }
     }
 

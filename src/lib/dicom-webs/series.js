@@ -84,6 +84,8 @@ export const sortImagingInfo = (a, b) => {
 export const getImagingInfo = async (baseUrl, studyUid, seriesUid) => {
     const dicomJson = await fetchDicomJson({baseUrl, studyUid, seriesUid, pathname: '/instances'});
     const instanceUids = dicomJson.map(instance => instance[DicomTags.SOPInstanceUID]?.Value?.[0]);
+    console.log("seriesUid", seriesUid)
+    console.log("instanceUids", instanceUids)
     const metadata = (await Promise.all(instanceUids.map(instanceUid => fetchDicomJson({
         baseUrl,
         studyUid,
@@ -92,10 +94,11 @@ export const getImagingInfo = async (baseUrl, studyUid, seriesUid) => {
         pathname: '/metadata'
     })))).flat();
 
+    console.log('getImagingInfometadata', metadata)
+
     const instances = metadata.map((metadata, index) => {
         // const modality = metadata[DicomTags.Modality]?.Value?.[0];
         const modality = metadata[DicomTags.Modality]?.Value?.[0];
-
         if (modality === 'SM') {
             return {
                 modality,
@@ -141,6 +144,8 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
         }));
         const metadata = (await Promise.all(metadataPromises)).flat();
 
+        console.log('getAnnotationsmetadata', metadata)
+
         const instances = metadata.flatMap(metadata => {
             const modality = metadata[DicomTags.Modality]?.Value?.[0];
             const accessionNumber = metadata[DicomTags.AccessionNumber]?.Value?.[0];
@@ -172,17 +177,16 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
 
 const getAnnotationGroup = (annotations, modality, seriesUid) => {
     const result = {};
-
     annotations.forEach(annotation => {
         let coordinates = annotation[DicomTags.PointCoordinatesData];
         coordinates ??= annotation[DicomTags.DoublePointCoordinatesData];
         const groupUid = annotation[DicomTags.GroupUID]?.Value?.[0];
         const groupName = annotation[DicomTags.GroupName]?.Value?.[0];
         const groupGenerationType = annotation[DicomTags.GroupGenerationType]?.Value?.[0];
-        const indexes = annotation[DicomTags.LongPrimitivePointIndexList];
+        // const indexes = annotation[DicomTags.LongPrimitivePointIndexList];
         const graphicType = annotation[DicomTags.GraphicType]?.Value?.[0];
-        const hasIndexes = graphicType === 'POLYLINE' || graphicType === 'POLYGON';
-
+        // const hasIndexes = graphicType === 'POLYLINE' || graphicType === 'POLYGON';
+        const numberOfAnnotations = annotation[DicomTags.NumberOfAnnotations]?.Value?.[0];
         result[groupUid] = {
             color: "rgba(0, 0, 255, 1)",
             dicomJson: annotation,
@@ -192,14 +196,15 @@ const getAnnotationGroup = (annotations, modality, seriesUid) => {
             graphicType,
             groupGenerationType,
             seriesUid,
-            pointsData: {
-                vr: coordinates.vr,
-                ...(coordinates.BulkDataURI ? { uri: coordinates.BulkDataURI } : { inlineBinary: coordinates.InlineBinary }),
-            },
-            indexesData: hasIndexes ? {
-                vr: indexes.vr,
-                ...(indexes.BulkDataURI ? { uri: indexes.BulkDataURI } : { inlineBinary: indexes.InlineBinary })
-            } : {},
+            numberOfAnnotations,
+            // pointsData: {
+            //     vr: coordinates.vr,
+            //     ...(coordinates.BulkDataURI ? { uri: coordinates.BulkDataURI } : { inlineBinary: coordinates.InlineBinary }),
+            // },
+            // indexesData: hasIndexes ? {
+            //     vr: indexes.vr,
+            //     ...(indexes.BulkDataURI ? { uri: indexes.BulkDataURI } : { inlineBinary: indexes.InlineBinary })
+            // } : {},
             visible: false,
         };
     });

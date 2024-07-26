@@ -47,6 +47,31 @@ function formatTime(inputTime) {
     return `${hours}:${minutes}:${seconds}`;
 }
 
+function formatGender(gender){
+   return gender === "M" ? "Male" : gender === "F" ? "Female": "Other";
+}
+
+function generateSeriesUID() {
+    const date = new Date();
+    const month = date.getMonth() + 1;
+    const formattedMonth = month < 10 ? `0${month}` : month;
+    const SeriesUiddate = `${date.getFullYear()}${formattedMonth}${date.getDate()}${date.getHours()}${date.getMinutes()}${date.getSeconds()}`;
+    return `2.16.886.111.100513.6826.${SeriesUiddate}`;
+}
+
+function generateGroupUID() {
+    const date = new Date();
+    const pad = (num) => num.toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const seconds = pad(date.getSeconds());
+    return `${year}${month}${day}${hours}${minutes}${seconds}`;
+}
+
+
 function getQidorsSingleStudyMetadataValue(qidorsSingleStudy, metadataTag, defaultValue) {
     const metadataValue = qidorsSingleStudy[metadataTag]?.Value;
     return metadataValue !== undefined && metadataValue.length > 0 ? metadataValue[0] : defaultValue;
@@ -64,7 +89,7 @@ function fetchPatientDetails(data) {
     const patientID = processMetadataValue(data, QIDO_RS_Response.PatientID, "NotFound");
     const patientName = processMetadataValue(data, QIDO_RS_Response.PatientName, "NotFound", value => value.Alphabetic);
     const patientBirthDate = processMetadataValue(data, QIDO_RS_Response.PatientBirthDate, "NotFound", formatDate);
-    const patientSex = processMetadataValue(data, QIDO_RS_Response.PatientSex, "NotFound");
+    const patientSex = processMetadataValue(data, QIDO_RS_Response.PatientSex, "NotFound",formatGender);
     const accessionNumber = processMetadataValue(data, QIDO_RS_Response.AccessionNumber, "NotFound");
     const studyDate = processMetadataValue(data, QIDO_RS_Response.StudyDate, "NotFound", formatDate);
     const studyTime = processMetadataValue(data, QIDO_RS_Response.StudyTime, "NotFound", formatTime);
@@ -74,4 +99,4 @@ function fetchPatientDetails(data) {
     };
 }
 
-export {combineUrl,CombineSearchURL,formatDate,formatTime,fetchPatientDetails}
+export {combineUrl,CombineSearchURL,formatDate,formatTime,generateSeriesUID,generateGroupUID,fetchPatientDetails}

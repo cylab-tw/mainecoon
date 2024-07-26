@@ -23,4 +23,54 @@
 .ol-scale-line{
     @apply !left-auto right-2   ;
     zoom: 1.4;
+    right: 30px;
 }
+
+.zoom-control {
+    position: absolute;
+    bottom: 10px;  /* 调整到右下角 */
+    right: 10px;   /* 调整到右下角 */
+    z-index: 1000; /* 确保它在其他控件之上 */
+}
+
+.zoom-to-extent {
+    position: absolute;
+    bottom: 300px;  /* 调整到右下角 */
+    right: 10px;   /* 调整到右下角 */
+    background-color: blue;
+    border: blue;
+}
+
+#ViewerID .ol-zoomslider {
+    position: absolute;
+    left: auto;
+    right: 15px;
+    background-color: rgba(0,0,0,0.2);
+    width: 18px;
+    height: 205px;
+    padding: 0;
+    border-radius: 8px;
+}
+
+#ViewerID .ol-zoomslider:hover {
+    background-color: rgba(0,0,0,0.3);
+}
+
+#ViewerID .ol-zoomslider-thumb {
+    height: 17px;
+    width: 16px;
+    left: 1px;
+    margin : 0;
+    filter: none;
+    background-color: rgba(255,255,255,0.7);
+    border: 1px solid rgba(0,0,0,0.2);
+    border-radius: 8px;
+}
+
+#ViewerID .ol-zoomslider-thumb:hover {
+    background-color: rgba(255,255,255,1);
+    border: 1px solid rgba(0,0,0,0.7);
+}
+
+
+

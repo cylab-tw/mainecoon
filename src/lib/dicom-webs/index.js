@@ -21,6 +21,7 @@ const DicomTags = {
     StudyInstanceUID: '0020000D',
     SeriesInstanceUID: '0020000E',
     NumberOfFrames: '00280008',
+    NumberOfAnnotations: '006A000C',
     Rows: '00280010',
     Columns: '00280011',
     PixelSpacing: '00280030',
