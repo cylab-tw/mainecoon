@@ -98,8 +98,8 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
         setCurrentDraw({seriesUid: "", index: ""})
     }
 
-    const handlePanTo = (centerCoordinates) => {
-        onMessageChange({name: "panTo", centerCoordinates: centerCoordinates});
+    const handlePanTo = (centerCoordinates,currentCenterCoordinatesIndex) => {
+        onMessageChange({name: "panTo",currentCenterCoordinatesIndex:currentCenterCoordinatesIndex,centerCoordinates: centerCoordinates});
     }
 
     if (Object.keys(annotationsRef.current).length !== 0 && annotationsRef.current !== undefined) {
@@ -173,7 +173,7 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
                             </div>
                             <div className={`text-sm ${status ? "" : "hidden"}`}>
                                 {Object.keys(group).map((key, index) => {
-                                    const {groupUid, groupName, graphicType, color, visible,centerCoordinates} = group[key];
+                                    const {groupUid, groupName, graphicType, color, visible,centerCoordinates,currentCenterCoordinatesIndex} = group[key];
                                     return (
                                         <div
                                             key={groupUid}
@@ -203,8 +203,7 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
                                                 >
                                                     <div className="flex">{groupName}
                                                         <div className="flex items-center ml-2">
-                                                            <Icon icon={drawTypes[graphicType]} className="h-5 w-5 mx-2"
-                                                            />
+                                                            <Icon icon={drawTypes[graphicType]} className="h-5 w-5 mx-2"/>
                                                             <span
                                                                 className="w-6 h-3 ml-2"
                                                                 style={{backgroundColor: color}}
@@ -212,7 +211,7 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center">
-                                                        <button className="mr-3" onClick={()=>handlePanTo(centerCoordinates[index],index)}>
+                                                        <button className="mr-3" onClick={()=>handlePanTo(centerCoordinates,currentCenterCoordinatesIndex)}>
                                                             <Icon icon="carbon:map" className="h-6 w-6 text-red-500" />
                                                         </button>
                                                     </div>

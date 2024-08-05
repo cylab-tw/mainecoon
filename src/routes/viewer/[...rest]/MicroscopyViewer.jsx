@@ -112,6 +112,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
                                             [annotationGroup[index].groupUid]: {
                                                 ...prevAnnotations[key][0].group[annotationGroup[index].groupUid],
                                                 color: groupColor,
+                                                currentCenterCoordinatesIndex: 0,
                                                 centerCoordinates: centerCoordinates[index]
                                             }
                                         }

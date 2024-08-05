@@ -146,10 +146,12 @@ const ViewerPage = () => {
         processAnnotations();
     }, [annSeries])
 
-    const [centerCoordinates, setCenterCoordinates] = useState({x: 0, y: 0})
+    const [centerCoordinates, setCenterCoordinates] = useState([])
 
     const handleMessageChange = (message) => {
-        const {name, type, seriesUid, groupUid, smSeriesUid,centerCoordinates} = message
+        console.log("message",message)
+        const {name, type, seriesUid, groupUid, smSeriesUid,centerCoordinates,currentCenterCoordinatesIndex} = message
+        console.log("handleMessageChange",centerCoordinates)
         if (name === 'deleteGroup' || name === 'deleteSeries') {
             setAnnotationSeriesUid('')
         } else {
@@ -169,6 +171,7 @@ const ViewerPage = () => {
         if (actionMap[name]) {
             if(name === 'panTo'){
                 setCenterCoordinates(centerCoordinates)
+
             }else{
                 setNewSeriesInfo({
                     action: actionMap[name],
@@ -186,40 +189,54 @@ const ViewerPage = () => {
     const [isFirstClick, setIsFirstClick] = useState('');
 
     useEffect(() => {
-        if (centerCoordinates[0] !== 0 && centerCoordinates[1] !== 0) {
-            if (map.current) {
-                const view = map.current.getView();
-                // if (isFirstClick === '' || isFirstClick !== centerCoordinates) {
-                //     // 先將地圖縮小到最小級別
-                //     view.animate({
-                //         zoom: view.getMinZoom(),
-                //         duration: 500,
-                //     }, () => {
-                //         // 縮小後再放大到目標位置
-                //         view.animate({
-                //             center: centerCoordinates,
-                //             zoom: view.getZoom() + 1, // 根據需要調整縮放級別
-                //             duration: 500,
-                //         });
-                //     });
-                //     setIsFirstClick(centerCoordinates)
-                // } else {
-                    // 直接放大到目標位置
+        console.log("centerCoordinates",centerCoordinates)
+        centerCoordinates.forEach((item) => {
+            console.log("item",item)
+            if(item[0]!== 0 && item[1]!== 0){
+                if (map.current) {
+                    const view = map.current.getView();
                     view.animate({
                         center: centerCoordinates,
                         zoom: view.getZoom() + 5, // 或者設定一個特定的縮放級別
-                        duration: 500,
+                        duration: 1000,
                     });
-                // }
-
-                // 在動畫結束後清空坐標
-                view.on('change:center', () => {
-                    setCenterCoordinates([0, 0]);
-                });
+                }
             }
-        } else {
-            return;
-        }
+        })
+        // if (centerCoordinates[0] !== 0 && centerCoordinates[1] !== 0) {
+        //     if (map.current) {
+        //         const view = map.current.getView();
+        //         // if (isFirstClick === '' || isFirstClick !== centerCoordinates) {
+        //         //     // 先將地圖縮小到最小級別
+        //         //     view.animate({
+        //         //         zoom: view.getMinZoom(),
+        //         //         duration: 500,
+        //         //     }, () => {
+        //         //         // 縮小後再放大到目標位置
+        //         //         view.animate({
+        //         //             center: centerCoordinates,
+        //         //             zoom: view.getZoom() + 1, // 根據需要調整縮放級別
+        //         //             duration: 500,
+        //         //         });
+        //         //     });
+        //         //     setIsFirstClick(centerCoordinates)
+        //         // } else {
+        //             // 直接放大到目標位置
+        //             view.animate({
+        //                 center: centerCoordinates,
+        //                 zoom: view.getZoom() + 5, // 或者設定一個特定的縮放級別
+        //                 duration: 1000,
+        //             });
+        //         // }
+        //
+        //         // 在動畫結束後清空坐標
+        //         view.on('change:center', () => {
+        //             setCenterCoordinates([0, 0]);
+        //         });
+        //     }
+        // } else {
+        //     return;
+        // }
     }, [centerCoordinates]);
 
 

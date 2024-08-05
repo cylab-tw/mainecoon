@@ -91,7 +91,7 @@ const SearchResult = ({Result}) => {
                         ))}
                     </div>
                 </td>
-                <td className="">{ann}</td>
+                {/*<td className="">{ann}</td>*/}
             </tr>
         </>
     );
