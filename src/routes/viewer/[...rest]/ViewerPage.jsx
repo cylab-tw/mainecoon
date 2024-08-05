@@ -10,6 +10,7 @@ import {DICOMWEB_URLS} from '../../../lib/dicom-webs';
 import {getSlideLabel, getSpecimenList} from "../../../lib/image/index.js";
 import RightDrawer from "./RightDrawer.jsx";
 import {AnnotationsContext} from "../../../lib/AnnotaionsContext.jsx";
+import {easeOut} from "ol/easing.js";
 
 const ViewerPage = () => {
     const searchParams = new URLSearchParams(window.location.search)
@@ -66,7 +67,6 @@ const ViewerPage = () => {
                 try {
                     const seriesResult = await fetch(`${combineUrl(server)}/studies/${studyUid}/series`);
                     const seriesJson = await seriesResult.json();
-                    console.log('seriesJson', seriesJson)
                     let sm = [], ann = [];
                     let SeriesUID = ''
                     for (const series of seriesJson) {
@@ -146,8 +146,10 @@ const ViewerPage = () => {
         processAnnotations();
     }, [annSeries])
 
+    const [centerCoordinates, setCenterCoordinates] = useState({x: 0, y: 0})
+
     const handleMessageChange = (message) => {
-        const {name, type, seriesUid, groupUid, smSeriesUid} = message
+        const {name, type, seriesUid, groupUid, smSeriesUid,centerCoordinates} = message
         if (name === 'deleteGroup' || name === 'deleteSeries') {
             setAnnotationSeriesUid('')
         } else {
@@ -160,21 +162,72 @@ const ViewerPage = () => {
             currentDraw: 'update',
             deleteGroup: 'delete',
             deleteSeries: 'delete',
-            cancel: 'cancel'
+            cancel: 'cancel',
+            panTo: 'panTo'
         }
 
         if (actionMap[name]) {
-            setNewSeriesInfo({
-                action: actionMap[name],
-                name: name,
-                status: true,
-                type: type,
-                annSeriesUid: seriesUid,
-                annGroupUid: groupUid,
-                smSeriesUid: smSeriesUid
-            })
+            if(name === 'panTo'){
+                setCenterCoordinates(centerCoordinates)
+            }else{
+                setNewSeriesInfo({
+                    action: actionMap[name],
+                    name: name,
+                    status: true,
+                    type: type,
+                    annSeriesUid: seriesUid,
+                    annGroupUid: groupUid,
+                    smSeriesUid: smSeriesUid
+                })
+            }
         }
     };
+    const map = useRef(null);
+    const [isFirstClick, setIsFirstClick] = useState('');
+
+    useEffect(() => {
+        if (centerCoordinates[0] !== 0 && centerCoordinates[1] !== 0) {
+            if (map.current) {
+                const view = map.current.getView();
+                // if (isFirstClick === '' || isFirstClick !== centerCoordinates) {
+                //     // 先將地圖縮小到最小級別
+                //     view.animate({
+                //         zoom: view.getMinZoom(),
+                //         duration: 500,
+                //     }, () => {
+                //         // 縮小後再放大到目標位置
+                //         view.animate({
+                //             center: centerCoordinates,
+                //             zoom: view.getZoom() + 1, // 根據需要調整縮放級別
+                //             duration: 500,
+                //         });
+                //     });
+                //     setIsFirstClick(centerCoordinates)
+                // } else {
+                    // 直接放大到目標位置
+                    view.animate({
+                        center: centerCoordinates,
+                        zoom: view.getZoom() + 5, // 或者設定一個特定的縮放級別
+                        duration: 500,
+                    });
+                // }
+
+                // 在動畫結束後清空坐標
+                view.on('change:center', () => {
+                    setCenterCoordinates([0, 0]);
+                });
+            }
+        } else {
+            return;
+        }
+    }, [centerCoordinates]);
+
+
+    const handlePanToMessage = (message) => {
+        const {mapRef} = message
+        map.current = mapRef.current
+    }
+
 
     const getDrawType = (value) => {
         const {name, type} = value;
@@ -263,6 +316,7 @@ const ViewerPage = () => {
                         NewSeriesInfo={[newSeriesInfo, setNewSeriesInfo]}
                         DrawColor={drawColor}
                         annotations={annotations}
+                        onMessageChange={handlePanToMessage}
                     />
                     {isRightOpen ? (
                         <RightDrawer labelOpen={labelOpen}

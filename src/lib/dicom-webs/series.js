@@ -84,8 +84,6 @@ export const sortImagingInfo = (a, b) => {
 export const getImagingInfo = async (baseUrl, studyUid, seriesUid) => {
     const dicomJson = await fetchDicomJson({baseUrl, studyUid, seriesUid, pathname: '/instances'});
     const instanceUids = dicomJson.map(instance => instance[DicomTags.SOPInstanceUID]?.Value?.[0]);
-    console.log("seriesUid", seriesUid)
-    console.log("instanceUids", instanceUids)
     const metadata = (await Promise.all(instanceUids.map(instanceUid => fetchDicomJson({
         baseUrl,
         studyUid,
@@ -94,7 +92,6 @@ export const getImagingInfo = async (baseUrl, studyUid, seriesUid) => {
         pathname: '/metadata'
     })))).flat();
 
-    console.log('getImagingInfometadata', metadata)
 
     const instances = metadata.map((metadata, index) => {
         // const modality = metadata[DicomTags.Modality]?.Value?.[0];
@@ -144,7 +141,6 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
         }));
         const metadata = (await Promise.all(metadataPromises)).flat();
 
-        console.log('getAnnotationsmetadata', metadata)
 
         const instances = metadata.flatMap(metadata => {
             const modality = metadata[DicomTags.Modality]?.Value?.[0];

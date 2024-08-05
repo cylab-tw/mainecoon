@@ -1,4 +1,4 @@
-import {useContext, useRef, useState} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import {Icon} from "@iconify/react";
 import mdiVectorPoint from "@iconify-icons/mdi/vector-point";
 import mdiVectorPolyline from "@iconify-icons/mdi/vector-polyline";
@@ -18,6 +18,9 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
     const annotationsRef = useRef({});
     annotationsRef.current = annotationList;
 
+    useEffect(() => {
+        console.log("annotationList", annotationList);
+    }, [annotationList]);
 
     const drawTypes = {
         POINT: mdiVectorPoint,
@@ -66,7 +69,6 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
         });
     };
 
-
     const handleGeometryPicker = (event, seriesUid) => {
         event.stopPropagation();
         setOpenPickers((prev) => ({
@@ -96,6 +98,9 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
         setCurrentDraw({seriesUid: "", index: ""})
     }
 
+    const handlePanTo = (centerCoordinates) => {
+        onMessageChange({name: "panTo", centerCoordinates: centerCoordinates});
+    }
 
     if (Object.keys(annotationsRef.current).length !== 0 && annotationsRef.current !== undefined) {
         return (
@@ -168,7 +173,7 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
                             </div>
                             <div className={`text-sm ${status ? "" : "hidden"}`}>
                                 {Object.keys(group).map((key, index) => {
-                                    const {groupUid, groupName, graphicType, color, visible} = group[key];
+                                    const {groupUid, groupName, graphicType, color, visible,centerCoordinates} = group[key];
                                     return (
                                         <div
                                             key={groupUid}
@@ -206,7 +211,11 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
                                                             />
                                                         </div>
                                                     </div>
-                                                    <div className="hidden">Visible : {group[key].visible ? "true" : "false"}</div>
+                                                    <div className="flex items-center">
+                                                        <button className="mr-3" onClick={()=>handlePanTo(centerCoordinates[index],index)}>
+                                                            <Icon icon="carbon:map" className="h-6 w-6 text-red-500" />
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                             {editable && (

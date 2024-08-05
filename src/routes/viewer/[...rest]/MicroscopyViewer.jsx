@@ -22,10 +22,9 @@ import {Fill, Stroke, Style} from 'ol/style';
 import {AnnotationsContext} from "../../../lib/AnnotaionsContext.jsx";
 import CircleStyle from "ol/style/Circle.js";
 import VectorImageLayer from "ol/layer/VectorImage.js";
-import {DragRotateAndZoom, defaults as defaultInteractions} from 'ol/interaction.js';
+import {DragRotateAndZoom, defaults as defaultInteractions, Select, Translate, Snap} from 'ol/interaction.js';
 
-
-const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers,annotations, NewSeriesInfo,DrawColor}) => {
+const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers,annotations, NewSeriesInfo,DrawColor,onMessageChange}) => {
     const [newSeriesInfo, setNewSeriesInfo] = NewSeriesInfo
     const {status} = newSeriesInfo;
     const [errorMessage, setErrorMessage] = useState(undefined);
@@ -34,20 +33,10 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
     const [loading, setLoading] = Loading;
     const [annotationList, setAnnotationList] = useContext(AnnotationsContext)
 
-    console.log('annotationList', annotationList)
-    console.log('layer', layer)
-
-
     useEffect(() => {
-        console.log('images', images)
         const fetchData = async () => {
             try {
                 const {extent, layer, resolutions, view, PixelSpacings} = computePyramidInfo(baseUrl, studyUid, seriesUid, images);
-                console.log("extent", extent)
-                console.log("layer", layer)
-                console.log("resolutions", resolutions)
-                console.log("view", view)
-                console.log("PixelSpacings", PixelSpacings)
                 const viewerElement = document.getElementById("ViewerID");
                 viewerElement.innerHTML = '';
 
@@ -74,9 +63,15 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
                     new Attribution(),
                 ];
 
+                const select = new Select();
+
+                const translate = new Translate({
+                    features: select.getFeatures(),
+                });
+
                 mapRef.current = new Map({
                     // shift+drag to rotate and zoom
-                    interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
+                    interactions: defaultInteractions().extend([new DragRotateAndZoom(),select, translate]),
                     controls,
                     target: "ViewerID",
                     layers: [layer],
@@ -87,9 +82,11 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
                 mapRef.current.on('loadend', () => setLoading(false));
                 mapRef.current.getView().fit(extent, {size: mapRef.current.getSize()});
                 let tempLayer = {}
-                console.log("annotationList", annotationList)
+
                 Object.keys(annotationList).map(async (key) => {
-                    const {features, group, seriesUid} = await computeAnnotationFeatures(annotationList[key], resolutions);
+                    const {features, group, seriesUid, centerCoordinates} = await computeAnnotationFeatures(annotationList[key], resolutions);
+                    console.log('features', features);
+                    console.log('centerCoordinates', centerCoordinates);
                     const annotationGroup = Object.values(group);
                     features.forEach((feature, index) => {
                         if (feature.length > 0) {
@@ -115,12 +112,14 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
                                             [annotationGroup[index].groupUid]: {
                                                 ...prevAnnotations[key][0].group[annotationGroup[index].groupUid],
                                                 color: groupColor,
+                                                centerCoordinates: centerCoordinates[index]
                                             }
                                         }
                                     }
                                 ]
                             }));
                             const source = new VectorSource({wrapX: false, features: feature});
+
                             // let newLayer = mapRef.current.getLayers().getArray().find(layer => layer.get('seriesUid') === seriesUid);
                             let newLayer;
                             if (annotationGroup[0].numberOfAnnotations > 1000) {
@@ -139,6 +138,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
                             }
                         }
                     });
+                    onMessageChange({mapRef:mapRef})
                     setLayer(tempLayer);
                 });
             } catch (error) {
@@ -149,8 +149,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
         // {((images.length > 0)&&(Object.values(annotationList).length !== 0)) && fetchData()}
         {images.length > 0 && fetchData()}
     }, [baseUrl, studyUid, seriesUid, images,annotations]);
-
-    console.log("Object.values(annotationList).length", Object.values(annotationList).length)
 
     useEffect(() => {updateAnnotation(mapRef, NewSeriesInfo, layers, setAnnotationList,DrawColor)}, [status])
 
