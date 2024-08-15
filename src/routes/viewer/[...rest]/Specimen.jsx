@@ -26,7 +26,7 @@ const SpecimenList = ({urlInfo}) => {
     }, [server, studyUid, seriesUID]);
 
     return (
-        <div className="text-xs ">
+        <div className="text-sm ">
             <div className="p-1.5">
                 {loading ? <LoadingSpin/> :
                 Object.entries(specimen).map(([key, value]) => (

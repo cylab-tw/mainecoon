@@ -1,4 +1,4 @@
-import {useContext, useEffect, useRef, useState} from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 import {Icon} from "@iconify/react";
 import mdiVectorPoint from "@iconify-icons/mdi/vector-point";
 import mdiVectorPolyline from "@iconify-icons/mdi/vector-polyline";
@@ -98,9 +98,19 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
         setCurrentDraw({seriesUid: "", index: ""})
     }
 
-    const handlePanTo = (centerCoordinates,currentCenterCoordinatesIndex) => {
-        onMessageChange({name: "panTo",currentCenterCoordinatesIndex:currentCenterCoordinatesIndex,centerCoordinates: centerCoordinates});
+    const handlePanTo = (action,seriesUid,groupUid,centerCoordinates,currentCenterCoordinatesIndex) => {
+        onMessageChange({name: "panTo",action:action,seriesUid:seriesUid,groupUid:groupUid,currentCenterCoordinatesIndex:currentCenterCoordinatesIndex,centerCoordinates: centerCoordinates});
     }
+
+    const [openPanTools, setOpenPanTools] = useState({});
+
+    const togglePanTools = (event, groupUid) => {
+        event.stopPropagation();
+        setOpenPanTools(prevState => ({
+            ...prevState,
+            [groupUid]: !prevState[groupUid]
+        }));
+    };
 
     if (Object.keys(annotationsRef.current).length !== 0 && annotationsRef.current !== undefined) {
         return (
@@ -112,7 +122,7 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
                     }
                     const {group, editable, accessionNumber, status} = annotations[0];
                     return (
-                        <div key={seriesUid} className="text-sm">
+                        <div key={seriesUid} className="text-sm font-medium">
                             <div className="flex items-center bg-green-100 border-b border-gray-200/50"
                                  onClick={() => handleGroupStatus(seriesUid)}>
                                 {!Loading ? (
@@ -132,8 +142,8 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
                                         />
                                     </div>
                                 )}
-                                <div className="flex items-center w-full justify-between ml-2 p-2">
-                                    <div>Accession # : {accessionNumber}</div>
+                                <div className="flex items-center w-full justify-between ml-2 p-2 ">
+                                    <div className="p-1.5">Accession # : {accessionNumber}</div>
                                     <div className="flex items-center">
                                         {editable && (
                                             <button
@@ -174,6 +184,7 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
                             <div className={`text-sm ${status ? "" : "hidden"}`}>
                                 {Object.keys(group).map((key, index) => {
                                     const {groupUid, groupName, graphicType, color, visible,centerCoordinates,currentCenterCoordinatesIndex} = group[key];
+                                    const isOpen = openPanTools[groupUid] || false;
                                     return (
                                         <div
                                             key={groupUid}
@@ -181,14 +192,23 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
                                             ${currentDraw.index === index && currentDraw.seriesUid === seriesUid ? "bg-gray-200/70" : ""}`}
                                         >
                                             <div className="flex items-center w-full h-full">
-                                                <input
-                                                    type="checkbox"
-                                                    className="mr-3 h-5 w-5 ml-8 my-3"
-                                                    onChange={(e) =>
-                                                        handleLayerVisibility(e, seriesUid, groupUid, "group")
+                                                {editable === false  && centerCoordinates.length > 0 ? (
+                                                    <input
+                                                        type="checkbox"
+                                                        className="mr-3 h-5 w-5 ml-8 my-3"
+                                                        onChange={(e) =>
+                                                            handleLayerVisibility(e, seriesUid, groupUid, "group")
                                                     }
-                                                    checked={visible}
-                                                />
+                                                        checked={visible}
+                                                    />
+                                                    ): (
+                                                    <div className="ml-8 my-3 mr-3 h-full flex items-center justify-center">
+                                                        <div
+                                                            className="w-5 h-5 border-b-green-400 rounded-full animate-spin"
+                                                            style={{borderWidth: "3px"}}
+                                                        />
+                                                    </div>
+                                                )}
                                                 <div
                                                     className="w-full flex justify-between"
                                                     {...(editable && {
@@ -211,9 +231,24 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center">
-                                                        <button className="mr-3" onClick={()=>handlePanTo(centerCoordinates,currentCenterCoordinatesIndex)}>
-                                                            <Icon icon="carbon:map" className="h-6 w-6 text-red-500" />
+                                                        <span className="mr-3">{currentCenterCoordinatesIndex}/{centerCoordinates?.length}</span>
+                                                        <button className="mr-3"
+                                                                onClick={(e) => togglePanTools(e, groupUid)}>
+                                                            <Icon icon="carbon:map" className="h-6 w-6 text-red-500"/>
                                                         </button>
+                                                        <div className="relative">
+                                                            <div
+                                                                className={`absolute bg-white p-1.5 border border-red-100 right-2 mt-4 flex ${isOpen ? '' : 'hidden'}`}>
+                                                                <button className="hover:bg-red-400 bg-white hover:text-white text-red-400 rounded-l font-sans font-bold text-sm p-0.5 border border-red-400 "
+                                                                        onClick={() => handlePanTo('pre', seriesUid, groupUid, centerCoordinates, currentCenterCoordinatesIndex)}>
+                                                                    <p className="h-6 w-6 ">&lt;</p>
+                                                                </button>
+                                                                <button className="hover:bg-red-400 bg-white hover:text-white text-red-400 rounded-r font-sans font-bold text-sm p-0.5 border border-red-400 "
+                                                                    onClick={() => handlePanTo('next', seriesUid, groupUid, centerCoordinates, currentCenterCoordinatesIndex)}>
+                                                                    <p className="h-6 w-6">&gt;</p>
+                                                                </button>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>

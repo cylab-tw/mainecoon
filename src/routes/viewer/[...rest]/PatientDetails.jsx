@@ -16,9 +16,9 @@ const PatientDetails = ({label, detail, style}) => {
     }
 
     const DetailLine = ({label, value}) => (
-        <span className="block ml-2 text-sm mb-0.5">
+        <span className="block ml-2 text-sm mb-1 font-medium">
         <span>{label} : </span>
-            <span className="font-bold">{value}</span>
+            <span className="font-bold ">{value}</span>
         </span>
     );
 

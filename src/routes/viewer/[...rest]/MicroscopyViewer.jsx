@@ -84,9 +84,9 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
                 let tempLayer = {}
 
                 Object.keys(annotationList).map(async (key) => {
-                    const {features, group, seriesUid, centerCoordinates} = await computeAnnotationFeatures(annotationList[key], resolutions);
+                    const {features, group, seriesUid, centerCoordinatesArray} = await computeAnnotationFeatures(annotationList[key], resolutions);
                     console.log('features', features);
-                    console.log('centerCoordinates', centerCoordinates);
+                    console.log('centerCoordinates', centerCoordinatesArray);
                     const annotationGroup = Object.values(group);
                     features.forEach((feature, index) => {
                         if (feature.length > 0) {
@@ -113,7 +113,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
                                                 ...prevAnnotations[key][0].group[annotationGroup[index].groupUid],
                                                 color: groupColor,
                                                 currentCenterCoordinatesIndex: 0,
-                                                centerCoordinates: centerCoordinates[index]
+                                                centerCoordinates: centerCoordinatesArray[index]
                                             }
                                         }
                                     }
@@ -128,6 +128,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
                             } else if (annotationGroup[0].numberOfAnnotations < 1000) {
                                 newLayer = new VectorLayer({source, extent, style});
                             }
+                            // newLayer = new VectorLayer({source, extent, style});
                             newLayer.setVisible(false);
                             mapRef.current.addLayer(newLayer)
                             tempLayer = {
@@ -138,6 +139,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
                                 }
                             }
                         }
+                        console.log('end',performance.now())
                     });
                     onMessageChange({mapRef:mapRef})
                     setLayer(tempLayer);

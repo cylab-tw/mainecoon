@@ -50,7 +50,7 @@ const LeftDrawer = ({detail, labelOpen, smSeries, seriesUid, studyUid, server, h
                                 >
                                     <div className="p-2">
                                         <span
-                                            className="text-sm font-sans text-left w-full m-0.5">{seriesName}</span>
+                                            className="text-sm font-medium text-left w-full m-0.5">{seriesName}</span>
                                         <img
                                             src={`${combineUrl(server)}/studies/${studyUid}/series/${seriesUID}/thumbnail`}
                                             className="break-all border bg-white  w-full text-xs h-[100px] object-cover"

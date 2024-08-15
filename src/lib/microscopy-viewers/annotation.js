@@ -1,4 +1,4 @@
-import {MultiLineString, MultiPoint, MultiPolygon, Polygon} from 'ol/geom';
+import {LineString, MultiLineString, MultiPoint, MultiPolygon, Polygon} from 'ol/geom';
 import {Feature} from 'ol';
 import {multipartDecode} from '../utils/multipart';
 import {Fill, Stroke, Style} from "ol/style.js";
@@ -76,11 +76,12 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
     const referencedResolution = resolutions.find(res => res.instanceUID === referencedInstanceUID)?.resolution || resolutions[resolutions.length - 1].resolution;
 
     let points, indexes;
-    let centerCoordinates = [];
+    let centerCoordinatesArray = [];
     await Promise.all(Object.keys(group).map(async (key) => {
         let pointCoordinatesData = group[key].dicomJson[DicomTag.PointCoordinatesData];
         pointCoordinatesData ??= group[key].dicomJson[DicomTag.DoublePointCoordinatesData];
         const pointIndexList = group[key].dicomJson[DicomTag.LongPrimitivePointIndexList]
+        const graphicType = group[key].dicomJson[DicomTag.GraphicType].Value[0];
         const feature = [];
 
         if (pointCoordinatesData.InlineBinary) {
@@ -101,12 +102,8 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
             }
         }
 
-
-        // console.log("pointIndexList",pointIndexList)
         indexes = indexes?.map(index => index - 1);
         points = points?.map(point => point * referencedResolution);
-
-
 
         if (!points || points.length === 0) {
             console.warn('Missing points data for graphic type:', group[key].graphicType);
@@ -123,63 +120,55 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
             coordinates.push([points[i], -points[i + 1]]);
         }
 
-        let test = []
+        let shapesCoordinates = []; // 原來的 `test`
+        let centerCoordinates = []; // 原來的 `tempCenter`
 
-        // console.log("indexes",indexes)
-
-        for(let i = 0; i < indexes?.length; i++){
-            let index = indexes[i]
-            let index2 = indexes[i+1]
-            let temp = []
-            if(index2 === undefined){
-                index2 = indexes?.length
-            }
-
-            for(let j = index; j < index2; j+=2){
-                temp.push([points[j], -points[j + 1]])
-            }
-            test.push(temp)
-        }
-
-
-        // get centre of temp
-        let tempCenter = []
-        test.forEach(temp => {
-            let maxX = -Infinity;
-            let maxY = -Infinity;
-            let minX = Infinity;
-            let minY = Infinity;
-            temp.forEach(coord => {
-                let [x, y] = coord;
-                x = Math.abs(x); // 將 x 轉換為絕對值
-                y = Math.abs(y); // 將 y 轉換為絕對值
-
-                if (x > maxX) {
-                    maxX = x;
-                }
-                if (y > maxY) {
-                    maxY = y;
-                }
-                if (x < minX) {
-                    minX = x;
-                }
-                if (y < minY) {
-                    minY = y;
-                }
+        const calculateCenter = (coordinates) => {
+            let maxX = -Infinity, maxY = -Infinity, minX = Infinity, minY = Infinity;
+            coordinates.forEach(([x, y]) => {
+                maxX = Math.max(maxX, Math.abs(x));
+                minX = Math.min(minX, Math.abs(x));
+                maxY = Math.max(maxY, Math.abs(y));
+                minY = Math.min(minY, Math.abs(y));
             });
 
-            let diffX = maxX - minX;
-            let diffY = maxY - minY;
+            const centerX = (maxX + minX) / 2;
+            const centerY = (maxY + minY) / 2;
+            return [centerX, -centerY];
+        };
 
-            const centerX = diffX/2 + minX;
-            const centerY = diffY/2 + minY;
+        if (['POLYLINE', 'POLYGON'].includes(graphicType)) {
+            for (let i = 0; i < indexes?.length; i++) {
+                let index = indexes[i];
+                let index2 = indexes[i + 1] || points.length;
+                let shape = [];
 
-            tempCenter.push([centerX, -centerY])
-        })
+                for (let j = index; j < index2; j += 2) {
+                    shape.push([points[j], -points[j + 1]]);
+                }
 
+                shapesCoordinates.push(shape);
+                centerCoordinates.push(calculateCenter(shape));
+            }
 
-        centerCoordinates.push(tempCenter)
+            centerCoordinatesArray.push(centerCoordinates);
+        } else if (['ELLIPSE', 'RECTANGLE'].includes(graphicType)) {
+            for (let i = 0; i < points.length; i += 8) {
+                const coords = [];
+                for (let j = i; j < i + 8; j += 2) {
+                    coords.push([points[j], points[j + 1]]);
+                }
+                centerCoordinates.push(calculateCenter(coords));
+            }
 
+            centerCoordinatesArray.push(centerCoordinates);
+        } else if (graphicType === 'POINT') {
+            for (let i = 0; i < points.length; i += 2) {
+                centerCoordinates.push([points[i], -points[i + 1]]);
+            }
+            console.log(`${graphicType}`, centerCoordinates);
+            centerCoordinatesArray.push(centerCoordinates);
+        }
 
         if (hasNegativeCoordinates) {
             console.warn('Detected negative coordinates, some annotations may be out of bounds.');
@@ -188,6 +177,8 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
         if ((group[key].graphicType === 'POLYLINE' || group[key].graphicType === 'POLYGON') && !indexes) {
             console.warn('Missing indexes data for graphic type:', group[key].graphicType);
         }
+
+        console.log('start',performance.now())
 
         switch (group[key].graphicType) {
             case 'POINT':
@@ -210,7 +201,7 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
         }
         features.push(feature);
     }));
-    return {features, group, seriesUid,centerCoordinates};
+    return {features, group, seriesUid,centerCoordinatesArray};
 };
 
 
@@ -229,6 +220,12 @@ const handlePolylineFeature = (feature, coordinates, indexes) => {
     if (lineStringCoords.length > 0) {
         feature.push(new Feature({geometry: new MultiLineString(lineStringCoords)}));
     }
+    // for (let i = 0; i < indexes.length; i++) {
+    //     const coord = coordinates.slice(indexes[i], indexes[i + 1] || coordinates.length);
+    //     if (coord && coord.length > 1) {
+    //         feature.push(new Feature({ geometry: new LineString(coord) }));
+    //     }
+    // }
 };
 
 const handlePolygonFeature = (feature, coordinates, indexes) => {
@@ -248,6 +245,14 @@ const handlePolygonFeature = (feature, coordinates, indexes) => {
     if (polygonCoords.length > 0) {
         feature.push(new Feature({geometry: new MultiPolygon(polygonCoords)}));
     }
+    // for (let i = 0; i < indexes.length; i++) {
+    //     const start = Math.floor(indexes[i] / 2);
+    //     const end = Math.floor(indexes[i + 1] / 2) || coordinates.length;
+    //     const coord = coordinates.slice(start, end).concat([coordinates[start]]);
+    //     if (coord && coord.length > 1) {
+    //         feature.push(new Feature({ geometry: new Polygon([coord]) }));
+    //     }
+    // }
 };
 
 const handleEllipseFeature = (feature, coordinates) => {
@@ -263,6 +268,11 @@ const handleEllipseFeature = (feature, coordinates) => {
     if (ellipseCoords.length > 0) {
         feature.push(new Feature({geometry: new MultiPolygon(ellipseCoords)}));
     }
+    // for (let i = 0; i < coordinates.length; i += 4) {
+    //     const coord = calculateEllipsePoints(coordinates.slice(i, i + 4));
+    //     const polygon = new Polygon([coord]);
+    //     feature.push(new Feature({ geometry: polygon }));
+    // }
 };
 
 const handleRectangleFeature = (feature, coordinates) => {
@@ -278,6 +288,10 @@ const handleRectangleFeature = (feature, coordinates) => {
     if (rectangleCoords.length > 0) {
         feature.push(new Feature({geometry: new MultiPolygon(rectangleCoords)}));
     }
+    // for (let i = 0; i < coordinates.length; i += 4) {
+    //     const polygon = new Polygon([coordinates.slice(i, i + 4).concat([coordinates[i]])]);
+    //     feature.push(new Feature({ geometry: polygon }));
+    // }
 };
 
 export const updateAnnotation0 = (mapRef, NewSeriesInfo, layers, setAnnotationList,DrawColor) => {
@@ -618,6 +632,7 @@ export const updateAnnotation = (mapRef, NewSeriesInfo, layers, setAnnotationLis
                         group: {
                             [groupUID]: {
                                 color: groupColor,
+                                centerCoordinates: [],
                                 dicomJson: {},
                                 graphicType: type,
                                 groupGenerateType: "auto",
@@ -647,6 +662,7 @@ export const updateAnnotation = (mapRef, NewSeriesInfo, layers, setAnnotationLis
                             group: {
                                 ...prevAnnotationList[annSeriesUid][0].group,
                                 [groupUID]: {
+                                    centerCoordinates: [],
                                     color: groupColor,
                                     dicomJson: {},
                                     graphicType: type,

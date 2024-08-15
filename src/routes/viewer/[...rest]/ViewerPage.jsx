@@ -11,6 +11,11 @@ import {getSlideLabel, getSpecimenList} from "../../../lib/image/index.js";
 import RightDrawer from "./RightDrawer.jsx";
 import {AnnotationsContext} from "../../../lib/AnnotaionsContext.jsx";
 import {easeOut} from "ol/easing.js";
+import {Circle, Fill, Stroke, Style} from "ol/style";
+import {Feature, Overlay} from "ol";
+import {Point} from "ol/geom.js";
+import {Vector} from "ol/layer.js";
+import VectorSource from "ol/source/Vector";
 
 const ViewerPage = () => {
     const searchParams = new URLSearchParams(window.location.search)
@@ -86,7 +91,6 @@ const ViewerPage = () => {
                     setAnnSeries(ann);
                     if (!seriesUidFromPreviewImage) {
                         setSeriesUID(SeriesUID);
-                        // setSeriesUID(seriesJson[0]?.["0020000E"]?.Value[0]);
                     } else {
                         setSeriesUID(seriesUidFromPreviewImage);
                     }
@@ -134,24 +138,20 @@ const ViewerPage = () => {
                 return {seriesUid, instances};
             });
             const results = await Promise.all(promises);
-
             const annotations = {};
             results.forEach(({seriesUid, instances}) => {
                 annotations[seriesUid] = instances;
             });
             setAnnotations(annotations)
-            setAnnotationList(annotations);
+            setAnnotationList(annotations)
         }
-
-        processAnnotations();
+        processAnnotations()
     }, [annSeries])
 
-    const [centerCoordinates, setCenterCoordinates] = useState([])
+    const [centerCoordinatesData, setCenterCoordinatesData] = useState({})
 
     const handleMessageChange = (message) => {
-        console.log("message",message)
-        const {name, type, seriesUid, groupUid, smSeriesUid,centerCoordinates,currentCenterCoordinatesIndex} = message
-        console.log("handleMessageChange",centerCoordinates)
+        const {action,name, type, seriesUid, groupUid, smSeriesUid,centerCoordinates,currentCenterCoordinatesIndex} = message
         if (name === 'deleteGroup' || name === 'deleteSeries') {
             setAnnotationSeriesUid('')
         } else {
@@ -170,8 +170,13 @@ const ViewerPage = () => {
 
         if (actionMap[name]) {
             if(name === 'panTo'){
-                setCenterCoordinates(centerCoordinates)
-
+                setCenterCoordinatesData({
+                    action:action,
+                    centerCoordinates: centerCoordinates,
+                    currentCenterCoordinatesIndex: currentCenterCoordinatesIndex,
+                    seriesUid: seriesUid,
+                    groupUid: groupUid,
+                })
             }else{
                 setNewSeriesInfo({
                     action: actionMap[name],
@@ -186,58 +191,70 @@ const ViewerPage = () => {
         }
     };
     const map = useRef(null);
-    const [isFirstClick, setIsFirstClick] = useState('');
+
+    function panTo(action,index,centerCoordinates, seriesUid, groupUid) {
+        if(centerCoordinates[index][0]!==0 && centerCoordinates[index][1]!==0){
+            if (map.current) {
+                const view = map.current.getView();
+                view.animate({
+                    center: centerCoordinates[index],
+                    zoom: view.getZoom() + 5, // 或者設定一個特定的縮放級別
+                    duration: 1000,
+                    easing: easeOut,
+                });
+
+                let markerOverlay = map.current.getOverlayById('markerOverlay');
+                if (!markerOverlay) {
+                    const markerElement = document.createElement('div');
+                    markerElement.style.width = '3px';
+                    markerElement.style.height = '3px';
+                    markerElement.style.backgroundColor = 'red';
+                    markerElement.style.borderRadius = '50%';
+
+                    markerOverlay = new Overlay({
+                        element: markerElement,
+                        positioning: 'center-center',
+                        id: 'markerOverlay'
+                    });
+                    map.current.addOverlay(markerOverlay);
+                }
+
+                // 設置Overlay的位置
+                markerOverlay.setPosition(centerCoordinates[index]);
+            }
+        }
+        setAnnotationList(prevAnnotations => ({
+            ...prevAnnotations,
+            [seriesUid]: prevAnnotations[seriesUid].map(annotation => ({
+                ...annotation,
+                group: {
+                    ...annotation.group,
+                    [groupUid]: {
+                        ...annotation.group[groupUid],
+                        currentCenterCoordinatesIndex:
+                            action === 'next'
+                                ? (index + 1) % annotation.group[groupUid].centerCoordinates.length
+                                : (index - 1 + annotation.group[groupUid].centerCoordinates.length) %
+                                annotation.group[groupUid].centerCoordinates.length,
+                    }
+                }
+            }))
+        }));
+
+
+    }
 
     useEffect(() => {
-        console.log("centerCoordinates",centerCoordinates)
-        centerCoordinates.forEach((item) => {
-            console.log("item",item)
-            if(item[0]!== 0 && item[1]!== 0){
-                if (map.current) {
-                    const view = map.current.getView();
-                    view.animate({
-                        center: centerCoordinates,
-                        zoom: view.getZoom() + 5, // 或者設定一個特定的縮放級別
-                        duration: 1000,
-                    });
-                }
-            }
-        })
-        // if (centerCoordinates[0] !== 0 && centerCoordinates[1] !== 0) {
-        //     if (map.current) {
-        //         const view = map.current.getView();
-        //         // if (isFirstClick === '' || isFirstClick !== centerCoordinates) {
-        //         //     // 先將地圖縮小到最小級別
-        //         //     view.animate({
-        //         //         zoom: view.getMinZoom(),
-        //         //         duration: 500,
-        //         //     }, () => {
-        //         //         // 縮小後再放大到目標位置
-        //         //         view.animate({
-        //         //             center: centerCoordinates,
-        //         //             zoom: view.getZoom() + 1, // 根據需要調整縮放級別
-        //         //             duration: 500,
-        //         //         });
-        //         //     });
-        //         //     setIsFirstClick(centerCoordinates)
-        //         // } else {
-        //             // 直接放大到目標位置
-        //             view.animate({
-        //                 center: centerCoordinates,
-        //                 zoom: view.getZoom() + 5, // 或者設定一個特定的縮放級別
-        //                 duration: 1000,
-        //             });
-        //         // }
-        //
-        //         // 在動畫結束後清空坐標
-        //         view.on('change:center', () => {
-        //             setCenterCoordinates([0, 0]);
-        //         });
-        //     }
-        // } else {
-        //     return;
-        // }
-    }, [centerCoordinates]);
+        if (centerCoordinatesData.centerCoordinates) {
+            panTo(
+                centerCoordinatesData.action,
+                centerCoordinatesData.currentCenterCoordinatesIndex,
+                centerCoordinatesData.centerCoordinates,
+                centerCoordinatesData.seriesUid,
+                centerCoordinatesData.groupUid
+            )
+        }
+    }, [centerCoordinatesData]);
 
 
     const handlePanToMessage = (message) => {
@@ -245,9 +262,8 @@ const ViewerPage = () => {
         map.current = mapRef.current
     }
 
-
     const getDrawType = (value) => {
-        const {name, type} = value;
+        const { name, type } = value;
         setDrawType(type);
         if (name === 'cancel') {
             setAnnotationSeriesUid('')

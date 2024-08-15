@@ -44,7 +44,7 @@ const RightDrawer = ({urlInfo,SMseriesUid, labelOpen, handleLabelOpen,Loading, L
                             </button>
                         </div>
                         <div className="flex items-center" value={3} onClick={(e) => handleLabelOpen(e, 3)}>
-                            <label className="ml-5 text-sm my-2 font-bold font-sans flex">
+                            <label className="ml-3 text-md my-2 font-medium flex">
                                 Slide label
                                 <Icon icon="fluent:slide-text-sparkle-24-filled" width="20" height="20"
                                       className="ml-3 text-white"/>
