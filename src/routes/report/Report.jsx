@@ -41,8 +41,7 @@ const Report = ({title, seriesInstanceUID, diagnosticReportUrl}) => {
                             D:non-tumorous parenchyma,
                             E:para-aortic LNs, F:subaortic,
                             G:inferior pulmonary ligament LNs) (CYC)</p>
-                    </div>
-                    <div className="p-2 m-2 overflow-y-auto scrollbar-thin-report">
+
                         <p className="font-bold text-md bg-green-300 mt-1 mb-1 p-2">Microscopic Finding</p>
                         <ol className="text-sm mt-3 list-decimal list-inside pl-4">
                             <li>Histologic type : Minimally invasive adenocarcinoma</li>
@@ -61,8 +60,7 @@ const Report = ({title, seriesInstanceUID, diagnosticReportUrl}) => {
                             <li>Non-tumorous parenchyma: congestion</li>
                             <li>Pathological staging: pT1miNO (AJCC 8th edition).</li>
                         </ol>
-                    </div>
-                    <div className="p-2 m-2 overflow-y-auto scrollbar-thin-report">
+
                         <p className="font-bold text-md bg-green-300 mt-1 mb-1 p-2">Diagnosis</p>
                         <ol className="text-sm list-decimal list-inside pl-4 mt-3">
                             <li>Squamous cell carcinoma, left floor of mouth</li>
