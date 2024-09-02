@@ -23,7 +23,7 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
     }, [annotationList]);
 
     const drawTypes = {
-        POINT: mdiVectorPoint,
+        POINT: 'tabler:point-filled',
         POLYLINE: mdiVectorPolyline,
         POLYGON: mdiVectorPolygon,
         ELLIPSE: mdiEllipseOutline,
@@ -222,12 +222,15 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
                                                     })}
                                                 >
                                                     <div className="flex">{groupName}
-                                                        <div className="flex items-center ml-2">
-                                                            <Icon icon={drawTypes[graphicType]} className="h-5 w-5 mx-2"/>
+                                                        <div className="flex items-center ml-2 ">
+                                                            <abbr title={graphicType}>
+                                                            <Icon icon={drawTypes[graphicType]} className="h-5 w-5 mx-2 rotate-[20deg]"/>
+                                                            </abbr>
                                                             <span
                                                                 className="w-6 h-3 ml-2"
                                                                 style={{backgroundColor: color}}
                                                             />
+
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center">

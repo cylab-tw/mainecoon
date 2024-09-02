@@ -16,7 +16,7 @@ export default function GeometryPicker({className, buttonClassName, onClick, onP
     }
 
     const drawTypes = [
-        { icon: mdiVectorPoint, graphicType: GraphicType.Point },
+        { icon: 'tabler:point-filled', graphicType: GraphicType.Point },
         { icon: mdiVectorPolyline, graphicType: GraphicType.Polyline },
         { icon: mdiVectorPolygon, graphicType: GraphicType.Polygon },
         { icon: mdiEllipseOutline, graphicType: GraphicType.Ellipse },

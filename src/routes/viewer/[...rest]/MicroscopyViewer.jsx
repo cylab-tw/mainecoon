@@ -39,6 +39,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
                 const {extent, layer, resolutions, view, PixelSpacings} = computePyramidInfo(baseUrl, studyUid, seriesUid, images);
                 const viewerElement = document.getElementById("ViewerID");
                 viewerElement.innerHTML = '';
+                console.log('source',layer.getSource())
 
                 const controls = [
                     // ...defaultControls().getArray(),
@@ -94,7 +95,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
                             const fill = group.graphicType === "POLYGON" ?
                                 new Fill({color: lightenColor(groupColor)}) : undefined;
                             const style = new Style({
-                                stroke: new Stroke({color: groupColor, width: 1}),
+                                stroke: new Stroke({color: groupColor, width: 2}),
                                 fill,
                                 image: new CircleStyle({
                                     radius: 5,

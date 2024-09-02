@@ -103,7 +103,7 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
         }
 
         indexes = indexes?.map(index => index - 1);
-        points = points?.map(point => point * referencedResolution);
+        points = points?.map(point => point * referencedResolution*1.00000005);
 
         if (!points || points.length === 0) {
             console.warn('Missing points data for graphic type:', group[key].graphicType);
@@ -117,7 +117,8 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
         let hasNegativeCoordinates = false;
 
         for (let i = 0; i < points.length; i += 2) {
-            coordinates.push([points[i], -points[i + 1]]);
+            coordinates.push([points[i]+825, -points[i + 1]+2765]);
+            // coordinates.push([points[i], -points[i + 1]]);
         }
 
         let shapesCoordinates = []; // 原來的 `test`
