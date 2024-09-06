@@ -1,5 +1,28 @@
 import dicomWebServerConfig from "../../config/DICOMWebServer.config";
 import {combineUrl} from "../../lib/search/index.js";
+import { getAccessToken } from "../../token.js";
+import axios from 'axios';
+
+// 设置 Axios 的默认 headers
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+axios.defaults.headers.common['Authorization'] = `Bearer ${getAccessToken()}`;
+
+
+const token = getAccessToken()
+const defaultHeaders = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer' + token,
+};
+const originalFetch = window.fetch;
+
+window.fetch = function(url, options = {}) {
+    options.headers = {
+        ...defaultHeaders,
+        ...options.headers
+    };
+
+    return originalFetch(url, options);
+};
 // 定義 DICOM JSON 的類型
 const DicomJson = {};
 

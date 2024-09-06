@@ -19,7 +19,9 @@ const SearchForm = ({name, setSearchResults, Parameter, pageLimit, pageOffset, s
             .then(response => {
                 if(response.status === 204){
                     return []
-                }else{
+                }else if(response.status === 302) {
+                    return
+                }else {
                     return response.json()
                 }
             })

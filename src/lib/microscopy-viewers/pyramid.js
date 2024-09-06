@@ -9,6 +9,7 @@ import {XYZ} from 'ol/source';
 import {getCenter} from 'ol/extent';
 import {getPixelSpacing} from "../dicom-webs/series.js";
 import {toDicomWebUrl} from "../dicom-webs/index.js";
+import {getAccessToken} from "../../token.js";
 
 const decodeCoordinatesData = (encodedData, vr) => {
     let buffer;
@@ -261,8 +262,28 @@ const computePyramid = (images, baseUrl, studyUid, seriesUid, Resolutions, TileS
         source: new XYZ({
             tileLoadFunction: (tile, src) => {
                 const image = tile.getImage();
-                image.src = src;
-                image.fetchPriority = 'high';
+                // // console.log("image",image)
+                // image.src = src;
+                // image.fetchPriority = 'high';
+                const accessToken = getAccessToken();
+
+                fetch(src, {
+                    headers: {
+                        'Authorization': 'Bearer' + accessToken
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        image.src = URL.createObjectURL(blob);
+                    })
+                    .catch(error => {
+                        console.error('There has been a problem with your fetch operation:', error);
+                    });
             },
             tileUrlFunction: ([z, x, y]) => {
                 const {instanceUID, totalPixelMatrixColumns, columns} = images[z];

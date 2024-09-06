@@ -3,6 +3,7 @@ import {Icon} from "@iconify/react";
 import {combineUrl, fetchPatientDetails} from "../../lib/search/index.js";
 import {ServerContext} from "../../lib/ServerContext.jsx";
 import {Link} from "react-router-dom";
+import {getAccessToken} from "../../token.js";
 
 const SearchResult = ({Result}) => {
     const [previewImage, setPreviewImage] = useState([]);
@@ -17,12 +18,20 @@ const SearchResult = ({Result}) => {
 
 
     const [ann,setAnn] = useState(0)
+    const token = getAccessToken()
     useEffect(() => {
         let Y= 0;
         const fetchData = async () => {
             try {
                 let seriesUid = []
-                const result = await fetch(`${combineUrl(server)}/studies/${studyInstanceUID}/series`)
+                // const result = await fetch(`${combineUrl(server)}/studies/${studyInstanceUID}/series`)
+                const result = await fetch(`${combineUrl(server)}/studies/${studyInstanceUID}/series`, {
+                    'method': 'GET',
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer' + token,
+                    },
+                })
                 const metadatas = await result.json()
                 setPreviewImage(metadatas?.map((metadata) => {
                     const Attribute = metadata?.["00080060"]?.Value;
