@@ -18,7 +18,6 @@ const SearchResult = ({Result}) => {
 
 
     const [ann,setAnn] = useState(0)
-    const token = getAccessToken()
     useEffect(() => {
         let Y= 0;
         const fetchData = async () => {
@@ -29,7 +28,7 @@ const SearchResult = ({Result}) => {
                     'method': 'GET',
                     'headers': {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer' + token,
+                        'Authorization': 'Bearer' + getAccessToken(),
                     },
                 })
                 const metadatas = await result.json()

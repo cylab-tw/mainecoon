@@ -8,10 +8,9 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 axios.defaults.headers.common['Authorization'] = `Bearer ${getAccessToken()}`;
 
 
-const token = getAccessToken()
 const defaultHeaders = {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer' + token,
+    'Authorization': `Bearer ${getAccessToken()}`
 };
 const originalFetch = window.fetch;
 
@@ -23,6 +22,10 @@ window.fetch = function(url, options = {}) {
 
     return originalFetch(url, options);
 };
+
+
+
+
 // 定義 DICOM JSON 的類型
 const DicomJson = {};
 
@@ -44,7 +47,6 @@ const DicomTags = {
     StudyInstanceUID: '0020000D',
     SeriesInstanceUID: '0020000E',
     NumberOfFrames: '00280008',
-    NumberOfAnnotations: '006A000C',
     Rows: '00280010',
     Columns: '00280011',
     PixelSpacing: '00280030',
@@ -55,11 +57,9 @@ const DicomTags = {
     LongPrimitivePointIndexList: '00660040',
     AnnotationGroupSequence: '006A0002',
     GraphicType: '00700023',
-    GroupUID: '006A0003',
     GroupName: '006A0005',
-    GroupGenerationType : '006A0007',
     PixelMeasuresSequence: '00289110',
-    SharedFunctionalGroupsSequence: '52009229'
+    SharedFunctionalGroupsSequence: '52009229',
 };
 
 // 定義 DICOM Web URL 的解析函數
