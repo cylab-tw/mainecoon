@@ -5,6 +5,7 @@ import {ServerContext} from "../../lib/ServerContext.jsx";
 import {Link} from "react-router-dom";
 import {getAccessToken} from "../../token.js";
 
+
 const SearchResult = ({Result}) => {
     const [previewImage, setPreviewImage] = useState([]);
     const patientDetails = fetchPatientDetails(Result);
@@ -16,11 +17,25 @@ const SearchResult = ({Result}) => {
         window.open(`../viewer?server=${server}&studyUid=${studyInstanceUID}`, '_blank');
     }
 
+    const [oauthToken, setOauthToken] = useState('');
+    useEffect(() => {
+        const fetchToken = async () => {
+            try {
+                const token = await getAccessToken();
+                setOauthToken(token);
+            } catch (error) {
+                console.error('Failed to get access token:', error);
+            }
+        };
+        fetchToken();
+    }, []);
 
     const [ann,setAnn] = useState(0)
     useEffect(() => {
         let Y= 0;
         const fetchData = async () => {
+            if (!oauthToken) return;
+
             try {
                 let seriesUid = []
                 // const result = await fetch(`${combineUrl(server)}/studies/${studyInstanceUID}/series`)
@@ -28,7 +43,7 @@ const SearchResult = ({Result}) => {
                     'method': 'GET',
                     'headers': {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer' + getAccessToken(),
+                        'Authorization': 'Bearer' + oauthToken,
                     },
                 })
                 const metadatas = await result.json()

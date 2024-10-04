@@ -1,0 +1,7 @@
+{
+    "keycloak_url": "URL",
+    "client_id": "client_id",
+    "client_secret": "Secret",
+    "username": "test",
+    "password": "test"
+}

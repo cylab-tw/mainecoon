@@ -3,14 +3,16 @@ import {combineUrl} from "../../lib/search/index.js";
 import { getAccessToken } from "../../token.js";
 import axios from 'axios';
 
+const oauthToken = await getAccessToken();
+
 // 设置 Axios 的默认 headers
 axios.defaults.headers.common['Content-Type'] = 'application/json';
-axios.defaults.headers.common['Authorization'] = `Bearer ${getAccessToken()}`;
+axios.defaults.headers.common['Authorization'] = `Bearer ${oauthToken}`;
 
 
 const defaultHeaders = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${getAccessToken()}`
+    'Authorization': `Bearer ${oauthToken}`
 };
 const originalFetch = window.fetch;
 

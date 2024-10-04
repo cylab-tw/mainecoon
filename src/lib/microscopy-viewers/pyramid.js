@@ -230,7 +230,7 @@ export const computePyramidInfo = (baseUrl, studyUid, seriesUid, images) => {
     return result;
 };
 
-
+const oauthToken = await getAccessToken();
 const computePyramid = (images, baseUrl, studyUid, seriesUid, Resolutions, TileSizes, GridSizes, Origins, PixelSpacings, ImageSizes, PhysicalSizes, baseTotalPixelMatrixColumns, baseTotalPixelMatrixRows) => {
 
     const basePixelSpacing = PixelSpacings[PixelSpacings.length - 1];
@@ -265,11 +265,10 @@ const computePyramid = (images, baseUrl, studyUid, seriesUid, Resolutions, TileS
                 // // console.log("image",image)
                 // image.src = src;
                 // image.fetchPriority = 'high';
-                const accessToken = getAccessToken(); // 将your_access_token_here替换为实际的access token值
 
                 fetch(src, {
                     headers: {
-                        'Authorization': `Bearer ${accessToken}`
+                        'Authorization': `Bearer ${oauthToken}`
                     }
                 })
                 .then(response => {

@@ -1,6 +1,6 @@
 #Config
 ./src/config/DICOMWebServer.config.js
-./src/config/keycloak.config.js
+./public/oauthConfig.json
 
 .idea/
 
