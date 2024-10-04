@@ -11,13 +11,14 @@ const SearchResult = ({Result}) => {
     const patientDetails = fetchPatientDetails(Result);
     const studyInstanceUID = patientDetails.studyInstanceUID;
     const [seriesUID, setSeriesUID] = useState('');
-    const [server, setServer] = useContext(ServerContext)
+    const [server, setServer] = useContext(ServerContext);
+    const [oauthToken, setOauthToken] = useState('');
 
     function OnClick() {
         window.open(`../viewer?server=${server}&studyUid=${studyInstanceUID}`, '_blank');
     }
 
-    const [oauthToken, setOauthToken] = useState('');
+    // Get keycloak access token
     useEffect(() => {
         const fetchToken = async () => {
             try {

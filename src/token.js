@@ -37,10 +37,17 @@ export async function getAccessToken() {
 
     if (xhr.status === 200) {
         const response = JSON.parse(xhr.responseText);
-        console.log(response.access_token);
+        // console.log(response.access_token);
         return response.access_token;
     } else {
         console.error('Failed to obtain access token');
+        
+        // 如果沒有 token，重新定向到登入頁面
+        const clientId = 'security-admin-console';
+        const redirectUri = encodeURIComponent("https://keycloak.dicom.tw/admin/raccoon/console/");
+        const keycloakUrl = `https://keycloak.dicom.tw/realms/raccoon/protocol/openid-connect/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_mode=fragment&response_type=code&scope=openid`;
+        
+        window.location.href = keycloakUrl;
         throw new Error('Failed to obtain access token');
     }
 }
