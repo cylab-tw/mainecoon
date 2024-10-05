@@ -21,7 +21,7 @@ Mainecoon is a powerful web-based digital pathology viewer, designed to allow re
 
 ## Installation
 
-Before starting, ensure you have configured the environment variables as needed. See the [Configuration](#configuration) section for more information.
+Before starting, ensure you have configured the environment variables as needed. See the [DICOMweb Server Configuration](#DICOMweb Server Configuration) section for more information.
 
 ### Docker
 
