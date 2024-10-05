@@ -59,7 +59,7 @@ cp -r public .next/standalone/public
 #### Running
 
 ```bash
-npm start
+node .\app\server.js
 ```
 
 The viewer should now be accessible at [http://localhost:3000](http://localhost:3000).
