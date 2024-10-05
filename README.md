@@ -57,6 +57,7 @@ node .\app\server.js
 
 The viewer should now be accessible at [http://localhost:3000](http://localhost:3000).
 
+
 ## DICOMweb Server Configuration
 
 To set up the DICOMweb Server, make changes to the following file:
