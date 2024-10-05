@@ -49,13 +49,6 @@ npm install
 npm run build
 ```
 
-Copy static assets to build output directory:
-
-```bash
-cp -r .next/static .next/standalone/.next/static
-cp -r public .next/standalone/public
-```
-
 #### Running
 
 ```bash
