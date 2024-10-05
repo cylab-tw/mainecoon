@@ -4,11 +4,11 @@
 
 # Mainecoon
 
-Mainecoon is a powerful web-based digital pathology viewer, designed to allow researchers, pathologists, and healthcare professionals to explore and analyze pathology images directly in the browser. This project builds upon the original [cylab-tw/mainecoon](https://github.com/cylab-tw/mainecoon) and evolves to meet modern medical imaging needs.
+Mainecoon is a powerful web-based digital pathology viewer, designed to allow researchers, pathologists, and healthcare professionals to explore and analyze pathology images directly in the browser. 
 
 ## About
 
-- MaineCoon features a user-friendly interface with full support for responsive web design (RWD), eliminating the need for additional software installation.
+- Mainecoon features a user-friendly interface with full support for responsive web design (RWD), eliminating the need for additional software installation.
 - Provides five annotation tools, including "point, polyline, polygon, ellipse and rectangle"
 - Passed the "Creator" and "Viewer" roles in the 2024 ECDP Annotation Connectathon, enabling the creation of annotations in the DICOM standard format.
 
