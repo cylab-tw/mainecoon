@@ -129,7 +129,6 @@ const isValidSmImage = image => {
  */
 export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
     try {
-        console.log('startGetAnn', performance.now())
         const dicomJson = await fetchDicomJson({ baseUrl, studyUid, seriesUid, pathname: '/instances' });
         const instanceUids = dicomJson.map(instance => instance[DicomTags.SOPInstanceUID]?.Value?.[0]);
 
@@ -163,7 +162,6 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
         });
 
         const filteredInstances = instances.filter(Boolean);
-        console.log('endGetAnnotations', performance.now())
 
         return filteredInstances;
     } catch (error) {

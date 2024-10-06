@@ -71,7 +71,6 @@ function generateGroupUID() {
     return `${year}${month}${day}${hours}${minutes}${seconds}`;
 }
 
-
 function getQidorsSingleStudyMetadataValue(qidorsSingleStudy, metadataTag, defaultValue) {
     const metadataValue = qidorsSingleStudy[metadataTag]?.Value;
     return metadataValue !== undefined && metadataValue.length > 0 ? metadataValue[0] : defaultValue;

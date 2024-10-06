@@ -37,7 +37,7 @@ export async function getAccessToken() {
 
     if (xhr.status === 200) {
         const response = JSON.parse(xhr.responseText);
-        console.log(response.access_token);
+        // console.log(response.access_token);
         return response.access_token;
     } else {
         console.error('Failed to obtain access token');

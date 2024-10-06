@@ -70,6 +70,7 @@ function calculateEllipsePoints(points) {
 export const computeAnnotationFeatures = async (annotations, resolutions) => {
     const features = [];
     let groups;
+    console.log("123annotations", annotations);
     if (Object.keys(annotations).length === 0) return {features, groups};
     const {group, referencedInstanceUID, seriesUid} = annotations[0];
 
@@ -117,8 +118,8 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
         let hasNegativeCoordinates = false;
 
         for (let i = 0; i < points.length; i += 2) {
-            coordinates.push([points[i]+825, -points[i + 1]+2765]);
-            // coordinates.push([points[i], -points[i + 1]]);
+            // coordinates.push([points[i]+825, -points[i + 1]+2765]);
+            coordinates.push([points[i], -points[i + 1]]);
         }
 
         let shapesCoordinates = []; // 原來的 `test`
@@ -179,7 +180,6 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
             console.warn('Missing indexes data for graphic type:', group[key].graphicType);
         }
 
-        console.log('start',performance.now())
 
         switch (group[key].graphicType) {
             case 'POINT':
@@ -787,7 +787,6 @@ export const updateAnnotation = (mapRef, NewSeriesInfo, layers, setAnnotationLis
     // console.log("mapRef", mapRef.current.getLayers().getArray());
     setNewSeriesInfo({name: '', status: false, type: '', annSeriesUid: ''});
 };
-
 
 const createEllipse = () => {
     return (coordinates, geometry) => {
