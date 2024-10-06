@@ -8,7 +8,7 @@ import {useOutsideClick} from "../../search/SearchPageHeader.jsx";
 import GeometryPicker from "./GeometryPicker.jsx";
 import {AnnotationsContext} from "../../../lib/AnnotaionsContext.jsx";
 
-const ViewerPageHeader = ({DrawColor,detail, save, isLeftOpen, isReportOpen,onMessageChange}) => {
+const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, onMessageChange}) => {
     const [saveAnnotations, setSaveAnnotations] = save;
     const [isLeftDrawerOpen, setIsLeftDrawerOpen] = isLeftOpen;
     const [isShowReport, setIsShowReport] = isReportOpen;
@@ -17,31 +17,78 @@ const ViewerPageHeader = ({DrawColor,detail, save, isLeftOpen, isReportOpen,onMe
     const [isMouseOnCase, setIsMouseOnCase] = useState(false);
     const [drawColor, setDrawColor] = DrawColor;
     const [annotationList, setAnnotationList] = useContext(AnnotationsContext)
-    console.log('annotationList00',annotationList)
+    console.log('annotationList00', annotationList)
 
     const handleSaveAnnotations = () => {
         setSaveAnnotations(!saveAnnotations);
         const totalPixelMatrixColumns = annotationList.totalPixelMatrixColumns
+        const formatCoordinates = (type,data) => {
+            let formattedCoordinates = [];
+            data.forEach(shape => {
+                if (type === 'POINT') {
+                        formattedCoordinates.push(`(${shape[0]},${-shape[1]})`);
+                } else if(type === 'ELLIPSE') {
+                    let MaxX = -Infinity;
+                    let MaxY = -Infinity;
+                    let MinX = Infinity;
+                    let MinY = Infinity;
+                    let pointA = '';
+                    let pointB = '';
+                    let pointC = '';
+                    let pointD = '';
+
+                    shape.forEach(nestedList => {
+                        nestedList.forEach(coordinateList => {
+                            if (coordinateList[0] > MaxX) {
+                                MaxX = coordinateList[0];
+                                pointA = `(${coordinateList[0]},${-coordinateList[1]})`;
+                            }
+
+                            if (coordinateList[0] < MinX) {
+                                MinX = coordinateList[0];
+                                pointC = `(${coordinateList[0]},${-coordinateList[1]})`;
+                            }
+
+                            if (coordinateList[1] > MaxY) {
+                                MaxY = coordinateList[1];
+                                pointB = `(${coordinateList[0]},${-coordinateList[1]})`;
+                            }
+
+                            if (coordinateList[1] < MinY) {
+                                MinY = coordinateList[1];
+                                pointD = `(${coordinateList[0]},${-coordinateList[1]})`;
+                            }
+                        });
+                    });
+                    formattedCoordinates.push(pointA,pointB,pointC,pointD);
+                }
+                else{
+                    shape.forEach(nestedList => {
+                        nestedList.forEach(coordinateList => {
+                                formattedCoordinates.push(`(${coordinateList[0]},${-coordinateList[1]})`);
+                        });
+                    });
+                }
+            });
+            return formattedCoordinates;
+        };
         Object.values(annotationList).map((annotation) => {
-            console.log('annotation',annotation)
             Object.values(annotation).map((group) => {
-               if(group.editable === true){
-                   console.log('annotation',group)
-                   const data = Object.values(group.group).map((item) => {
-                       return {
-                           'type':item.graphicType,
-                           'groupName':item.groupName,
-                           'coordinates':item.pointsData[0],
-                       }
-                   })
-                   const entireData = {
-                       'totalPixelMatrixColumns':totalPixelMatrixColumns,
-                       'data':data
-                   }
-                   console.log('entireData',entireData)
-                   const dataJson = JSON.stringify(entireData)
-                   console.log('dataJson',dataJson)
-               }
+                if (group.editable === true) {
+                    const data = Object.values(group.group).map((item) => {
+                        return {
+                            'type': item.graphicType,
+                            'groupName': item.groupName,
+                            'coordinates': formatCoordinates(item.graphicType,item.pointsData),
+                        }
+                    })
+                    const entireData = {
+                        'totalPixelMatrixColumns': totalPixelMatrixColumns,
+                        'data': data
+                    }
+                    const dataJson = JSON.stringify(entireData)
+                    console.log('dataJson', dataJson)
+                }
             })
         })
     }
@@ -72,11 +119,15 @@ const ViewerPageHeader = ({DrawColor,detail, save, isLeftOpen, isReportOpen,onMe
     const myPatientDetailsRef = useRef(null);
     const myCaseDetailsRef = useRef(null);
     // useOutsideClick(myRef, () => {mouseOutFun()});
-    useOutsideClick(myPatientDetailsRef, () => {mouseOutPatientFun()});
-    useOutsideClick(myCaseDetailsRef, () => {mouseOutCaseFun()});
+    useOutsideClick(myPatientDetailsRef, () => {
+        mouseOutPatientFun()
+    });
+    useOutsideClick(myCaseDetailsRef, () => {
+        mouseOutCaseFun()
+    });
 
 
-    const handleDraw = (name,type) => {
+    const handleDraw = (name, type) => {
         onMessageChange({name: name, type: type});
     }
 
@@ -103,34 +154,41 @@ const ViewerPageHeader = ({DrawColor,detail, save, isLeftOpen, isReportOpen,onMe
                         </div>
                     </div>
 
-                    <div className="text-black w-full flex justify-start items-center text-center font-bold gap-1 text-sm">
+                    <div
+                        className="text-black w-full flex justify-start items-center text-center font-bold gap-1 text-sm">
                         <div>
-                            <button className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
-                                    onClick={() => setIsShowReport(!isShowReport)}>
-                                <Icon icon="tabler:report" width="18" height="18" />
+                            <button
+                                className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
+                                onClick={() => setIsShowReport(!isShowReport)}>
+                                <Icon icon="tabler:report" width="18" height="18"/>
                                 <span className="sm:inline hidden ml-1">Report</span>
                             </button>
                         </div>
                         <div>
-                            <button className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
-                                    onClick={() => setIsLeftDrawerOpen(!isLeftDrawerOpen)}>
+                            <button
+                                className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
+                                onClick={() => setIsLeftDrawerOpen(!isLeftDrawerOpen)}>
                                 <Icon icon="fluent:pane-open-24-regular" width="18" height="18"/>
                                 <span className="sm:inline hidden ml-1">All</span>
                             </button>
                         </div>
                         <div>
-                            <button className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
-                                    ref={myPatientDetailsRef} onMouseOver={mouseOnPatientFun} onMouseLeave={mouseOutPatientFun}>
+                            <button
+                                className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
+                                ref={myPatientDetailsRef} onMouseOver={mouseOnPatientFun}
+                                onMouseLeave={mouseOutPatientFun}>
                                 <Icon icon="bi:people-circle" width="18" height="18"/>
                                 <span className="sm:inline hidden ml-1">Patient</span>
                             </button>
                             <div className={`relative bg-white z-10 ${isMouseOnPatient ? '' : 'hidden'}`}>
-                                    <PatientDetails detail={detail} label={"Patient"} style={"ViewerHeader"}/>
+                                <PatientDetails detail={detail} label={"Patient"} style={"ViewerHeader"}/>
                             </div>
                         </div>
                         <div>
-                            <button className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
-                                    ref={myCaseDetailsRef} onMouseOver={mouseOnCaseFun} onMouseLeave={mouseOutCaseFun}
+                            <button
+                                className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
+                                ref={myCaseDetailsRef} onMouseOver={mouseOnCaseFun}
+                                onMouseLeave={mouseOutCaseFun}
                             ><Icon icon="fluent:document-data-16-filled" width="20" height="20"/>
                                 <span className="sm:inline hidden ml-1">Study</span>
                             </button>
@@ -147,7 +205,8 @@ const ViewerPageHeader = ({DrawColor,detail, save, isLeftOpen, isReportOpen,onMe
                             </button>
                         </div>
                         <div className="flex flex-row gap-2">
-                            <button className="bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block" onClick={()=>handleDraw('cancel','')}>
+                            <button className="bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
+                                    onClick={() => handleDraw('cancel', '')}>
                                 <Icon icon="fa6-regular:hand" className="text-black h-5 w-5"/>
                             </button>
                             {/*<button className="relative bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block">*/}
@@ -182,7 +241,7 @@ const ViewerPageHeader = ({DrawColor,detail, save, isLeftOpen, isReportOpen,onMe
                 <div className="m-2 mt-3 flex">
                     <GeometryPicker className="flex"
                                     buttonClassName={"bg-white mr-2 hover:bg-green-400 hover:text-white"}
-                                    onPick={(type)=> handleDraw('drawtype',type)}/>
+                                    onPick={(type) => handleDraw('drawtype', type)}/>
                 </div>
             </Modal>
 

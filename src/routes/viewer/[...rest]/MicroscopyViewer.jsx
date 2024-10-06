@@ -35,12 +35,16 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
 
     const findMaxToalPixelMatrixColumns = (images) => {
         let max = 0;
+        let instanceUid = ''
+        console.log('images', images)
         images.map((image) => {
             if (image.totalPixelMatrixColumns > max) {
-                max = image.totalPixelMatrixColumns;
+                console.log('image', image)
+                // max = image.totalPixelMatrixColumns
+                instanceUid = image.instanceUID
             }
         })
-        return max;
+        return instanceUid
     }
 
     useEffect(() => {
@@ -95,8 +99,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
 
                 Object.keys(annotationList).map(async (key) => {
                     const {features, group, seriesUid, centerCoordinatesArray} = await computeAnnotationFeatures(annotationList[key], resolutions);
-                    // console.log('features', features);
-                    // console.log('centerCoordinates', centerCoordinatesArray);
                     const annotationGroup = Object.values(group);
                     features.forEach((feature, index) => {
                         if (feature.length > 0) {
