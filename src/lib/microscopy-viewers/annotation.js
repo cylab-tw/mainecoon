@@ -75,9 +75,9 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
 
     const referencedResolution = resolutions.find(res => res.instanceUID === referencedInstanceUID)?.resolution || resolutions[resolutions.length - 1].resolution;
 
-    let points, indexes;
     let centerCoordinatesArray = [];
     await Promise.all(Object.keys(group).map(async (key) => {
+        let points, indexes;
         let pointCoordinatesData = group[key].dicomJson[DicomTag.PointCoordinatesData];
         pointCoordinatesData ??= group[key].dicomJson[DicomTag.DoublePointCoordinatesData];
         const pointIndexList = group[key].dicomJson[DicomTag.LongPrimitivePointIndexList]
