@@ -135,7 +135,6 @@ const ViewerPage = () => {
             const promises = annSeries.map(async (ann) => {
                 const seriesUid = ann[0];
                 const instances = await getAnnotations(baseUrl, studyUid, seriesUid);
-                console.log('instances', instances)
                 return {seriesUid, instances};
             });
             const results = await Promise.all(promises);
@@ -144,7 +143,6 @@ const ViewerPage = () => {
                 annotations[seriesUid] = instances;
             });
             setAnnotations(annotations)
-            console.log('111annotations', annotations)
             setAnnotationList(annotations)
         }
         processAnnotations()

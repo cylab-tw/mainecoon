@@ -33,6 +33,16 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
     const [loading, setLoading] = Loading;
     const [annotationList, setAnnotationList] = useContext(AnnotationsContext)
 
+    const findMaxToalPixelMatrixColumns = (images) => {
+        let max = 0;
+        images.map((image) => {
+            if (image.totalPixelMatrixColumns > max) {
+                max = image.totalPixelMatrixColumns;
+            }
+        })
+        return max;
+    }
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -84,12 +94,10 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
                 let tempLayer = {}
 
                 Object.keys(annotationList).map(async (key) => {
-                    console.log('annotationList', annotationList[key]);
                     const {features, group, seriesUid, centerCoordinatesArray} = await computeAnnotationFeatures(annotationList[key], resolutions);
-                    console.log('features', features);
-                    console.log('centerCoordinates', centerCoordinatesArray);
+                    // console.log('features', features);
+                    // console.log('centerCoordinates', centerCoordinatesArray);
                     const annotationGroup = Object.values(group);
-                    console.log('annotationGroup', annotationGroup);
                     features.forEach((feature, index) => {
                         if (feature.length > 0) {
                             const groupColor = getRandomColor();
@@ -106,6 +114,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
                             });
                             setAnnotationList(prevAnnotations => ({
                                 ...prevAnnotations,
+                                totalPixelMatrixColumns: findMaxToalPixelMatrixColumns(images),
                                 [key]: [
                                     {
                                         ...prevAnnotations[key][0],
@@ -122,7 +131,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
                                 ]
                             }));
                             const source = new VectorSource({wrapX: false, features: feature});
-                            console.log('source',source)
 
                             // let newLayer = mapRef.current.getLayers().getArray().find(layer => layer.get('seriesUid') === seriesUid);
                             let newLayer;
@@ -131,7 +139,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
                             } else if (annotationGroup[0].numberOfAnnotations < 1000) {
                                 newLayer = new VectorLayer({source, extent, style});
                             }
-                            console.log('newLayer',newLayer)
                             // newLayer = new VectorLayer({source, extent, style});
                             newLayer.setVisible(false);
                             mapRef.current.addLayer(newLayer)

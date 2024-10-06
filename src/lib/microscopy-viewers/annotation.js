@@ -70,7 +70,6 @@ function calculateEllipsePoints(points) {
 export const computeAnnotationFeatures = async (annotations, resolutions) => {
     const features = [];
     let groups;
-    console.log("123annotations", annotations);
     if (Object.keys(annotations).length === 0) return {features, groups};
     const {group, referencedInstanceUID, seriesUid} = annotations[0];
 
@@ -168,7 +167,6 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
             for (let i = 0; i < points.length; i += 2) {
                 centerCoordinates.push([points[i], -points[i + 1]]);
             }
-            console.log(`${graphicType}`, centerCoordinates);
             centerCoordinatesArray.push(centerCoordinates);
         }
 

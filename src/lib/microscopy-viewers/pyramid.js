@@ -226,7 +226,6 @@ export const computePyramidInfo = (baseUrl, studyUid, seriesUid, images) => {
     PhysicalSizes.reverse();
 
     const result = computePyramid(images, baseUrl, studyUid, seriesUid, Resolutions, TileSizes, GridSizes, Origins, PixelSpacings, ImageSizes, PhysicalSizes, baseTotalPixelMatrixColumns, baseTotalPixelMatrixRows);
-    console.log('result',result)
     return result;
 };
 

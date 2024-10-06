@@ -1,4 +1,4 @@
-import {useRef, useState} from "react";
+import {useContext, useRef, useState} from "react";
 import mainecoon from "../../../assests/mainecoon.png"
 import {Link} from 'react-router-dom';
 import {Icon} from "@iconify/react";
@@ -6,6 +6,7 @@ import Modal from "./ToolsModal.jsx";
 import PatientDetails from "./PatientDetails.jsx";
 import {useOutsideClick} from "../../search/SearchPageHeader.jsx";
 import GeometryPicker from "./GeometryPicker.jsx";
+import {AnnotationsContext} from "../../../lib/AnnotaionsContext.jsx";
 
 const ViewerPageHeader = ({DrawColor,detail, save, isLeftOpen, isReportOpen,onMessageChange}) => {
     const [saveAnnotations, setSaveAnnotations] = save;
@@ -15,9 +16,34 @@ const ViewerPageHeader = ({DrawColor,detail, save, isLeftOpen, isReportOpen,onMe
     const [isMouseOnPatient, setIsMouseOnPatient] = useState(false);
     const [isMouseOnCase, setIsMouseOnCase] = useState(false);
     const [drawColor, setDrawColor] = DrawColor;
+    const [annotationList, setAnnotationList] = useContext(AnnotationsContext)
+    console.log('annotationList00',annotationList)
 
     const handleSaveAnnotations = () => {
         setSaveAnnotations(!saveAnnotations);
+        const totalPixelMatrixColumns = annotationList.totalPixelMatrixColumns
+        Object.values(annotationList).map((annotation) => {
+            console.log('annotation',annotation)
+            Object.values(annotation).map((group) => {
+               if(group.editable === true){
+                   console.log('annotation',group)
+                   const data = Object.values(group.group).map((item) => {
+                       return {
+                           'type':item.graphicType,
+                           'groupName':item.groupName,
+                           'coordinates':item.pointsData[0],
+                       }
+                   })
+                   const entireData = {
+                       'totalPixelMatrixColumns':totalPixelMatrixColumns,
+                       'data':data
+                   }
+                   console.log('entireData',entireData)
+                   const dataJson = JSON.stringify(entireData)
+                   console.log('dataJson',dataJson)
+               }
+            })
+        })
     }
 
     const mouseOnFun = () => {

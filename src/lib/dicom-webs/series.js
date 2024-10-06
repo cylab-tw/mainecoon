@@ -93,6 +93,7 @@ export const getImagingInfo = async (baseUrl, studyUid, seriesUid) => {
     })))).flat();
 
 
+
     const instances = metadata.map((metadata, index) => {
         // const modality = metadata[DicomTags.Modality]?.Value?.[0];
         const modality = metadata[DicomTags.Modality]?.Value?.[0];
@@ -146,9 +147,6 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
             const referencedSeriesSequence = metadata[DicomTags.ReferencedSeriesSequence]?.Value?.[0];
             const referencedInstance = referencedSeriesSequence?.[DicomTags.ReferencedInstanceSequence]?.Value?.[0];
             const annotations = metadata[DicomTags.AnnotationGroupSequence]?.Value;
-            const TotalPixelMatrixColumns = metadata[DicomTags.TotalPixelMatrixColumns]?.Value?.[0];
-
-            console.log('metadata',metadata)
 
             if (modality === 'ANN') {
                     return {
@@ -156,7 +154,6 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
                         seriesUid,
                         accessionNumber,
                         group: getAnnotationGroup(annotations,modality,seriesUid),
-                        TotalPixelMatrixColumns: TotalPixelMatrixColumns,
                         referencedInstanceUID: referencedInstance?.[DicomTags.ReferencedSOPInstanceUID]?.Value?.[0],
                         status: false
                     };
@@ -185,7 +182,6 @@ const getAnnotationGroup = (annotations, modality, seriesUid) => {
         const graphicType = annotation[DicomTags.GraphicType]?.Value?.[0];
         // const hasIndexes = graphicType === 'POLYLINE' || graphicType === 'POLYGON';
         const numberOfAnnotations = annotation[DicomTags.NumberOfAnnotations]?.Value?.[0];
-        console.log("graphicType", graphicType);
         result[groupUid] = {
             color: "rgba(0, 0, 255, 1)",
             dicomJson: annotation,
