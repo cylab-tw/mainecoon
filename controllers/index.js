@@ -120,30 +120,22 @@ const generateGroupID = () => {
 };
 
 
-const getEncodedIndex = (coordinates) => {
-    let byteArray = new Uint8Array(coordinates.length * 4);
-    let byteIndex = 0;
-    for (let i = 0; i < coordinates.length; i++) {
-        const indexBytes = new Uint32Array([i + 1]); // Start index from 1 for each coordinate pair
-        byteArray.set(new Uint8Array(indexBytes.buffer), byteIndex);
-        byteIndex += 4;
-    }
-    return base64.fromByteArray(byteArray);
-};
-
-
-
 const convertBase64 = (items) => {
     let combinedResponses = [];
-    let groupMap = {};
 
-    // Iterate through items and group by type and GroupName
-    items.forEach((item) => {
+    // Separate tracking for POLYLINE and POLYGON indexing and coordinates
+    let polylineCoordinates = [];
+    let polygonCoordinates = [];
+    let polylineCurrentIndex = 1; // Start index for POLYLINE from 1
+    let polygonCurrentIndex = 1; // Start index for POLYGON from 1
+    let polylineIndexDict = {};
+    let polygonIndexDict = {};
+
+    // Iterate through each item and generate DICOM objects for each type
+    items.forEach((item, idx) => {
         if (!item.type || !item.coordinates) {
             throw new Error('Invalid item in the array');
         }
-
-        const groupKey = `${item.type}_${item.GroupName}`;
 
         // Parse coordinates
         const parsedCoordinates = item.coordinates.map(coord => {
@@ -151,26 +143,92 @@ const convertBase64 = (items) => {
             return [lat, lon];
         });
 
-        // If the group already exists, concatenate the new coordinates
-        if (groupMap[groupKey]) {
-            groupMap[groupKey].coordinates = groupMap[groupKey].coordinates.concat(parsedCoordinates);
+        if (item.type === 'POLYLINE') {
+            // For POLYLINE, add coordinates to the combined list and update index dictionary
+            polylineCoordinates = polylineCoordinates.concat(parsedCoordinates);
+            polylineIndexDict[idx] = polylineCurrentIndex;
+            polylineCurrentIndex += parsedCoordinates.length; // Increment index by the length of parsed coordinates * 2
+
+        } else if (item.type === 'POLYGON') {
+            // For POLYGON, add coordinates to the combined list and update index dictionary
+            polygonCoordinates = polygonCoordinates.concat(parsedCoordinates);
+            polygonIndexDict[idx] = polygonCurrentIndex;
+            polygonCurrentIndex += parsedCoordinates.length * 2; // Increment index by the length of parsed coordinates * 2
+
         } else {
-            // Otherwise, create a new group
-            groupMap[groupKey] = {
-                type: item.type,
-                GroupName: item.GroupName,
-                coordinates: parsedCoordinates,
-                groupID: generateGroupID(),
+            // For other types, create separate DICOM object
+            const encodedCoordinates = getEncodedData(parsedCoordinates);
+            let dicomObject = {
+                "0040A180": {
+                    "vr": "US",
+                    "Value": [1]
+                },
+                "00660016": {
+                    "vr": "OF",
+                    "InlineBinary": encodedCoordinates
+                },
+                "0066002F": { "vr": "SQ" },
+                "00660030": { "vr": "SQ" },
+                "006A0003": {
+                    "vr": "UI",
+                    "Value": [generateGroupID()]
+                },
+                "006A0005": { "vr": "LO", "Value": [item.GroupName] },
+                "006A0007": { "vr": "CS", "Value": ["MANUAL"] },
+                "006A0009": {
+                    "vr": "SQ",
+                    "Value": [
+                        {
+                            "00080100": {
+                                "vr": "SH",
+                                "Value": ["2681000"]
+                            },
+                            "00080102": {
+                                "vr": "SH",
+                                "Value": ["SCT"]
+                            },
+                            "00080104": {
+                                "vr": "LO",
+                                "Value": ["Anatomical Structure"]
+                            }
+                        }
+                    ]
+                },
+                "006A000A": {
+                    "vr": "SQ",
+                    "Value": [
+                        {
+                            "00080100": {
+                                "vr": "SH",
+                                "Value": ["98790000"]
+                            },
+                            "00080102": {
+                                "vr": "SH",
+                                "Value": ["SCT"]
+                            },
+                            "00080104": {
+                                "vr": "LO",
+                                "Value": ["Nucleus"]
+                            }
+                        }
+                    ]
+                },
+                "006A000C": { "vr": "UL", "Value": [1] },
+                "006A000D": { "vr": "CS", "Value": ["YES"] },
+                "00700023": { "vr": "CS", "Value": [item.type] }
             };
+
+            // Add DICOM object to responses
+            combinedResponses.push(dicomObject);
         }
     });
 
-    // Convert grouped data to DICOM format
-    Object.values(groupMap).forEach(group => {
-        const encodedCoordinates = getEncodedData(group.coordinates);
+    // Handle POLYLINE separately, combining all POLYLINE coordinates into a single DICOM object
+    if (polylineCoordinates.length > 0) {
+        const encodedCoordinates = getEncodedData(polylineCoordinates);
+        const encodedIndex = getEncodedIndex(polylineIndexDict);
 
-        // Create the DICOM object for this group
-        const dicomObject = {
+        let polylineDicomObject = {
             "0040A180": {
                 "vr": "US",
                 "Value": [1]
@@ -183,9 +241,9 @@ const convertBase64 = (items) => {
             "00660030": { "vr": "SQ" },
             "006A0003": {
                 "vr": "UI",
-                "Value": [group.groupID]
+                "Value": [generateGroupID()]
             },
-            "006A0005": { "vr": "LO", "Value": [group.GroupName] },
+            "006A0005": { "vr": "LO", "Value": ["Combined Polyline Group"] },
             "006A0007": { "vr": "CS", "Value": ["MANUAL"] },
             "006A0009": {
                 "vr": "SQ",
@@ -227,22 +285,101 @@ const convertBase64 = (items) => {
             },
             "006A000C": { "vr": "UL", "Value": [1] },
             "006A000D": { "vr": "CS", "Value": ["YES"] },
-            "00700023": { "vr": "CS", "Value": [group.type] }
-        };
-
-        // Only add "00660040" for POLYGON and POLYLINE types
-        if (group.type === "POLYGON" || group.type === "POLYLINE") {
-            const encodedIndex = getEncodedIndex(group.coordinates);
-            dicomObject["00660040"] = {
+            "00700023": { "vr": "CS", "Value": ["POLYLINE"] },
+            "00660040": {
                 "vr": "OL",
                 "InlineBinary": encodedIndex
-            };
-        }
+            }
+        };
 
-        combinedResponses.push(dicomObject);
-    });
+        combinedResponses.push(polylineDicomObject);
+    }
+
+    // Handle POLYGON separately, combining all POLYGON coordinates into a single DICOM object
+    if (polygonCoordinates.length > 0) {
+        const encodedCoordinates = getEncodedData(polygonCoordinates);
+        const encodedIndex = getEncodedIndex(polygonIndexDict);
+
+        let polygonDicomObject = {
+            "0040A180": {
+                "vr": "US",
+                "Value": [1]
+            },
+            "00660016": {
+                "vr": "OF",
+                "InlineBinary": encodedCoordinates
+            },
+            "0066002F": { "vr": "SQ" },
+            "00660030": { "vr": "SQ" },
+            "006A0003": {
+                "vr": "UI",
+                "Value": [generateGroupID()]
+            },
+            "006A0005": { "vr": "LO", "Value": ["Combined Polygon Group"] },
+            "006A0007": { "vr": "CS", "Value": ["MANUAL"] },
+            "006A0009": {
+                "vr": "SQ",
+                "Value": [
+                    {
+                        "00080100": {
+                            "vr": "SH",
+                            "Value": ["2681000"]
+                        },
+                        "00080102": {
+                            "vr": "SH",
+                            "Value": ["SCT"]
+                        },
+                        "00080104": {
+                            "vr": "LO",
+                            "Value": ["Anatomical Structure"]
+                        }
+                    }
+                ]
+            },
+            "006A000A": {
+                "vr": "SQ",
+                "Value": [
+                    {
+                        "00080100": {
+                            "vr": "SH",
+                            "Value": ["98790000"]
+                        },
+                        "00080102": {
+                            "vr": "SH",
+                            "Value": ["SCT"]
+                        },
+                        "00080104": {
+                            "vr": "LO",
+                            "Value": ["Nucleus"]
+                        }
+                    }
+                ]
+            },
+            "006A000C": { "vr": "UL", "Value": [1] },
+            "006A000D": { "vr": "CS", "Value": ["YES"] },
+            "00700023": { "vr": "CS", "Value": ["POLYGON"] },
+            "00660040": {
+                "vr": "OL",
+                "InlineBinary": encodedIndex
+            }
+        };
+
+        combinedResponses.push(polygonDicomObject);
+    }
 
     return combinedResponses;
+};
+
+// Function to encode index dictionary to Base64
+const getEncodedIndex = (indexDict) => {
+    let byteArray = new Uint8Array(Object.keys(indexDict).length * 4);
+    let byteIndex = 0;
+    Object.values(indexDict).forEach(index => {
+        const indexBytes = new Uint32Array([index]);
+        byteArray.set(new Uint8Array(indexBytes.buffer), byteIndex);
+        byteIndex += 4;
+    });
+    return base64.fromByteArray(byteArray);
 };
 
 
@@ -454,7 +591,7 @@ router.post('/SaveAnnData/studies/:studies/series/:series', async (req, res) => 
             "00080050":  {
                 "vr": "SH",
                 "Value": [
-                    "RADIOLOGY"
+                    "FIVE"
                 ]
             },
 
@@ -492,7 +629,7 @@ router.post('/SaveAnnData/studies/:studies/series/:series', async (req, res) => 
                                     "00081155": {
                                         "vr": "UI",
                                         "Value": [
-                                            "1.2.826.0.1.3680043.8.498.95980216287564425207605321484638047405"
+                                            req.body.totalPixelMatrixColumns
                                         ]
                                     }
                                 }
@@ -510,7 +647,7 @@ router.post('/SaveAnnData/studies/:studies/series/:series', async (req, res) => 
                         "00081155": {
                             "vr": "UI",
                             "Value": [
-                                "1.2.826.0.1.3680043.8.498.95980216287564425207605321484638047405"
+                                req.body.totalPixelMatrixColumns
                             ]
                         }
                     }
@@ -614,4 +751,3 @@ router.post('/color', (req, res) => {
 
 
 export default router;
-
