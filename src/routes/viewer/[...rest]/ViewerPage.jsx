@@ -325,6 +325,8 @@ const ViewerPage = () => {
                                   detail={patientDetails}
                                   onMessageChange={getDrawType}
                                   DrawColor={[drawColor, setDrawColor]}
+                                  studyUid={studyUid}
+                                  seriesUid={seriesUID}
                 />
                 <div className={`custom-height w-full flex grow`}>
                     {isLeftOpen &&

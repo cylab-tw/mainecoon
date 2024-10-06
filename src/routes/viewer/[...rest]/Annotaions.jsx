@@ -199,7 +199,7 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw,handleDelete
                                             ${currentDraw.index === index && currentDraw.seriesUid === seriesUid ? "bg-gray-200/70" : ""}`}
                                         >
                                             <div className="flex items-center w-full h-full">
-                                                {editable === false  && centerCoordinates.length > 0 ? (
+                                                {!Loading ? (
                                                     <input
                                                         type="checkbox"
                                                         className="mr-3 h-5 w-5 ml-8 my-3"

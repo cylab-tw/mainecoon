@@ -8,7 +8,7 @@ import {useOutsideClick} from "../../search/SearchPageHeader.jsx";
 import GeometryPicker from "./GeometryPicker.jsx";
 import {AnnotationsContext} from "../../../lib/AnnotaionsContext.jsx";
 
-const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, onMessageChange}) => {
+const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, onMessageChange,studyUid, seriesUid}) => {
     const [saveAnnotations, setSaveAnnotations] = save;
     const [isLeftDrawerOpen, setIsLeftDrawerOpen] = isLeftOpen;
     const [isShowReport, setIsShowReport] = isReportOpen;
@@ -17,80 +17,119 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
     const [isMouseOnCase, setIsMouseOnCase] = useState(false);
     const [drawColor, setDrawColor] = DrawColor;
     const [annotationList, setAnnotationList] = useContext(AnnotationsContext)
-    console.log('annotationList00', annotationList)
 
-    const handleSaveAnnotations = () => {
+    const handleSaveAnnotations = (studyUid, seriesUid) => {
         setSaveAnnotations(!saveAnnotations);
         const totalPixelMatrixColumns = annotationList.totalPixelMatrixColumns
-        const formatCoordinates = (type,data) => {
+        const formatCoordinates = (type, data) => {
             let formattedCoordinates = [];
-            data.forEach(shape => {
-                if (type === 'POINT') {
+            if (type === 'POLYLINE') {
+                data.forEach(shape => {
+                    formattedCoordinates.push(`(${shape[0]},${-shape[1]})`);
+                });
+                return formattedCoordinates;
+            } else if (type === 'POLYGON') {
+                data.forEach(shape => {
+                    shape.forEach(nestedList => {
+                        formattedCoordinates.push(`(${nestedList[0]},${-nestedList[1]})`);
+                    })
+                });
+                return formattedCoordinates;
+            } else {
+                data.forEach(shape => {
+                    if (type === 'POINT') {
                         formattedCoordinates.push(`(${shape[0]},${-shape[1]})`);
-                } else if(type === 'ELLIPSE') {
-                    let MaxX = -Infinity;
-                    let MaxY = -Infinity;
-                    let MinX = Infinity;
-                    let MinY = Infinity;
-                    let pointA = '';
-                    let pointB = '';
-                    let pointC = '';
-                    let pointD = '';
+                    } else if (type === 'ELLIPSE') {
+                        let MaxX = -Infinity;
+                        let MaxY = -Infinity;
+                        let MinX = Infinity;
+                        let MinY = Infinity;
+                        let pointA = '';
+                        let pointB = '';
+                        let pointC = '';
+                        let pointD = '';
+                        shape.forEach(nestedList => {
+                            nestedList.forEach(coordinateList => {
+                                if (coordinateList[0] > MaxX) {
+                                    MaxX = coordinateList[0];
+                                    pointA = `(${coordinateList[0]},${-coordinateList[1]})`;
+                                }
 
-                    shape.forEach(nestedList => {
-                        nestedList.forEach(coordinateList => {
-                            if (coordinateList[0] > MaxX) {
-                                MaxX = coordinateList[0];
-                                pointA = `(${coordinateList[0]},${-coordinateList[1]})`;
-                            }
+                                if (coordinateList[0] < MinX) {
+                                    MinX = coordinateList[0];
+                                    pointC = `(${coordinateList[0]},${-coordinateList[1]})`;
+                                }
 
-                            if (coordinateList[0] < MinX) {
-                                MinX = coordinateList[0];
-                                pointC = `(${coordinateList[0]},${-coordinateList[1]})`;
-                            }
+                                if (coordinateList[1] > MaxY) {
+                                    MaxY = coordinateList[1];
+                                    pointB = `(${coordinateList[0]},${-coordinateList[1]})`;
+                                }
 
-                            if (coordinateList[1] > MaxY) {
-                                MaxY = coordinateList[1];
-                                pointB = `(${coordinateList[0]},${-coordinateList[1]})`;
-                            }
-
-                            if (coordinateList[1] < MinY) {
-                                MinY = coordinateList[1];
-                                pointD = `(${coordinateList[0]},${-coordinateList[1]})`;
-                            }
+                                if (coordinateList[1] < MinY) {
+                                    MinY = coordinateList[1];
+                                    pointD = `(${coordinateList[0]},${-coordinateList[1]})`;
+                                }
+                            });
                         });
-                    });
-                    formattedCoordinates.push(pointA,pointB,pointC,pointD);
-                }
-                else{
-                    shape.forEach(nestedList => {
-                        nestedList.forEach(coordinateList => {
+                        formattedCoordinates.push(pointA, pointB, pointC, pointD);
+                    } else {
+                        shape.forEach(nestedList => {
+                            nestedList.forEach(coordinateList => {
                                 formattedCoordinates.push(`(${coordinateList[0]},${-coordinateList[1]})`);
+                            });
                         });
-                    });
-                }
-            });
-            return formattedCoordinates;
-        };
+                    }
+                });
+                return formattedCoordinates;
+            }
+        }
+
+        let saveDataJson
+
         Object.values(annotationList).map((annotation) => {
             Object.values(annotation).map((group) => {
                 if (group.editable === true) {
-                    const data = Object.values(group.group).map((item) => {
-                        return {
-                            'type': item.graphicType,
-                            'groupName': item.groupName,
-                            'coordinates': formatCoordinates(item.graphicType,item.pointsData),
+                    const data = Object.values(group.group).flatMap((item) => {
+                        if (item.graphicType === 'POLYLINE' || item.graphicType === 'POLYGON') {
+                            return item.pointsData.map((point) => ({
+                                'type': item.graphicType,
+                                'groupName': item.groupName,
+                                'coordinates': formatCoordinates(item.graphicType, point),
+                            }));
+                        } else {
+                            return [{
+                                'type': item.graphicType,
+                                'groupName': item.groupName,
+                                'coordinates': formatCoordinates(item.graphicType, item.pointsData),
+                            }];
                         }
-                    })
+                    });
+
                     const entireData = {
                         'totalPixelMatrixColumns': totalPixelMatrixColumns,
                         'data': data
-                    }
+                    };
                     const dataJson = JSON.stringify(entireData)
-                    console.log('dataJson', dataJson)
+                    saveDataJson = dataJson
+                    console.log('saveDataJson', saveDataJson)
+
                 }
             })
         })
+        fetch(`http://localhost:3000/api/SaveAnnData/studies/${studyUid}/series/${seriesUid}`,{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: saveDataJson,
+        }).then(response => {
+            if (response.ok) {
+                console.log('response', response)
+            } else {
+                console.log('response', response)
+            }
+        })
+
     }
 
     const mouseOnFun = () => {
@@ -221,7 +260,7 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
                             {/*    </label>*/}
                             {/*</button>*/}
                             <button className="bg-white hover:bg-blue-400 rounded-lg p-1.5 mr-1 mb-1 block"
-                                    onClick={handleSaveAnnotations}
+                                    onClick={()=>handleSaveAnnotations(studyUid, seriesUid)}
                             >
                                 <Icon icon="ant-design:save-outlined" className="text-black h-5 w-5"/>
                             </button>
