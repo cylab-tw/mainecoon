@@ -1,3 +1,4 @@
+import './pacman-loader.css';
 import {useContext, useRef, useState} from "react";
 import mainecoon from "../../../assests/mainecoon.png"
 import {Link} from 'react-router-dom';
@@ -191,7 +192,8 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
         <>
             {loading && <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-50 flex justify-center items-center">
                 <div className="bg-white p-5 rounded-lg">
-                    <h1 className="text-2xl font-bold">Saving Annotations...</h1>
+                    <div className="loader mx-auto mb-2"></div>
+                    <span className="text-2xl font-bold">Saving Annotations...</span>
                 </div>
             </div>
             }
