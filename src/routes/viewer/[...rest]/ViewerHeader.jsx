@@ -11,7 +11,17 @@ import {AnnotationsContext} from "../../../lib/AnnotaionsContext.jsx";
 import Cookies from 'js-cookie';
 import {toast} from "react-toastify";
 
-const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, onMessageChange,studyUid, seriesUid}) => {
+const ViewerPageHeader = ({
+                              DrawColor,
+                              detail,
+                              save,
+                              isLeftOpen,
+                              isReportOpen,
+                              onMessageChange,
+                              studyUid,
+                              seriesUid,
+                              imageLoading
+                          }) => {
     const [saveAnnotations, setSaveAnnotations] = save;
     const [isLeftDrawerOpen, setIsLeftDrawerOpen] = isLeftOpen;
     const [isShowReport, setIsShowReport] = isReportOpen;
@@ -20,132 +30,126 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
     const [isMouseOnCase, setIsMouseOnCase] = useState(false);
     const [drawColor, setDrawColor] = DrawColor;
     const [annotationList, setAnnotationList] = useContext(AnnotationsContext)
-
+    const [okToSave, setOkToSave] = useState(false);
     const [loading, setLoading] = useState(false);
     const accessToken = Cookies.get('access_token');
     const handleSaveAnnotations = (studyUid, seriesUid) => {
         setSaveAnnotations(!saveAnnotations);
-        const totalPixelMatrixColumns = annotationList.totalPixelMatrixColumns
+
+        const totalPixelMatrixColumns = annotationList.totalPixelMatrixColumns;
+
         const formatCoordinates = (type, data) => {
-            let formattedCoordinates = [];
-            if (type === 'POLYLINE') {
-                data.forEach(shape => {
-                    formattedCoordinates.push(`(${shape[0]},${-shape[1]})`);
-                });
-                return formattedCoordinates;
-            } else if (type === 'POLYGON') {
-                data.forEach(shape => {
-                    shape.forEach(nestedList => {
-                        formattedCoordinates.push(`(${nestedList[0]},${-nestedList[1]})`);
-                    })
-                });
-                return formattedCoordinates;
-            }else if (type === 'RECTANGLE') {
-                data.forEach(nestedList => {
-                    nestedList.forEach(coordinateList => {
-                        formattedCoordinates.push(`(${coordinateList[0]},${-coordinateList[1]})`);
-                    });
-                });
-                return formattedCoordinates;
-            } else {
-                data.forEach(shape => {
-                    if (type === 'POINT') {
-                        formattedCoordinates.push(`(${shape[0]},${-shape[1]})`);
-                    } else if (type === 'ELLIPSE') {
-                        let MaxX = -Infinity;
-                        let MaxY = -Infinity;
-                        let MinX = Infinity;
-                        let MinY = Infinity;
-                        let pointA = '';
-                        let pointB = '';
-                        let pointC = '';
-                        let pointD = '';
-                        shape.forEach(nestedList => {
-                            nestedList.forEach(coordinateList => {
-                                if (coordinateList[0] > MaxX) {
-                                    MaxX = coordinateList[0];
-                                    pointA = `(${coordinateList[0]},${-coordinateList[1]})`;
-                                }
+            switch (type) {
+                case 'POLYLINE':
+                    return data.map(shape => `(${shape[0]},${-shape[1]})`);
+                case 'POLYGON':
+                    return data.flatMap(shape => shape.map(nestedList => `(${nestedList[0]},${-nestedList[1]})`));
+                case 'RECTANGLE':
+                    return data.flatMap(nestedList => nestedList.map(coordinateList => `(${coordinateList[0]},${-coordinateList[1]})`));
+                case 'POINT':
+                    return data.map(shape => `(${shape[0]},${-shape[1]})`);
+                case 'ELLIPSE':
+                    let formattedCoordinates = [];
+                    let MaxX = -Infinity, MaxY = -Infinity, MinX = Infinity, MinY = Infinity;
+                    let pointA = '', pointB = '', pointC = '', pointD = '';
 
-                                if (coordinateList[0] < MinX) {
-                                    MinX = coordinateList[0];
-                                    pointC = `(${coordinateList[0]},${-coordinateList[1]})`;
-                                }
-
-                                if (coordinateList[1] > MaxY) {
-                                    MaxY = coordinateList[1];
-                                    pointB = `(${coordinateList[0]},${-coordinateList[1]})`;
-                                }
-
-                                if (coordinateList[1] < MinY) {
-                                    MinY = coordinateList[1];
-                                    pointD = `(${coordinateList[0]},${-coordinateList[1]})`;
-                                }
-                            });
+                    data.forEach(nestedList => {
+                        nestedList.forEach(coordinateList => {
+                            if (coordinateList[0] > MaxX) {
+                                MaxX = coordinateList[0];
+                                pointA = `(${coordinateList[0]},${-coordinateList[1]})`;
+                            }
+                            if (coordinateList[0] < MinX) {
+                                MinX = coordinateList[0];
+                                pointC = `(${coordinateList[0]},${-coordinateList[1]})`;
+                            }
+                            if (coordinateList[1] > MaxY) {
+                                MaxY = coordinateList[1];
+                                pointB = `(${coordinateList[0]},${-coordinateList[1]})`;
+                            }
+                            if (coordinateList[1] < MinY) {
+                                MinY = coordinateList[1];
+                                pointD = `(${coordinateList[0]},${-coordinateList[1]})`;
+                            }
                         });
-                        formattedCoordinates.push(pointB,pointD , pointC, pointA);
-                    }
-                });
-                return formattedCoordinates;
+                    });
+
+                    formattedCoordinates.push(pointB, pointD, pointC, pointA);
+                    return formattedCoordinates;
+                default:
+                    return [];
             }
+        };
+
+        let saveDataJson = null;
+        let save = false;
+
+        Object.values(annotationList).forEach(annotation => {
+            Object.values(annotation).forEach(group => {
+                if (group.editable === true) {
+                    const data = Object.values(group.group).flatMap(item => {
+                        if (typeof item.pointsData === 'object' && Object.keys(item.pointsData).length === 0) {
+                            return [];
+                        }
+                        return (item.graphicType === 'POLYLINE' || item.graphicType === 'POLYGON')
+                            ? item.pointsData.map(point => ({
+                                type: item.graphicType,
+                                GroupName: item.groupName,
+                                coordinates: formatCoordinates(item.graphicType, point),
+                            }))
+                            : [{
+                                type: item.graphicType,
+                                GroupName: item.groupName,
+                                coordinates: formatCoordinates(item.graphicType, item.pointsData),
+                            }];
+                    });
+                    if (data.length > 0) {
+                        saveDataJson = JSON.stringify({
+                            token: accessToken,
+                            totalPixelMatrixColumns,
+                            data
+                        });
+                        console.log('saveDataJson', saveDataJson);
+                        save = true;
+                    }
+                }
+            });
+        });
+
+        if (!save) {
+            setOkToSave(false);
+            toast.error('Please finish editing before saving');
+            return;
         }
 
-        let saveDataJson
-        Object.values(annotationList).map((annotation) => {
-            Object.values(annotation).map((group) => {
-                if (group.editable === true) {
-                    const data = Object.values(group.group).flatMap((item) => {
-                        if (item.graphicType === 'POLYLINE' || item.graphicType === 'POLYGON') {
-                            return item.pointsData.map((point) => ({
-                                'type': item.graphicType,
-                                'GroupName': item.groupName,
-                                'coordinates': formatCoordinates(item.graphicType, point),
-                            }));
-                        } else {
-                            return [{
-                                'type': item.graphicType,
-                                'GroupName': item.groupName,
-                                'coordinates': formatCoordinates(item.graphicType, item.pointsData),
-                            }];
-                        }
-                    });
+        setOkToSave(true);
+        setLoading(true);
+        setIsMouseOn(false);
 
-                    const entireData = {
-                        'token': accessToken,
-                        'totalPixelMatrixColumns': totalPixelMatrixColumns,
-                        'data': data
-                    };
-                    const dataJson = JSON.stringify(entireData)
-                    saveDataJson = dataJson
-                    console.log('saveDataJson', saveDataJson)
-
-                }
-            })
-        })
-
-        setLoading(true)
-        setIsMouseOn(false)
-        fetch(`http://localhost:3000/api/SaveAnnData/studies/${studyUid}/series/${seriesUid}`,{
+        fetch(`/api/SaveAnnData/studies/${studyUid}/series/${seriesUid}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: saveDataJson,
-        }).then(response => {
-            if (response.ok) {
-                setLoading(false)
-                toast.success('Annotations saved successfully')
-                setTimeout(() => {
-                    window.location.reload()
-                }, 2000)
-            } else {
-                console.log('response', response)
-                setLoading(false)
-                toast.error('Failed to save annotations')
-
-            }
         })
-    }
+            .then(response => {
+                setLoading(false);
+                if (response.ok) {
+                    toast.success('Annotations saved successfully');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    toast.error('Failed to save annotations');
+                }
+            })
+            .catch(() => {
+                setLoading(false);
+                toast.error('Network error, please try again');
+            });
+    };
+
 
     const mouseOnFun = () => {
         setIsMouseOn(!isMouseOn);
@@ -197,7 +201,8 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
 
     return (
         <>
-            {loading && <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-50 flex justify-center items-center">
+            {loading && <div
+                className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-50 flex justify-center items-center">
                 <div className="bg-white p-5 rounded-lg">
                     <div className="loader mx-auto mb-2"></div>
                     <span className="text-2xl font-bold">Saving Annotations...</span>
@@ -218,14 +223,14 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
 
                     <div
                         className="text-black w-full flex justify-start items-center text-center font-bold gap-1 text-sm">
-                        <div>
-                            <button
-                                className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
-                                onClick={() => setIsShowReport(!isShowReport)}>
-                                <Icon icon="tabler:report" width="18" height="18"/>
-                                <span className="sm:inline hidden ml-1">Report</span>
-                            </button>
-                        </div>
+                        {/*<div>*/}
+                        {/*    <button*/}
+                        {/*        className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"*/}
+                        {/*        onClick={() => setIsShowReport(!isShowReport)}>*/}
+                        {/*        <Icon icon="tabler:report" width="18" height="18"/>*/}
+                        {/*        <span className="sm:inline hidden ml-1">Report</span>*/}
+                        {/*    </button>*/}
+                        {/*</div>*/}
                         <div>
                             <button
                                 className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
@@ -261,11 +266,13 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
                     </div>
 
                     <div className="flex justify-end items-center w-full">
-                        <div ref={myRef} onClick={mouseOnFun} className="mr-2">
+                        <div ref={myRef} onClick={mouseOnFun}
+                             className={`mr-2 ${imageLoading ? 'pointer-events-none opacity-50' : ''}`}>
                             <button className="bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block">
                                 <Icon icon="mdi:tag-edit" className="text-black h-5 w-5"/>
                             </button>
                         </div>
+
                         <div className="flex flex-row gap-2">
                             <button className="bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
                                     onClick={() => handleDraw('cancel', '')}>
@@ -282,19 +289,19 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
                             {/*        />*/}
                             {/*    </label>*/}
                             {/*</button>*/}
-                            <button className="bg-white hover:bg-blue-400 rounded-lg p-1.5 mr-1 mb-1 block"
-                                    onClick={()=>handleSaveAnnotations(studyUid, seriesUid)}
+                            <button className="bg-white hover:bg-blue-400 rounded-lg p-1.5 mr-6 mb-1 block"
+                                    onClick={() => handleSaveAnnotations(studyUid, seriesUid)}
                             >
                                 <Icon icon="ant-design:save-outlined" className="text-black h-5 w-5"/>
                             </button>
-                            <button
-                                className="bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
-                            >
-                                <Icon icon="gg:undo" className="text-black h-6 w-6"/>
-                            </button>
-                            <button className="ml-4 mr-1 mb-1" style={{transform: 'rotate(180deg)'}}>
-                                <Icon icon="fluent:list-28-filled" className="text-black h-5 w-5"/>
-                            </button>
+                            {/*<button*/}
+                            {/*    className="bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"*/}
+                            {/*>*/}
+                            {/*    <Icon icon="gg:undo" className="text-black h-6 w-6"/>*/}
+                            {/*</button>*/}
+                            {/*<button className="ml-4 mr-1 mb-1" style={{transform: 'rotate(180deg)'}}>*/}
+                            {/*    <Icon icon="fluent:list-28-filled" className="text-black h-5 w-5"/>*/}
+                            {/*</button>*/}
                         </div>
                     </div>
                 </div>
