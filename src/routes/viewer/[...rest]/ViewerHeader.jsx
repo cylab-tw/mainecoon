@@ -63,22 +63,24 @@ const ViewerPageHeader = ({
 
                     data.forEach(nestedList => {
                         nestedList.forEach(coordinateList => {
-                            if (coordinateList[0] > MaxX) {
-                                MaxX = coordinateList[0];
-                                pointA = `(${coordinateList[0]},${-coordinateList[1]})`;
-                            }
-                            if (coordinateList[0] < MinX) {
-                                MinX = coordinateList[0];
-                                pointC = `(${coordinateList[0]},${-coordinateList[1]})`;
-                            }
-                            if (coordinateList[1] > MaxY) {
-                                MaxY = coordinateList[1];
-                                pointB = `(${coordinateList[0]},${-coordinateList[1]})`;
-                            }
-                            if (coordinateList[1] < MinY) {
-                                MinY = coordinateList[1];
-                                pointD = `(${coordinateList[0]},${-coordinateList[1]})`;
-                            }
+                            coordinateList.map((coordinateList) => {
+                                if (coordinateList[0] > MaxX) {
+                                    MaxX = coordinateList[0];
+                                    pointA = `(${coordinateList[0]},${-coordinateList[1]})`;
+                                }
+                                if (coordinateList[0] < MinX) {
+                                    MinX = coordinateList[0];
+                                    pointC = `(${coordinateList[0]},${-coordinateList[1]})`;
+                                }
+                                if (coordinateList[1] > MaxY) {
+                                    MaxY = coordinateList[1];
+                                    pointB = `(${coordinateList[0]},${-coordinateList[1]})`;
+                                }
+                                if (coordinateList[1] < MinY) {
+                                    MinY = coordinateList[1];
+                                    pointD = `(${coordinateList[0]},${-coordinateList[1]})`;
+                                }
+                            });
                         });
                     });
 
@@ -113,7 +115,7 @@ const ViewerPageHeader = ({
                     });
                     if (data.length > 0) {
                         saveDataJson = JSON.stringify({
-                            server:getServerUrl(server),
+                            server: getServerUrl(server),
                             token: accessToken,
                             totalPixelMatrixColumns,
                             data
