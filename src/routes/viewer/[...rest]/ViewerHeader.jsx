@@ -17,6 +17,7 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
     const [isMouseOnCase, setIsMouseOnCase] = useState(false);
     const [drawColor, setDrawColor] = DrawColor;
     const [annotationList, setAnnotationList] = useContext(AnnotationsContext)
+    const [loading, setLoading] = useState(false);
 
     const handleSaveAnnotations = (studyUid, seriesUid) => {
         setSaveAnnotations(!saveAnnotations);
@@ -117,6 +118,9 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
                 }
             })
         })
+
+        setLoading(true)
+        setIsMouseOn(false)
         fetch(`http://localhost:3000/api/SaveAnnData/studies/${studyUid}/series/${seriesUid}`,{
             method: 'POST',
             headers: {
@@ -127,11 +131,11 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
             if (response.ok) {
                 console.log('response', response)
                 window.location.reload()
+                setLoading(false)
             } else {
                 console.log('response', response)
             }
         })
-
     }
 
     const mouseOnFun = () => {
@@ -184,6 +188,13 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
 
     return (
         <>
+            {loading && <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-50 flex justify-center items-center">
+                <div className="bg-white p-5 rounded-lg">
+                    <h1 className="text-2xl font-bold">Saving Annotations...</h1>
+                </div>
+            </div>
+            }
+
             <div className="bg-green-500 text-white p-1 h-fit">
                 <div className="flex flex-row ">
                     <div className="flex">
