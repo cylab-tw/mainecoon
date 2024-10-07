@@ -125,18 +125,18 @@ const SearchPageHeader = ({setSearchResults, pageLimit, pageOffset, setHandleNex
                     </div>
 
                     <div className="flex flex-row justify-center items-center ">
-                    <Link to="http://localhost:3006/#/image">
-                    <div className="flex flex-col justify-center items-center mt-1 hover:bg-gray-100/30 hover:rounded-xl py-2 px-4">
-                        <Icon icon="material-symbols:image-outline" className="w-10 h-6  "/>
-                    <p className="text-white text-lg  ">影像</p>
-                    </div>
-                    </Link>
-                    <Link to="http://localhost:3006/#/setting">
-                        <div className="flex flex-col justify-center items-center mt-1 hover:bg-gray-100/30 hover:rounded-xl py-2 px-4">
-                            <Icon icon="uil:setting" className="w-10 h-6  "/>
-                            <p className="text-white text-lg  ">設定</p>
-                        </div>
-                    </Link>
+                    {/*<Link to="http://localhost:3006/#/image">*/}
+                    {/*<div className="flex flex-col justify-center items-center mt-1 hover:bg-gray-100/30 hover:rounded-xl py-2 px-4">*/}
+                    {/*    <Icon icon="material-symbols:image-outline" className="w-10 h-6  "/>*/}
+                    {/*<p className="text-white text-lg  ">影像</p>*/}
+                    {/*</div>*/}
+                    {/*</Link>*/}
+                    {/*<Link to="http://localhost:3006/#/setting">*/}
+                    {/*    <div className="flex flex-col justify-center items-center mt-1 hover:bg-gray-100/30 hover:rounded-xl py-2 px-4">*/}
+                    {/*        <Icon icon="uil:setting" className="w-10 h-6  "/>*/}
+                    {/*        <p className="text-white text-lg  ">設定</p>*/}
+                    {/*    </div>*/}
+                    {/*</Link>*/}
 
                     <Server/>
                     </div>
