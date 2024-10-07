@@ -75,9 +75,9 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
 
     const referencedResolution = resolutions.find(res => res.instanceUID === referencedInstanceUID)?.resolution || resolutions[resolutions.length - 1].resolution;
 
-    let points, indexes;
     let centerCoordinatesArray = [];
     await Promise.all(Object.keys(group).map(async (key) => {
+        let points, indexes;
         let pointCoordinatesData = group[key].dicomJson[DicomTag.PointCoordinatesData];
         pointCoordinatesData ??= group[key].dicomJson[DicomTag.DoublePointCoordinatesData];
         const pointIndexList = group[key].dicomJson[DicomTag.LongPrimitivePointIndexList]
@@ -117,8 +117,8 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
         let hasNegativeCoordinates = false;
 
         for (let i = 0; i < points.length; i += 2) {
-            coordinates.push([points[i]+825, -points[i + 1]+2765]);
-            // coordinates.push([points[i], -points[i + 1]]);
+            // coordinates.push([points[i]+825, -points[i + 1]+2765]);
+            coordinates.push([points[i], -points[i + 1]]);
         }
 
         let shapesCoordinates = []; // 原來的 `test`
@@ -167,7 +167,6 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
             for (let i = 0; i < points.length; i += 2) {
                 centerCoordinates.push([points[i], -points[i + 1]]);
             }
-            console.log(`${graphicType}`, centerCoordinates);
             centerCoordinatesArray.push(centerCoordinates);
         }
 
@@ -179,7 +178,6 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
             console.warn('Missing indexes data for graphic type:', group[key].graphicType);
         }
 
-        console.log('start',performance.now())
 
         switch (group[key].graphicType) {
             case 'POINT':
@@ -787,7 +785,6 @@ export const updateAnnotation = (mapRef, NewSeriesInfo, layers, setAnnotationLis
     // console.log("mapRef", mapRef.current.getLayers().getArray());
     setNewSeriesInfo({name: '', status: false, type: '', annSeriesUid: ''});
 };
-
 
 const createEllipse = () => {
     return (coordinates, geometry) => {

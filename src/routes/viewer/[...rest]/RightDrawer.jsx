@@ -89,7 +89,7 @@ const RightDrawer = ({urlInfo,SMseriesUid, labelOpen, handleLabelOpen,Loading, L
                                           </>
                                       }
                     >
-                        <Annotaions Layers={Layers} onMessageChange={handleMessage} Loading={Loading}
+                        <Annotaions Layers={Layers} onMessageChange={handleMessage} Loading={Loading} handleDeleteAnn={handleDeleteAnn}
                                     CurrentDraw={CurrentDraw}/>
                     </DescriptionPlate>
                 </div>

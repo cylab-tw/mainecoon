@@ -10,7 +10,7 @@ import mdiTrashCan from "@iconify-icons/mdi/trashcan";
 import GeometryPicker from "./GeometryPicker.jsx";
 import {AnnotationsContext} from "../../../lib/AnnotaionsContext.jsx";
 
-const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
+const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw,handleDeleteAnn}) => {
     const [annotationList, setAnnotationList] = useContext(AnnotationsContext);
     const [openPickers, setOpenPickers] = useState({});
     const [layers, setLayers] = Layers;
@@ -166,10 +166,17 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
                                                 />
                                             </div>
                                         </div>
-                                        {editable && (
+                                        {editable ? (
                                             <button
                                                 className="border-1 hover:bg-red-400 hover:text-white text-red-500 rounded font-sans font-bold text-sm mr-0.5 p-1"
                                                 onClick={(e) => deleteAnnotation(e, seriesUid)}
+                                            >
+                                                <Icon icon={mdiTrashCan} className="h-5 w-5"/>
+                                            </button>
+                                        ): (
+                                            <button
+                                                className="border-1 hover:bg-blue-400 hover:text-white text-blue-500 rounded font-sans font-bold text-sm mr-0.5 p-1"
+                                                onClick={(e) => handleDeleteAnn(e, seriesUid)}
                                             >
                                                 <Icon icon={mdiTrashCan} className="h-5 w-5"/>
                                             </button>
@@ -192,7 +199,7 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw}) => {
                                             ${currentDraw.index === index && currentDraw.seriesUid === seriesUid ? "bg-gray-200/70" : ""}`}
                                         >
                                             <div className="flex items-center w-full h-full">
-                                                {editable === false  && centerCoordinates.length > 0 ? (
+                                                {!Loading ? (
                                                     <input
                                                         type="checkbox"
                                                         className="mr-3 h-5 w-5 ml-8 my-3"

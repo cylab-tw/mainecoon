@@ -93,6 +93,7 @@ export const getImagingInfo = async (baseUrl, studyUid, seriesUid) => {
     })))).flat();
 
 
+
     const instances = metadata.map((metadata, index) => {
         // const modality = metadata[DicomTags.Modality]?.Value?.[0];
         const modality = metadata[DicomTags.Modality]?.Value?.[0];
@@ -129,7 +130,6 @@ const isValidSmImage = image => {
  */
 export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
     try {
-        console.log('startGetAnn', performance.now())
         const dicomJson = await fetchDicomJson({ baseUrl, studyUid, seriesUid, pathname: '/instances' });
         const instanceUids = dicomJson.map(instance => instance[DicomTags.SOPInstanceUID]?.Value?.[0]);
 
@@ -148,7 +148,6 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
             const referencedInstance = referencedSeriesSequence?.[DicomTags.ReferencedInstanceSequence]?.Value?.[0];
             const annotations = metadata[DicomTags.AnnotationGroupSequence]?.Value;
 
-
             if (modality === 'ANN') {
                     return {
                         editable: false,
@@ -163,7 +162,6 @@ export const getAnnotations = async (baseUrl, studyUid, seriesUid) => {
         });
 
         const filteredInstances = instances.filter(Boolean);
-        console.log('endGetAnnotations', performance.now())
 
         return filteredInstances;
     } catch (error) {
@@ -184,7 +182,6 @@ const getAnnotationGroup = (annotations, modality, seriesUid) => {
         const graphicType = annotation[DicomTags.GraphicType]?.Value?.[0];
         // const hasIndexes = graphicType === 'POLYLINE' || graphicType === 'POLYGON';
         const numberOfAnnotations = annotation[DicomTags.NumberOfAnnotations]?.Value?.[0];
-        console.log("graphicType", graphicType);
         result[groupUid] = {
             color: "rgba(0, 0, 255, 1)",
             dicomJson: annotation,

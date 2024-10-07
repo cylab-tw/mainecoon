@@ -303,15 +303,15 @@ const ViewerPage = () => {
         }
     }
 
-    const handleDeleteAnn = (index) => {
-        const newIndex = index + 1
-        fetch(`${combineUrl(server)}/studies/${studyUid}/series/${AllSeriesID[newIndex]}`, {
+    const handleDeleteAnn = (e, seriesUid) => {
+        e.preventDefault();
+        fetch(`${combineUrl(server)}/studies/${studyUid}/series/${seriesUid}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
             },
         })
-        const newAnnAccessionNumber = annSeries.filter((item) => item[0] !== AllSeriesID[newIndex])
+        const newAnnAccessionNumber = annSeries.filter((item) => item[0] !== seriesUid)
         setAnnSeries(newAnnAccessionNumber)
     }
 
@@ -325,6 +325,8 @@ const ViewerPage = () => {
                                   detail={patientDetails}
                                   onMessageChange={getDrawType}
                                   DrawColor={[drawColor, setDrawColor]}
+                                  studyUid={studyUid}
+                                  seriesUid={seriesUID}
                 />
                 <div className={`custom-height w-full flex grow`}>
                     {isLeftOpen &&

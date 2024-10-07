@@ -33,13 +33,26 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
     const [loading, setLoading] = Loading;
     const [annotationList, setAnnotationList] = useContext(AnnotationsContext)
 
+    const findMaxToalPixelMatrixColumns = (images) => {
+        let max = 0;
+        let instanceUid = ''
+        console.log('images', images)
+        images.map((image) => {
+            if (image.totalPixelMatrixColumns > max) {
+                console.log('image', image)
+                // max = image.totalPixelMatrixColumns
+                instanceUid = image.instanceUID
+            }
+        })
+        return instanceUid
+    }
+
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const {extent, layer, resolutions, view, PixelSpacings} = computePyramidInfo(baseUrl, studyUid, seriesUid, images);
                 const viewerElement = document.getElementById("ViewerID");
                 viewerElement.innerHTML = '';
-                console.log('source',layer.getSource())
 
                 const controls = [
                     // ...defaultControls().getArray(),
@@ -86,8 +99,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
 
                 Object.keys(annotationList).map(async (key) => {
                     const {features, group, seriesUid, centerCoordinatesArray} = await computeAnnotationFeatures(annotationList[key], resolutions);
-                    console.log('features', features);
-                    console.log('centerCoordinates', centerCoordinatesArray);
                     const annotationGroup = Object.values(group);
                     features.forEach((feature, index) => {
                         if (feature.length > 0) {
@@ -105,6 +116,7 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
                             });
                             setAnnotationList(prevAnnotations => ({
                                 ...prevAnnotations,
+                                totalPixelMatrixColumns: findMaxToalPixelMatrixColumns(images),
                                 [key]: [
                                     {
                                         ...prevAnnotations[key][0],
@@ -140,7 +152,6 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
                                 }
                             }
                         }
-                        console.log('end',performance.now())
                     });
                     onMessageChange({mapRef:mapRef})
                     setLayer(tempLayer);
