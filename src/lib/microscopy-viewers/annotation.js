@@ -828,13 +828,16 @@ export function lightenColor(color) {
     return rgbaColor;
 }
 
+// export const getRandomColor = () => {
+//     let color = 'rgba(';
+//     for (let i = 0; i < 3; i++) {
+//         let component = Math.floor(Math.random() * 256);
+//         color += component;
+//         if (i < 2) color += ', ';
+//     }
+//     color += ', 1)';
+//     return color;
+// };
 export const getRandomColor = () => {
-    let color = 'rgba(';
-    for (let i = 0; i < 3; i++) {
-        let component = Math.floor(Math.random() * 256);
-        color += component;
-        if (i < 2) color += ', ';
-    }
-    color += ', 1)';
-    return color;
+    return 'rgb(244,214,19)';
 };

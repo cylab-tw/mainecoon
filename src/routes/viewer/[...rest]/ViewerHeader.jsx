@@ -10,6 +10,8 @@ import GeometryPicker from "./GeometryPicker.jsx";
 import {AnnotationsContext} from "../../../lib/AnnotaionsContext.jsx";
 import Cookies from 'js-cookie';
 import {toast} from "react-toastify";
+import {ServerContext} from "../../../lib/ServerContext.jsx";
+import {combineUrl} from "../../../lib/search/index.js";
 
 const ViewerPageHeader = ({
                               DrawColor,
@@ -33,9 +35,15 @@ const ViewerPageHeader = ({
     const [okToSave, setOkToSave] = useState(false);
     const [loading, setLoading] = useState(false);
     const accessToken = Cookies.get('access_token');
+    const [server, setServer] = useContext(ServerContext)
+
+    const getServerUrl = (server) => {
+        const url = combineUrl(server);
+        return url;
+    }
+
     const handleSaveAnnotations = (studyUid, seriesUid) => {
         setSaveAnnotations(!saveAnnotations);
-
         const totalPixelMatrixColumns = annotationList.totalPixelMatrixColumns;
 
         const formatCoordinates = (type, data) => {
@@ -105,6 +113,7 @@ const ViewerPageHeader = ({
                     });
                     if (data.length > 0) {
                         saveDataJson = JSON.stringify({
+                            server:getServerUrl(server),
                             token: accessToken,
                             totalPixelMatrixColumns,
                             data
