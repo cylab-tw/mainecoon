@@ -36,10 +36,8 @@ const MicroscopyViewer = ({baseUrl, studyUid, seriesUid, images, Loading, layers
     const findMaxToalPixelMatrixColumns = (images) => {
         let max = 0;
         let instanceUid = ''
-        console.log('images', images)
         images.map((image) => {
             if (image.totalPixelMatrixColumns > max) {
-                console.log('image', image)
                 // max = image.totalPixelMatrixColumns
                 instanceUid = image.instanceUID
             }

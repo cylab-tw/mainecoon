@@ -71,12 +71,11 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
                                 }
                             });
                         });
-                        formattedCoordinates.push(pointA, pointB, pointC, pointD);
+                        formattedCoordinates.push(pointB,pointD , pointC, pointA);
                     } else {
+                        console.log('shape', shape)
                         shape.forEach(nestedList => {
-                            nestedList.forEach(coordinateList => {
-                                formattedCoordinates.push(`(${coordinateList[0]},${-coordinateList[1]})`);
-                            });
+                                formattedCoordinates.push(`(${nestedList[0]},${-nestedList[1]})`);
                         });
                     }
                 });
@@ -125,6 +124,7 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
         }).then(response => {
             if (response.ok) {
                 console.log('response', response)
+                window.location.reload()
             } else {
                 console.log('response', response)
             }
