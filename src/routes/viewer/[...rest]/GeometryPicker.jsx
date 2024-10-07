@@ -17,7 +17,7 @@ export default function GeometryPicker({className, buttonClassName, onClick, onP
 
     const drawTypes = [
         { icon: 'tabler:point-filled', graphicType: GraphicType.Point },
-        { icon: mdiVectorPolyline, graphicType: GraphicType.Polyline },
+        { icon: "material-symbols:line-curve" , graphicType: GraphicType.Polyline },
         { icon: mdiVectorPolygon, graphicType: GraphicType.Polygon },
         { icon: mdiEllipseOutline, graphicType: GraphicType.Ellipse },
         { icon: mdiRectangleOutline, graphicType: GraphicType.Rectangle },

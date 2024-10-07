@@ -9,6 +9,8 @@ import {useOutsideClick} from "../../search/SearchPageHeader.jsx";
 import GeometryPicker from "./GeometryPicker.jsx";
 import {AnnotationsContext} from "../../../lib/AnnotaionsContext.jsx";
 import Cookies from 'js-cookie';
+import {toast} from "react-toastify";
+
 const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, onMessageChange,studyUid, seriesUid}) => {
     const [saveAnnotations, setSaveAnnotations] = save;
     const [isLeftDrawerOpen, setIsLeftDrawerOpen] = isLeftOpen;
@@ -131,11 +133,16 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
             body: saveDataJson,
         }).then(response => {
             if (response.ok) {
-                console.log('response', response)
-                window.location.reload()
                 setLoading(false)
+                toast.success('Annotations saved successfully')
+                setTimeout(() => {
+                    window.location.reload()
+                }, 2000)
             } else {
                 console.log('response', response)
+                setLoading(false)
+                toast.error('Failed to save annotations')
+
             }
         })
     }
