@@ -7,7 +7,7 @@ import PatientDetails from "./PatientDetails.jsx";
 import {useOutsideClick} from "../../search/SearchPageHeader.jsx";
 import GeometryPicker from "./GeometryPicker.jsx";
 import {AnnotationsContext} from "../../../lib/AnnotaionsContext.jsx";
-
+import Cookies from 'js-cookie';
 const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, onMessageChange,studyUid, seriesUid}) => {
     const [saveAnnotations, setSaveAnnotations] = save;
     const [isLeftDrawerOpen, setIsLeftDrawerOpen] = isLeftOpen;
@@ -17,8 +17,9 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
     const [isMouseOnCase, setIsMouseOnCase] = useState(false);
     const [drawColor, setDrawColor] = DrawColor;
     const [annotationList, setAnnotationList] = useContext(AnnotationsContext)
-    const [loading, setLoading] = useState(false);
 
+    const [loading, setLoading] = useState(false);
+    const accessToken = Cookies.get('access_token');
     const handleSaveAnnotations = (studyUid, seriesUid) => {
         setSaveAnnotations(!saveAnnotations);
         const totalPixelMatrixColumns = annotationList.totalPixelMatrixColumns
@@ -87,7 +88,6 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
         }
 
         let saveDataJson
-
         Object.values(annotationList).map((annotation) => {
             Object.values(annotation).map((group) => {
                 if (group.editable === true) {
@@ -108,6 +108,7 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
                     });
 
                     const entireData = {
+                        'token': accessToken,
                         'totalPixelMatrixColumns': totalPixelMatrixColumns,
                         'data': data
                     };

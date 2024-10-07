@@ -1,3 +1,5 @@
+import Cookies from 'js-cookie';
+
 export async function getAccessToken() {
     // 使用 fetch 加載 config.json 配置
     const configResponse = await fetch('/oauthConfig.json');
@@ -38,6 +40,7 @@ export async function getAccessToken() {
     if (xhr.status === 200) {
         const response = JSON.parse(xhr.responseText);
         // console.log(response.access_token);
+        Cookies.set('access_token', response.access_token);
         return response.access_token;
     } else {
         console.error('Failed to obtain access token');
