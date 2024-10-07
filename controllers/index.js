@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import {Router} from "express";
+import dicomWebServerConfig from "../src/config/DICOMWebServer.config.js";
 
 
 const router = Router();
@@ -8,38 +9,28 @@ import axios from 'axios';
 import * as fs from "fs";
 import * as path from "path";
 
-/** TODO: deprecate this */
 
 
-
-// function getEncodedData(coordinates) {
-//     const dataBytes = new Uint8Array(coordinates.length * 8);
-//     for (let i = 0; i < coordinates.length; i++) {
-//         const [lat, lon] = coordinates[i];
-//         const latBytes = new Float32Array([lat]);
-//         const lonBytes = new Float32Array([lon]);
-//         dataBytes.set(new Uint8Array(latBytes.buffer), i * 8);
-//         dataBytes.set(new Uint8Array(lonBytes.buffer), i * 8 + 4);
-//     }
-//     const encodedData = base64.fromByteArray(dataBytes);
-//     return encodedData;
-// }
-
-async function fetchMetadata(studiesID, seriesID) {
-    const Studiesurl = `https://ditto.dicom.tw/dicom-web/studies/${studiesID}/instances`;
-
-    //console.log('Studiesurl:', Studiesurl);
+async function fetchMetadata(studiesID, seriesID,token,serverUrl) {
+    const Studiesurl = `${serverUrl}/studies/${studiesID}/instances`;
 
     try {
-        const response = await axios.get(Studiesurl);
+        const response = await axios.get(Studiesurl, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
 
         const instanceUIDs = response.data.map(instance => instance["00080018"].Value[0]);
 
         const metadataPromises = instanceUIDs.map(async instanceUID => {
-            const url = `https://ditto.dicom.tw/dicom-web/studies/${studiesID}/series/${seriesID}/instances/${instanceUID}/metadata`;
+            const url = `${serverUrl}/studies/${studiesID}/series/${seriesID}/instances/${instanceUID}/metadata`;
             //console.log('URL:', url);
-            const metadataResponse = await axios.get(url);
-            return metadataResponse.data;
+            const metadataResponse = await axios.get(url, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });            return metadataResponse.data;
         });
 
         const allMetadata = (await Promise.all(metadataPromises)).flat();
@@ -431,7 +422,7 @@ if (!fs.existsSync(dicomOutputDir)) {
     fs.mkdirSync(dicomOutputDir, {recursive: true});
 }
 
-async function saveTemplate(template) {
+async function saveTemplate(template,token,serverUrl) {
     const fileName = generateFileName();
     const jsonFilePath = path.join(uploadDir, fileName);
     const templateJSON = JSON.stringify(template, null, 2);
@@ -441,7 +432,7 @@ async function saveTemplate(template) {
 
         await convertJsonToDicom(jsonFilePath, dicomOutputDir)
             .then(dicomFilePath => {
-                return uploadDicomFile(dicomFilePath);
+                return uploadDicomFile(dicomFilePath,token,serverUrl);
             })
             .then(dicomFilePath => {
                 console.log(`Successfully uploaded DICOM file: ${dicomFilePath}`);
@@ -458,13 +449,15 @@ async function saveTemplate(template) {
 
 import FormData from 'form-data';
 
-async function uploadDicomFile(dicomFilePath) {
+async function uploadDicomFile(dicomFilePath,token,serverUrl) {
     try {
         const formData = new FormData();
         formData.append('Flies', fs.createReadStream(dicomFilePath));
+        console.log("token",token)
 
-        const response = await axios.post('https://ditto.dicom.tw/dicom-web/studies', formData, {
+        const response = await axios.post(`${serverUrl}/studies`, formData, {
             headers: {
+                Authorization: `Bearer ${token}`,
                 ...formData.getHeaders(),
             },
         });
@@ -480,16 +473,18 @@ async function uploadDicomFile(dicomFilePath) {
 
 router.post('/SaveAnnData/studies/:studies/series/:series', async (req, res) => {
     const {studies, series} = req.params;
-
+    const serverUrl = req.body.server;
+    const token = req.body.token
     try {
         // const data = fs.readFileSync('output11_modified.json', 'utf8');
         // const jsonData = JSON.parse(data);
         // const convertBase64Response = convertBase64(jsonData.data);
         //
-        console.log(req.body.data);
+        console.log("生成標記群組");
         const convertBase64Response = convertBase64(req.body.data); // 改為 req.body.data
-
-        const metadata = await fetchMetadata(studies, series);
+        console.log("取得病理影像資訊");
+        const metadata = await fetchMetadata(studies, series,token,serverUrl);
+        console.log("合併資料");
 
         const getCurrentOID = () => {
             const now = new Date();
@@ -712,7 +707,7 @@ router.post('/SaveAnnData/studies/:studies/series/:series', async (req, res) => 
             }
         };
 
-        await saveTemplate(template);
+        await saveTemplate(template,token,serverUrl);
         res.json(template);
     } catch (error) {
         res.status(500).json({error: 'Failed to fetch metadata or convert Base64'});
