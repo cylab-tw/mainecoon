@@ -1,7 +1,8 @@
 #Config
 ./src/config/DICOMWebServer.config.js
 ./public/oauthConfig.json
-
+controllers/Upload
+controllers/DicomFiles
 .idea/
 
 # Logs
