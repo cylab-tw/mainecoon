@@ -603,6 +603,7 @@ export const updateAnnotation = (mapRef, NewSeriesInfo, layers, setAnnotationLis
                     }
                 } else if (name === 'addGroup') {
                     const group = updatedAnnotationList[annSeriesUid][0].group[groupUID];
+                    const graphicType = group.graphicType;
                     if (graphicType === 'RECTANGLE') {
                         const points = coordinates[0];
                         const rectanglePoints = points.slice(0, 4);

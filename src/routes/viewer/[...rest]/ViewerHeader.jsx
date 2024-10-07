@@ -35,6 +35,13 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
                     })
                 });
                 return formattedCoordinates;
+            }else if (type === 'RECTANGLE') {
+                data.forEach(nestedList => {
+                    nestedList.forEach(coordinateList => {
+                        formattedCoordinates.push(`(${coordinateList[0]},${-coordinateList[1]})`);
+                    });
+                });
+                return formattedCoordinates;
             } else {
                 data.forEach(shape => {
                     if (type === 'POINT') {
@@ -72,11 +79,6 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
                             });
                         });
                         formattedCoordinates.push(pointB,pointD , pointC, pointA);
-                    } else {
-                        console.log('shape', shape)
-                        shape.forEach(nestedList => {
-                                formattedCoordinates.push(`(${nestedList[0]},${-nestedList[1]})`);
-                        });
                     }
                 });
                 return formattedCoordinates;
@@ -92,13 +94,13 @@ const ViewerPageHeader = ({DrawColor, detail, save, isLeftOpen, isReportOpen, on
                         if (item.graphicType === 'POLYLINE' || item.graphicType === 'POLYGON') {
                             return item.pointsData.map((point) => ({
                                 'type': item.graphicType,
-                                'groupName': item.groupName,
+                                'GroupName': item.groupName,
                                 'coordinates': formatCoordinates(item.graphicType, point),
                             }));
                         } else {
                             return [{
                                 'type': item.graphicType,
-                                'groupName': item.groupName,
+                                'GroupName': item.groupName,
                                 'coordinates': formatCoordinates(item.graphicType, item.pointsData),
                             }];
                         }
