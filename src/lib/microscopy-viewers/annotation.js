@@ -103,7 +103,7 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
         }
 
         indexes = indexes?.map(index => index - 1);
-        points = points?.map(point => point * referencedResolution*1.00000005);
+        points = points?.map(point => point * referencedResolution);
 
         if (!points || points.length === 0) {
             console.warn('Missing points data for graphic type:', group[key].graphicType);
@@ -161,7 +161,6 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
                 }
                 centerCoordinates.push(calculateCenter(coords));
             }
-
             centerCoordinatesArray.push(centerCoordinates);
         } else if (graphicType === 'POINT') {
             for (let i = 0; i < points.length; i += 2) {
@@ -200,7 +199,7 @@ export const computeAnnotationFeatures = async (annotations, resolutions) => {
         }
         features.push(feature);
     }));
-    return {features, group, seriesUid,centerCoordinatesArray};
+    return {features, group, seriesUid, centerCoordinatesArray};
 };
 
 
@@ -293,7 +292,7 @@ const handleRectangleFeature = (feature, coordinates) => {
     // }
 };
 
-export const updateAnnotation0 = (mapRef, NewSeriesInfo, layers, setAnnotationList,DrawColor) => {
+export const updateAnnotation0 = (mapRef, NewSeriesInfo, layers, setAnnotationList, DrawColor) => {
     const [newSeriesInfo, setNewSeriesInfo] = NewSeriesInfo;
     const {action, name, status, type, annSeriesUid, annGroupUid, smSeriesUid} = newSeriesInfo;
     const [layer, setLayer] = layers;
@@ -435,8 +434,7 @@ export const updateAnnotation0 = (mapRef, NewSeriesInfo, layers, setAnnotationLi
         } else {
             return;
         }
-    }
-    else if (action === 'update') {
+    } else if (action === 'update') {
         const existingLayer = layer[annSeriesUid];
         const selectedLayer = existingLayer[annGroupUid];
         const selectedStyle = selectedLayer.getStyle();
@@ -469,8 +467,7 @@ export const updateAnnotation0 = (mapRef, NewSeriesInfo, layers, setAnnotationLi
         });
 
         mapRef.current.addInteraction(updateDraw);
-    }
-    else if (action === 'delete') {
+    } else if (action === 'delete') {
         if (name === 'deleteSeries') {
             const existingLayer = layer[annSeriesUid];
             Object.keys(existingLayer).forEach((key) => {
@@ -504,8 +501,7 @@ export const updateAnnotation0 = (mapRef, NewSeriesInfo, layers, setAnnotationLi
         } else {
             return;
         }
-    }
-    else if(action === 'cancel') {
+    } else if (action === 'cancel') {
         mapRef.current.getInteractions().getArray().forEach(interaction => {
             if (interaction instanceof Draw) {
                 mapRef.current.removeInteraction(interaction);
@@ -591,15 +587,30 @@ export const updateAnnotation = (mapRef, NewSeriesInfo, layers, setAnnotationLis
             const geometry = event.feature.getGeometry();
             const coordinates = geometry.getCoordinates();
 
+
             setAnnotationList((prevAnnotationList) => {
-                const updatedAnnotationList = { ...prevAnnotationList };
+                const updatedAnnotationList = {...prevAnnotationList};
 
                 if (name === 'addSeries') {
                     const series = updatedAnnotationList[annSeriesUid][0].group[groupUID];
-                    series.pointsData = Object.keys(series.pointsData).length !== 0 ? [...series.pointsData, coordinates] : [coordinates];
+                    const graphicType = series.graphicType;
+                    if (graphicType === 'RECTANGLE') {
+                        const points = coordinates[0];
+                        const rectanglePoints = points.slice(0, 4);
+                        series.pointsData = Object.keys(series.pointsData).length !== 0 ? [...series.pointsData, rectanglePoints] : [rectanglePoints];
+                    } else {
+                        series.pointsData = Object.keys(series.pointsData).length !== 0 ? [...series.pointsData, coordinates] : [coordinates];
+                    }
                 } else if (name === 'addGroup') {
                     const group = updatedAnnotationList[annSeriesUid][0].group[groupUID];
-                    group.pointsData = Object.keys(group.pointsData).length !== 0 ? [...group.pointsData, coordinates] : [coordinates];
+                    const graphicType = group.graphicType;
+                    if (graphicType === 'RECTANGLE') {
+                        const points = coordinates[0];
+                        const rectanglePoints = points.slice(0, 4);
+                        group.pointsData = Object.keys(group.pointsData).length !== 0 ? [...group.pointsData, rectanglePoints] : [rectanglePoints];
+                    } else {
+                        group.pointsData = Object.keys(group.pointsData).length !== 0 ? [...group.pointsData, coordinates] : [coordinates];
+                    }
                 }
 
                 return updatedAnnotationList;
@@ -691,8 +702,7 @@ export const updateAnnotation = (mapRef, NewSeriesInfo, layers, setAnnotationLis
         } else {
             return;
         }
-    }
-    else if (action === 'update') {
+    } else if (action === 'update') {
         const existingLayer = layer[annSeriesUid];
         const selectedLayer = existingLayer[annGroupUid];
         const selectedStyle = selectedLayer.getStyle();
@@ -711,7 +721,7 @@ export const updateAnnotation = (mapRef, NewSeriesInfo, layers, setAnnotationLis
 
 
             setAnnotationList((prevAnnotationList) => {
-                const updatedAnnotationList = { ...prevAnnotationList };
+                const updatedAnnotationList = {...prevAnnotationList};
                 const series = updatedAnnotationList[annSeriesUid][0].group[annGroupUid];
                 series.pointsData = Object.keys(series.pointsData).length !== 0 ? [...series.pointsData, coordinates] : [coordinates];
                 return updatedAnnotationList;
@@ -738,8 +748,7 @@ export const updateAnnotation = (mapRef, NewSeriesInfo, layers, setAnnotationLis
         });
 
         mapRef.current.addInteraction(updateDraw);
-    }
-    else if (action === 'delete') {
+    } else if (action === 'delete') {
         if (name === 'deleteSeries') {
             const existingLayer = layer[annSeriesUid];
             Object.keys(existingLayer).forEach((key) => {
@@ -773,8 +782,7 @@ export const updateAnnotation = (mapRef, NewSeriesInfo, layers, setAnnotationLis
         } else {
             return;
         }
-    }
-    else if(action === 'cancel') {
+    } else if (action === 'cancel') {
         mapRef.current.getInteractions().getArray().forEach(interaction => {
             if (interaction instanceof Draw) {
                 mapRef.current.removeInteraction(interaction);

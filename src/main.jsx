@@ -6,11 +6,14 @@ import ViewerPage from './routes/viewer/[...rest]/ViewerPage';
 import Search from "./routes/search/SearchPage.jsx"
 import {ServerProvider} from "./lib/ServerContext.jsx";
 import {AnnotationsProvider} from "./lib/AnnotaionsContext.jsx";
+import {ToastContainer} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 
 const Main = () => {
     return (
         <Router>
+            <ToastContainer/>
             <Routes>
                 <Route path="/" element={<Navigate to="/search"/>}/>
                 <Route path="/viewer" element={<ViewerPage/>}/>

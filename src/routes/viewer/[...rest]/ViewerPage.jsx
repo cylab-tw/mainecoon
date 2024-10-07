@@ -31,7 +31,7 @@ const ViewerPage = () => {
     const [images, setImages] = useState([])
     const [annotations, setAnnotations] = useState({})
     const [isLeftOpen, setIsLeftOpen] = useState(true)
-    const [isReportOpen, setIsReportOpen] = useState(true)
+    const [isReportOpen, setIsReportOpen] = useState(false)
     const [isRightOpen, setIsRightOpen] = useState(true)
     const [labelOpen, setLabelOpen] = useState([1, 1, 1, 0, 1, 1])
     const [drawType, setDrawType] = useState(null)
@@ -327,6 +327,8 @@ const ViewerPage = () => {
                                   DrawColor={[drawColor, setDrawColor]}
                                   studyUid={studyUid}
                                   seriesUid={seriesUID}
+                                  imageLoading={loading}
+
                 />
                 <div className={`custom-height w-full flex grow`}>
                     {isLeftOpen &&

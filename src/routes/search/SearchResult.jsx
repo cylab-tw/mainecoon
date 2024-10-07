@@ -133,7 +133,7 @@ const SearchResult = ({Result}) => {
                 <td className="border-2 w-10 p-2.5 text-center group-first:border-t-0 group-last:border-b-0">
                     <div className="flex items-center justify-center">
                         <div
-                            className={`rounded-md ${gender.bgColor} w-16 py-1 px-2 scale-[0.90] mx-auto flex items-center justify-center font-bold`}>
+                            className={`rounded-md ${gender.bgColor} w-16 py-1 px-2  mx-auto flex items-center justify-center font-bold `}>
                             {/*<Icon icon={gender.icon} width="24" height="24" className="text-white"/>*/}
                             <span className="mx-2 text-white">{gender.label}</span>
                         </div>

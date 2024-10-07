@@ -24,7 +24,7 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw,handleDelete
 
     const drawTypes = {
         POINT: 'tabler:point-filled',
-        POLYLINE: mdiVectorPolyline,
+        POLYLINE: 'material-symbols:line-curve',
         POLYGON: mdiVectorPolygon,
         ELLIPSE: mdiEllipseOutline,
         RECTANGLE: mdiRectangleOutline,
@@ -155,7 +155,7 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw,handleDelete
                                         )}
                                         <div className="relative">
                                             <div
-                                                className={`absolute bg-white right-0 border-2 rounded-xl p-2 mt-3 flex ${
+                                                className={`absolute bg-white right-0 border-2 rounded-xl p-2 mt-3 flex z-50 ${
                                                     openPickers[seriesUid] ? "" : "hidden"
                                                 }`}
                                             >
