@@ -1,7 +1,52 @@
 import React from "react";
+import { useEffect, useState } from 'react';
 import PatientDetails from "./PatientDetails.jsx";
 import DescriptionPlate from "./DescriptionPlate.jsx";
 import {combineUrl} from "../../../lib/search/index.js";
+import {getAccessToken} from "../../../token.js";
+
+function Thumbnail({ seriesUid, studyUid, server }) {
+    const [thumbnailUrl, setThumbnailUrl] = useState('');
+
+    useEffect(() => {
+        async function fetchThumbnail() {
+            try {
+                const oauthToken = await getAccessToken();
+                const res = await fetch(
+                    `${combineUrl(server)}/studies/${studyUid}/series/${seriesUid}/thumbnail`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            Accept: 'image/jpeg',
+                            Authorization: 'Bearer ' + oauthToken,
+                        },
+                    }
+                );
+
+                if (!res.ok) {
+                    throw new Error('Failed to fetch thumbnail');
+                }
+
+                const data = window.URL.createObjectURL(await res.blob());
+                setThumbnailUrl(data);
+            } catch (error) {
+                console.error('Error fetching thumbnail:', error);
+            }
+        }
+
+        if (seriesUid && studyUid && server) {
+            fetchThumbnail();
+        }
+    }, [seriesUid, studyUid, server]);
+
+    return (
+        <img
+            src={thumbnailUrl}
+            alt="Thumbnail"
+            className="break-all border bg-white w-full text-xs h-[100px] object-cover"
+        />
+    );
+}
 
 const LeftDrawer = ({detail, labelOpen, smSeries, seriesUid, studyUid, server, handleLabelOpen}) => {
     const [seriesUId, setSeriesUId] = seriesUid;
@@ -51,10 +96,7 @@ const LeftDrawer = ({detail, labelOpen, smSeries, seriesUid, studyUid, server, h
                                     <div className="p-2">
                                         <span
                                             className="text-sm font-medium text-left w-full m-0.5">{seriesName}</span>
-                                        <img
-                                            src={`${combineUrl(server)}/studies/${studyUid}/series/${seriesUID}/thumbnail`}
-                                            className="break-all border bg-white  w-full text-xs h-[100px] object-cover"
-                                        />
+                                        <Thumbnail seriesUid={seriesUId} studyUid={studyUid} server={server}/>
                                     </div>
                                 </div>
                             );
@@ -65,4 +107,6 @@ const LeftDrawer = ({detail, labelOpen, smSeries, seriesUid, studyUid, server, h
         </div>
     )
 }
+
+
 export default LeftDrawer;

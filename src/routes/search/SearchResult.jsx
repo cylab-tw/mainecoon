@@ -5,19 +5,64 @@ import {ServerContext} from "../../lib/ServerContext.jsx";
 import {Link} from "react-router-dom";
 import {getAccessToken} from "../../token.js";
 
+function Thumbnail({ seriesUid, studyUid, server }) {
+    console.log(seriesUid, studyUid, server)
+    const [thumbnailUrl, setThumbnailUrl] = useState('');
+
+    useEffect(() => {
+        async function fetchThumbnail() {
+            try {
+                const oauthToken = await getAccessToken();
+                const res = await fetch(
+                    `${combineUrl(server)}/studies/${studyUid}/series/${seriesUid}/thumbnail`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            Accept: 'image/jpeg',
+                            Authorization: 'Bearer ' + oauthToken,
+                        },
+                    }
+                );
+
+                if (!res.ok) {
+                    throw new Error('Failed to fetch thumbnail');
+                }
+
+                const data = window.URL.createObjectURL(await res.blob());
+                setThumbnailUrl(data);
+            } catch (error) {
+                console.error('Error fetching thumbnail:', error);
+            }
+        }
+
+        if (seriesUid && studyUid && server) {
+            fetchThumbnail();
+        }
+    }, [seriesUid, studyUid, server]);
+
+    return (
+        <img
+            src={thumbnailUrl}
+            alt="Thumbnail"
+            className="break-all border bg-white w-full text-xs h-[100px] object-cover"
+        />
+    );
+}
+
 
 const SearchResult = ({Result}) => {
     const [previewImage, setPreviewImage] = useState([]);
     const patientDetails = fetchPatientDetails(Result);
     const studyInstanceUID = patientDetails.studyInstanceUID;
     const [seriesUID, setSeriesUID] = useState('');
-    const [server, setServer] = useContext(ServerContext)
+    const [server, setServer] = useContext(ServerContext);
+    const [oauthToken, setOauthToken] = useState('');
 
     function OnClick() {
         window.open(`../viewer?server=${server}&studyUid=${studyInstanceUID}`, '_blank');
     }
 
-    const [oauthToken, setOauthToken] = useState('');
+    // Get keycloak access token
     useEffect(() => {
         const fetchToken = async () => {
             try {
@@ -43,9 +88,10 @@ const SearchResult = ({Result}) => {
                     'method': 'GET',
                     'headers': {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer' + oauthToken,
+                        'Authorization': 'Bearer ' + oauthToken,
                     },
                 })
+
                 const metadatas = await result.json()
                 setPreviewImage(metadatas?.map((metadata) => {
                     const Attribute = metadata?.["00080060"]?.Value;
@@ -105,11 +151,13 @@ const SearchResult = ({Result}) => {
                                       location.href = `../viewer?server=${server}&studyUid=${studyInstanceUID}&seriesUid=${seriesUid}`
                                   }}
                             >
-                                <img key={seriesUid}
-                                     src={`${combineUrl(server)}/studies/${studyInstanceUID}/series/${seriesUid}/thumbnail`}
+                                {/* <img key={seriesUid}
+                                    //  src={`${combineUrl(server)}/studies/${studyInstanceUID}/series/${seriesUid}/thumbnail`}
+                                     src = {fetchThumbnail(seriesUid)}
                                      className="break-all border bg-white text-xs h-[70px] w-[70px] object-cover"
                                      alt={seriesUid}
-                                />
+                                /> */}
+                                <Thumbnail seriesUid={seriesUid} studyUid={studyInstanceUID} server={server} />
                             </Link>
                         ))}
                     </div>
