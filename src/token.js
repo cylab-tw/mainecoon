@@ -10,7 +10,7 @@ export async function getAccessToken() {
     const config = await configResponse.json();
 
     // 取得 config 中 Keycloak 的資訊
-    const { enabled, keycloak_url, client_id, client_secret, username, password } = config;
+    const {enabled, keycloak_url, client_id, client_secret, username, password} = config;
 
     if (enabled) {
         const xhr = new XMLHttpRequest();
@@ -38,12 +38,13 @@ export async function getAccessToken() {
 
         xhr.send(params);
 
-    if (xhr.status === 200) {
-        const response = JSON.parse(xhr.responseText);
-        // console.log(response.access_token);
-        Cookies.set('access_token', response.access_token);
-        return response.access_token;
-    } else {
-        return;
+        if (xhr.status === 200) {
+            const response = JSON.parse(xhr.responseText);
+            // console.log(response.access_token);
+            Cookies.set('access_token', response.access_token);
+            return response.access_token;
+        } else {
+            return;
+        }
     }
 }
