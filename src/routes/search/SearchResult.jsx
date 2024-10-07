@@ -6,7 +6,6 @@ import {Link} from "react-router-dom";
 import {getAccessToken} from "../../token.js";
 
 function Thumbnail({ seriesUid, studyUid, server }) {
-    console.log(seriesUid, studyUid, server)
     const [thumbnailUrl, setThumbnailUrl] = useState('');
 
     useEffect(() => {

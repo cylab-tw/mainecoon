@@ -6,6 +6,7 @@ import {combineUrl} from "../../../lib/search/index.js";
 import {getAccessToken} from "../../../token.js";
 
 function Thumbnail({ seriesUid, studyUid, server }) {
+    // console.log(seriesUid, studyUid, server);
     const [thumbnailUrl, setThumbnailUrl] = useState('');
 
     useEffect(() => {
