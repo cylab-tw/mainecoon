@@ -240,6 +240,7 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw,handleDelete
 
                                                         </div>
                                                     </div>
+                                                    {editable === false && (
                                                     <div className="flex items-center">
                                                         <span className="mr-3">{currentCenterCoordinatesIndex}/{centerCoordinates?.length}</span>
                                                         <button className="mr-3"
@@ -259,7 +260,7 @@ const Annotations = ({Layers, Loading, onMessageChange, CurrentDraw,handleDelete
                                                                 </button>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    </div>)}
                                                 </div>
                                             </div>
                                             {editable && (
