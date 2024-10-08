@@ -99,7 +99,7 @@ export async function getAccessToken() {
             // 如果没有 `code`，则重定向到 Keycloak 登录页面
             const clientId = 'song-yi-raccoon';
             const redirectUri = encodeURIComponent(redirect_uri);
-            const keycloakUrl = `https://keycloak.dicom.tw/realms/raccoon/protocol/openid-connect/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_mode=fragment&response_type=code&scope=openid`;
+            const keycloakUrl = `https://keycloak.dicom.tw/realms/raccoon/protocol/openid-connect/auth?client_id=${clientId}&redirect_uri=${redirect_uri}&response_mode=fragment&response_type=code&scope=openid`;
 
             window.location.href = keycloakUrl;
         }
@@ -108,38 +108,3 @@ export async function getAccessToken() {
     }
 }
 
-async function verifyToken(token) {
-    const keycloakUrl = 'https://keycloak.dicom.tw/realms/raccoon/protocol/openid-connect/token/introspect';
-    const configResponse = await fetch('/oauthConfig.json');
-    if (!configResponse.ok) {
-        throw new Error('Failed to load config.json');
-    }
-    const config = await configResponse.json();
-    const {  client_id, client_secret } = config;
-
-    const params = new URLSearchParams({
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'token': token,
-    }).toString();
-
-    try {
-        const response = await fetch(keycloakUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: params,
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to verify access token');
-        }
-
-        const data = await response.json();
-        return data.active; // 如果令牌有效，返回 true，否则返回 false
-    } catch (error) {
-        console.error('Token verification failed', error);
-        return false;
-    }
-}
