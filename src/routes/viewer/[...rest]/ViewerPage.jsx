@@ -16,6 +16,7 @@ import {Feature, Overlay} from "ol";
 import {Point} from "ol/geom.js";
 import {Vector} from "ol/layer.js";
 import VectorSource from "ol/source/Vector";
+import {toast} from "react-toastify";
 
 const ViewerPage = () => {
     const searchParams = new URLSearchParams(window.location.search)
@@ -306,47 +307,48 @@ const ViewerPage = () => {
     }
 
 
+    // const handleDeleteAnn = (e, seriesUid) => {
+    //     e.preventDefault();
+    //     fetch(`${combineUrl(server)}/studies/${studyUid}/series/${seriesUid}/delete-with-reason`, {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({
+    //             reason: 'Delete annotation series',
+    //         }),
+    //     })
+    //         .then((response) => {
+    //             if (response.ok) {
+    //                 // Post成功，执行delete请求
+    //                 fetch(`${combineUrl(server)}/studies/${studyUid}/series/${seriesUid}`, {
+    //                     method: 'DELETE',
+    //                     headers: {
+    //                         'Content-Type': 'application/json',
+    //                     },
+    //                 })
+    //                     .then((deleteResponse) => {
+    //                         if (deleteResponse.ok) {
+    //                             // 删除成功，更新状态
+    //                             const newAnnAccessionNumber = annSeries.filter((item) => item[0] !== seriesUid);
+    //                             setAnnSeries(newAnnAccessionNumber);
+    //                             // 刷新页面
+    //                             window.location.reload(); // 刷新整个页面
+    //
+    //                         }
+    //                     })
+    //                     .catch((error) => {
+    //                         console.error('Error deleting series:', error);
+    //                     });
+    //             }
+    //         })
+    //         .catch((error) => {
+    //             console.error('Error posting delete reason:', error);
+    //         });
+    // };
     const handleDeleteAnn = (e, seriesUid) => {
-        e.preventDefault();
-        fetch(`${combineUrl(server)}/studies/${studyUid}/series/${seriesUid}/delete-with-reason`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                reason: 'Delete annotation series',
-            }),
-        })
-            .then((response) => {
-                if (response.ok) {
-                    // Post成功，执行delete请求
-                    fetch(`${combineUrl(server)}/studies/${studyUid}/series/${seriesUid}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    })
-                        .then((deleteResponse) => {
-                            if (deleteResponse.ok) {
-                                // 删除成功，更新状态
-                                const newAnnAccessionNumber = annSeries.filter((item) => item[0] !== seriesUid);
-                                setAnnSeries(newAnnAccessionNumber);
-                                // 刷新页面
-                                window.location.reload(); // 刷新整个页面
-                                // 或者你也可以通过重新获取数据来刷新局部界面
-                                // fetchSeries();
-                            }
-                        })
-                        .catch((error) => {
-                            console.error('Error deleting series:', error);
-                        });
-                }
-            })
-            .catch((error) => {
-                console.error('Error posting delete reason:', error);
-            });
+       toast.error('刪除功能目前遇到伺服器錯誤，目前維修中')
     };
-
 
     return (
         <>
