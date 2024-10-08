@@ -19,7 +19,7 @@ function Thumbnail({ seriesUid, studyUid, server }) {
                         method: 'GET',
                         headers: {
                             Accept: 'image/jpeg',
-                            Authorization: 'Bearer ' + oauthToken,
+                            Authorization: `Bearer ${oauthToken}`,
                         },
                     }
                 );

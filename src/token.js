@@ -12,7 +12,7 @@ export async function getAccessToken() {
     const config = await configResponse.json();
     const { enabled, keycloak_url, client_id, client_secret, redirect_uri } = config;
 
-    // console.log('5555555',redirect_uri)
+    console.log('5555555',redirect_uri)
 
     if (oauthToken) {
         // 检查令牌是否过期
@@ -21,7 +21,7 @@ export async function getAccessToken() {
         // if (!configResponse.ok) {
         //     throw new Error('Failed to load config.json');
         // }
-        const config = await configResponse.json();
+        // const config = await configResponse.json();
         const { client_id, client_secret } = config;
 
         const introspectParams = new URLSearchParams({
@@ -101,6 +101,7 @@ export async function getAccessToken() {
             // 如果没有 `code`，则重定向到 Keycloak 登录页面
             const clientId = 'song-yi-raccoon';
             const redirectUri = encodeURIComponent(redirect_uri);
+            // const redirectUri = encodeURIComponent('http://localhost:3000');
             // const keycloakUrl = `https://keycloak.dicom.tw/realms/raccoon/protocol/openid-connect/auth?client_id=${clientId}&redirect_uri=${redirect_uri}&response_mode=fragment&response_type=code&scope=openid`;
             const keycloakUrl = `https://keycloak.dicom.tw/realms/raccoon/protocol/openid-connect/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_mode=fragment&response_type=code&scope=openid`;
 

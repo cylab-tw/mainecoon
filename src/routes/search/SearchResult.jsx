@@ -18,7 +18,7 @@ function Thumbnail({ seriesUid, studyUid, server }) {
                         method: 'GET',
                         headers: {
                             Accept: 'image/jpeg',
-                            Authorization: 'Bearer ' + oauthToken,
+                            Authorization: `Bearer ${oauthToken}`,
                         },
                     }
                 );
@@ -87,7 +87,7 @@ const SearchResult = ({Result}) => {
                     'method': 'GET',
                     'headers': {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + oauthToken,
+                        'Authorization': `Bearer ${oauthToken}`,
                     },
                 })
 
@@ -112,7 +112,7 @@ const SearchResult = ({Result}) => {
             }
         };
         fetchData();
-    }, [studyInstanceUID]);
+    }, [oauthToken, server, studyInstanceUID]);
 
     const genderData = {
         F: {bgColor: "bg-pink-500", icon: "ph:gender-female-bold", label: "Female",},
