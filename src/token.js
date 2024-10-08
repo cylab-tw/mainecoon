@@ -1,39 +1,4 @@
 import Cookies from 'js-cookie';
-async function verifyToken(token) {
-    const keycloakUrl = 'https://keycloak.dicom.tw/realms/raccoon/protocol/openid-connect/token/introspect';
-    const configResponse = await fetch('/oauthConfig.json');
-    if (!configResponse.ok) {
-        throw new Error('Failed to load config.json');
-    }
-    const config = await configResponse.json();
-    const {  client_id, client_secret } = config;
-
-    const params = new URLSearchParams({
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'token': token,
-    }).toString();
-
-    try {
-        const response = await fetch(keycloakUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: params,
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to verify access token');
-        }
-
-        const data = await response.json();
-        return data.active; // 如果令牌有效，返回 true，否则返回 false
-    } catch (error) {
-        console.error('Token verification failed', error);
-        return false;
-    }
-}
 
 
 export async function getAccessToken() {
@@ -41,13 +6,47 @@ export async function getAccessToken() {
     let oauthToken = Cookies.get('access_token');
 
     if (oauthToken) {
-        const isValid = await verifyToken(oauthToken);
-        if (isValid) {
-            return oauthToken;
-        } else {
-            Cookies.remove('access_token'); // 如果令牌无效或过期，移除它
+        // 检查令牌是否过期
+        const introspectUrl = 'https://keycloak.dicom.tw/realms/raccoon/protocol/openid-connect/token/introspect';
+        const configResponse = await fetch('/oauthConfig.json');
+        if (!configResponse.ok) {
+            throw new Error('Failed to load config.json');
+        }
+        const config = await configResponse.json();
+        const { client_id, client_secret } = config;
+
+        const introspectParams = new URLSearchParams({
+            'token': oauthToken,
+            'client_id': client_id,
+            'client_secret': client_secret
+        }).toString();
+
+        try {
+            const introspectResponse = await fetch(introspectUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: introspectParams,
+            });
+
+            if (!introspectResponse.ok) {
+                throw new Error('Failed to introspect token');
+            }
+
+            const introspectData = await introspectResponse.json();
+            if (introspectData.active) {
+                return oauthToken;
+            } else {
+                // 如果令牌已过期，删除现有令牌
+                Cookies.remove('access_token');
+            }
+        } catch (error) {
+            console.error('Failed to introspect access token', error);
+            throw error;
         }
     }
+
     const configResponse = await fetch('/oauthConfig.json');
     if (!configResponse.ok) {
         throw new Error('Failed to load config.json');
@@ -106,5 +105,41 @@ export async function getAccessToken() {
         }
     } else {
         return;
+    }
+}
+
+async function verifyToken(token) {
+    const keycloakUrl = 'https://keycloak.dicom.tw/realms/raccoon/protocol/openid-connect/token/introspect';
+    const configResponse = await fetch('/oauthConfig.json');
+    if (!configResponse.ok) {
+        throw new Error('Failed to load config.json');
+    }
+    const config = await configResponse.json();
+    const {  client_id, client_secret } = config;
+
+    const params = new URLSearchParams({
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'token': token,
+    }).toString();
+
+    try {
+        const response = await fetch(keycloakUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: params,
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to verify access token');
+        }
+
+        const data = await response.json();
+        return data.active; // 如果令牌有效，返回 true，否则返回 false
+    } catch (error) {
+        console.error('Token verification failed', error);
+        return false;
     }
 }
