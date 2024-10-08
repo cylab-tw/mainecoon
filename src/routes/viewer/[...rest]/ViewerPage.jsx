@@ -54,6 +54,8 @@ const ViewerPage = () => {
     })
     const [annotationSeriesUid, setAnnotationSeriesUid] = useState('')
 
+
+
     const RightDrawerOpen = () => {
         setIsRightOpen(!isRightOpen)
     }
@@ -303,17 +305,48 @@ const ViewerPage = () => {
         }
     }
 
+
     const handleDeleteAnn = (e, seriesUid) => {
         e.preventDefault();
-        fetch(`${combineUrl(server)}/studies/${studyUid}/series/${seriesUid}`, {
-            method: 'DELETE',
+        fetch(`${combineUrl(server)}/studies/${studyUid}/series/${seriesUid}/delete-with-reason`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
+            body: JSON.stringify({
+                reason: 'Delete annotation series',
+            }),
         })
-        const newAnnAccessionNumber = annSeries.filter((item) => item[0] !== seriesUid)
-        setAnnSeries(newAnnAccessionNumber)
-    }
+            .then((response) => {
+                if (response.ok) {
+                    // Post成功，执行delete请求
+                    fetch(`${combineUrl(server)}/studies/${studyUid}/series/${seriesUid}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                        .then((deleteResponse) => {
+                            if (deleteResponse.ok) {
+                                // 删除成功，更新状态
+                                const newAnnAccessionNumber = annSeries.filter((item) => item[0] !== seriesUid);
+                                setAnnSeries(newAnnAccessionNumber);
+                                // 刷新页面
+                                window.location.reload(); // 刷新整个页面
+                                // 或者你也可以通过重新获取数据来刷新局部界面
+                                // fetchSeries();
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('Error deleting series:', error);
+                        });
+                }
+            })
+            .catch((error) => {
+                console.error('Error posting delete reason:', error);
+            });
+    };
+
 
     return (
         <>
