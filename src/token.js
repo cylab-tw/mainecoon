@@ -5,13 +5,22 @@ export async function getAccessToken() {
     // 检查 Cookie 中是否已有访问令牌
     let oauthToken = Cookies.get('access_token');
 
+    const configResponse = await fetch('/oauthConfig.json');
+    if (!configResponse.ok) {
+        throw new Error('Failed to load config.json');
+    }
+    const config = await configResponse.json();
+    const { enabled, keycloak_url, client_id, client_secret, redirect_uri } = config;
+
+    // console.log('5555555',redirect_uri)
+
     if (oauthToken) {
         // 检查令牌是否过期
         const introspectUrl = 'https://keycloak.dicom.tw/realms/raccoon/protocol/openid-connect/token/introspect';
-        const configResponse = await fetch('/oauthConfig.json');
-        if (!configResponse.ok) {
-            throw new Error('Failed to load config.json');
-        }
+        // const configResponse = await fetch('/oauthConfig.json');
+        // if (!configResponse.ok) {
+        //     throw new Error('Failed to load config.json');
+        // }
         const config = await configResponse.json();
         const { client_id, client_secret } = config;
 
@@ -46,13 +55,6 @@ export async function getAccessToken() {
             throw error;
         }
     }
-
-    const configResponse = await fetch('/oauthConfig.json');
-    if (!configResponse.ok) {
-        throw new Error('Failed to load config.json');
-    }
-    const config = await configResponse.json();
-    const { enabled, keycloak_url, client_id, client_secret,redirect_uri } = config;
 
     if (enabled) {
         // 从 URL 哈希部分解析授权码
@@ -99,7 +101,8 @@ export async function getAccessToken() {
             // 如果没有 `code`，则重定向到 Keycloak 登录页面
             const clientId = 'song-yi-raccoon';
             const redirectUri = encodeURIComponent(redirect_uri);
-            const keycloakUrl = `https://keycloak.dicom.tw/realms/raccoon/protocol/openid-connect/auth?client_id=${clientId}&redirect_uri=${redirect_uri}&response_mode=fragment&response_type=code&scope=openid`;
+            // const keycloakUrl = `https://keycloak.dicom.tw/realms/raccoon/protocol/openid-connect/auth?client_id=${clientId}&redirect_uri=${redirect_uri}&response_mode=fragment&response_type=code&scope=openid`;
+            const keycloakUrl = `https://keycloak.dicom.tw/realms/raccoon/protocol/openid-connect/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_mode=fragment&response_type=code&scope=openid`;
 
             window.location.href = keycloakUrl;
         }
