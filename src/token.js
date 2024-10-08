@@ -52,7 +52,7 @@ export async function getAccessToken() {
         throw new Error('Failed to load config.json');
     }
     const config = await configResponse.json();
-    const { enabled, keycloak_url, client_id, client_secret } = config;
+    const { enabled, keycloak_url, client_id, client_secret,redirect_uri } = config;
 
     if (enabled) {
         // 从 URL 哈希部分解析授权码
@@ -68,7 +68,7 @@ export async function getAccessToken() {
                 'client_id': client_id,
                 'client_secret': client_secret,
                 'code': authorizationCode,
-                'redirect_uri': 'http://localhost:3000',
+                'redirect_uri': redirect_uri,
             }).toString();
 
             try {
@@ -98,7 +98,7 @@ export async function getAccessToken() {
         } else {
             // 如果没有 `code`，则重定向到 Keycloak 登录页面
             const clientId = 'song-yi-raccoon';
-            const redirectUri = encodeURIComponent('http://localhost:3000');
+            const redirectUri = encodeURIComponent(redirect_uri);
             const keycloakUrl = `https://keycloak.dicom.tw/realms/raccoon/protocol/openid-connect/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_mode=fragment&response_type=code&scope=openid`;
 
             window.location.href = keycloakUrl;
