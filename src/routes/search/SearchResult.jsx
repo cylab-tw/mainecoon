@@ -35,7 +35,11 @@ function Thumbnail({ seriesUid, studyUid, server }) {
         }
 
         if (seriesUid && studyUid && server) {
-            fetchThumbnail();
+            const delayThumbnailLoad = setTimeout(() => {
+                fetchThumbnail();
+            }, 1000); // 延迟2秒加载
+
+            return () => clearTimeout(delayThumbnailLoad);
         }
     }, [seriesUid, studyUid, server]);
 
