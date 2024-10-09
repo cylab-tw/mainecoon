@@ -86,7 +86,7 @@ const ViewerPage = () => {
                             sm.push([seriesId, slideTitle]);
                            SeriesUID = seriesId
                         } else if (attribute === "ANN") {
-                            const accessionNumber = series["00080050"]?.Value[0] ?? "unknown";
+                            const accessionNumber = series["00080050"]?.Value?.[0] ?? "unknown";
                             ann.push([seriesId, accessionNumber]);
                         }
                     }
