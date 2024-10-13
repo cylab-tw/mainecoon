@@ -80,43 +80,62 @@ const SearchResult = ({Result}) => {
 
     const [ann,setAnn] = useState(0)
     useEffect(() => {
-        let Y= 0;
+        let Y = 0;
         const fetchData = async () => {
-            if (!oauthToken) return;
-
             try {
-                let seriesUid = []
-                // const result = await fetch(`${combineUrl(server)}/studies/${studyInstanceUID}/series`)
-                const result = await fetch(`${combineUrl(server)}/studies/${studyInstanceUID}/series`, {
-                    'method': 'GET',
-                    'headers': {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${oauthToken}`,
-                    },
-                })
+                let seriesUid = [];
 
-                const metadatas = await result.json()
+                // 判斷是否有 oauthToken
+                const headers = {
+                    'Content-Type': 'application/json',
+                };
+
+                // 如果有 oauthToken，則加入 Authorization 頭
+                if (oauthToken) {
+                    headers['Authorization'] = `Bearer ${oauthToken}`;
+                }
+
+                // 執行請求
+                const result = await fetch(`${combineUrl(server)}/studies/${studyInstanceUID}/series`, {
+                    method: 'GET',
+                    headers,
+                });
+
+                // 檢查請求是否成功
+                if (!result.ok) {
+                    throw new Error('Failed to fetch series data');
+                }
+
+                const metadatas = await result.json();
+
                 setPreviewImage(metadatas?.map((metadata) => {
                     const Attribute = metadata?.["00080060"]?.Value;
                     if (Attribute && Attribute.length > 0) {
-                        if (Attribute[0] === "SM"){
-                            seriesUid.push(metadata['0020000E'].Value?.[0])
-                            return ( metadata['0020000E'].Value?.[0] )
+                        if (Attribute[0] === "SM") {
+                            seriesUid.push(metadata['0020000E'].Value?.[0]);
+                            return metadata['0020000E'].Value?.[0];
                         }
-                        if(Attribute[0] === "ANN") {
-                            Y+=1
+                        if (Attribute[0] === "ANN") {
+                            Y += 1;
                         }
-                        return false
+                        return false;
                     }
-                }).filter(Boolean))
-                setSeriesUID(seriesUid[0])
-                setAnn(Y)
+                }).filter(Boolean));
+
+                setSeriesUID(seriesUid[0]);
+                setAnn(Y);
             } catch (error) {
                 console.error('fetchMetadataFail:', error);
             }
         };
-        fetchData();
+
+        // 如果有 oauthToken 或者允許沒有 token，則執行 fetchData
+        if (oauthToken || !oauthToken) {
+            fetchData();
+        }
+
     }, [oauthToken, server, studyInstanceUID]);
+
 
     const genderData = {
         F: {bgColor: "bg-pink-500", icon: "ph:gender-female-bold", label: "Female",},
