@@ -54,11 +54,14 @@ const ViewerPage = () => {
         smSeriesUid: ''
     })
     const [annotationSeriesUid, setAnnotationSeriesUid] = useState('')
-
-
+    const [isAllDrawerOpen, setIsAllDrawerOpen] = useState(true)
 
     const RightDrawerOpen = () => {
         setIsRightOpen(!isRightOpen)
+    }
+
+    const LeftDrawerOpen = () => {
+        setIsLeftOpen(!isLeftOpen)
     }
 
     const handleLabelOpen = (e, value) => {
@@ -84,7 +87,7 @@ const ViewerPage = () => {
                         if (attribute === "SM") {
                             const slideTitle = await getSlideLabel(baseUrl, studyUid, seriesId);
                             sm.push([seriesId, slideTitle]);
-                           SeriesUID = seriesId
+                            SeriesUID = seriesId
                         } else if (attribute === "ANN") {
                             const accessionNumber = series["00080050"]?.Value?.[0] ?? "unknown";
                             ann.push([seriesId, accessionNumber]);
@@ -148,13 +151,23 @@ const ViewerPage = () => {
             setAnnotations(annotations)
             setAnnotationList(annotations)
         }
+
         processAnnotations()
     }, [annSeries])
 
     const [centerCoordinatesData, setCenterCoordinatesData] = useState({})
 
     const handleMessageChange = (message) => {
-        const {action,name, type, seriesUid, groupUid, smSeriesUid,centerCoordinates,currentCenterCoordinatesIndex} = message
+        const {
+            action,
+            name,
+            type,
+            seriesUid,
+            groupUid,
+            smSeriesUid,
+            centerCoordinates,
+            currentCenterCoordinatesIndex
+        } = message
         if (name === 'deleteGroup' || name === 'deleteSeries') {
             setAnnotationSeriesUid('')
         } else {
@@ -172,15 +185,15 @@ const ViewerPage = () => {
         }
 
         if (actionMap[name]) {
-            if(name === 'panTo'){
+            if (name === 'panTo') {
                 setCenterCoordinatesData({
-                    action:action,
+                    action: action,
                     centerCoordinates: centerCoordinates,
                     currentCenterCoordinatesIndex: currentCenterCoordinatesIndex,
                     seriesUid: seriesUid,
                     groupUid: groupUid,
                 })
-            }else{
+            } else {
                 setNewSeriesInfo({
                     action: actionMap[name],
                     name: name,
@@ -195,8 +208,8 @@ const ViewerPage = () => {
     };
     const map = useRef(null);
 
-    function panTo(action,index,centerCoordinates, seriesUid, groupUid) {
-        if(centerCoordinates[index][0]!==0 && centerCoordinates[index][1]!==0){
+    function panTo(action, index, centerCoordinates, seriesUid, groupUid) {
+        if (centerCoordinates[index][0] !== 0 && centerCoordinates[index][1] !== 0) {
             if (map.current) {
                 const view = map.current.getView();
                 view.animate({
@@ -259,14 +272,13 @@ const ViewerPage = () => {
         }
     }, [centerCoordinatesData]);
 
-
     const handlePanToMessage = (message) => {
         const {mapRef} = message
         map.current = mapRef.current
     }
 
     const getDrawType = (value) => {
-        const { name, type } = value;
+        const {name, type} = value;
         setDrawType(type);
         if (name === 'cancel') {
             setAnnotationSeriesUid('')
@@ -305,7 +317,6 @@ const ViewerPage = () => {
             }
         }
     }
-
 
     // const handleDeleteAnn = (e, seriesUid) => {
     //     e.preventDefault();
@@ -347,7 +358,7 @@ const ViewerPage = () => {
     //         });
     // };
     const handleDeleteAnn = (e, seriesUid) => {
-       toast.error('刪除功能目前遇到伺服器錯誤，目前維修中')
+        toast.error('刪除功能目前遇到伺服器錯誤，目前維修中')
     };
 
     return (
@@ -363,10 +374,9 @@ const ViewerPage = () => {
                                   studyUid={studyUid}
                                   seriesUid={seriesUID}
                                   imageLoading={loading}
-
                 />
                 <div className={`custom-height w-full flex grow`}>
-                    {isLeftOpen &&
+                    {isLeftOpen ? (
                         <LeftDrawer labelOpen={labelOpen}
                                     handleLabelOpen={handleLabelOpen}
                                     smSeries={smSeries}
@@ -374,7 +384,19 @@ const ViewerPage = () => {
                                     detail={patientDetails}
                                     studyUid={studyUid}
                                     server={server}
-                        />
+                                    LeftDrawerOpen={LeftDrawerOpen}
+                                    isLeftOpen={[isLeftOpen, setIsLeftOpen]}
+                        />) : (
+                        <div className="bg-opacity-0 flex justify-start items-center z-30 mt-2">
+                            <div className="bg-opacity-0 absolute z-30 mt-2">
+                                <button
+                                    className="flex items-center bg-gray-400 hover:bg-gray-600 text-white font-bold rounded-r-lg px-2 py-5"
+                                    onClick={LeftDrawerOpen}>
+                                    {'>'}
+                                </button>
+                            </div>
+                        </div>
+                    )
                     }
                     {isReportOpen && (<Report/>)}
                     <MicroscopyViewer
