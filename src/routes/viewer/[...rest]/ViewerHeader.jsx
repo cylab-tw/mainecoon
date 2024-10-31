@@ -234,22 +234,22 @@ const ViewerPageHeader = ({
 
                     <div
                         className="text-black w-full flex justify-start items-center text-center font-bold gap-1 text-sm">
-                        <div>
-                            <button
-                                className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
-                                onClick={() => setIsShowReport(!isShowReport)}>
-                                <Icon icon="tabler:report" width="18" height="18"/>
-                                <span className="sm:inline hidden ml-1">Report</span>
-                            </button>
-                        </div>
-                        <div>
-                            <button
-                                className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"
-                                onClick={() => setIsLeftDrawerOpen(!isLeftDrawerOpen)}>
-                                <Icon icon="fluent:pane-open-24-regular" width="18" height="18"/>
-                                <span className="sm:inline hidden ml-1">All</span>
-                            </button>
-                        </div>
+                        {/*<div>*/}
+                        {/*    <button*/}
+                        {/*        className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"*/}
+                        {/*        onClick={() => setIsShowReport(!isShowReport)}>*/}
+                        {/*        <Icon icon="tabler:report" width="18" height="18"/>*/}
+                        {/*        <span className="sm:inline hidden ml-1">Report</span>*/}
+                        {/*    </button>*/}
+                        {/*</div>*/}
+                        {/*<div>*/}
+                        {/*    <button*/}
+                        {/*        className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"*/}
+                        {/*        onClick={() => setIsLeftDrawerOpen(!isLeftDrawerOpen)}>*/}
+                        {/*        <Icon icon="fluent:pane-open-24-regular" width="18" height="18"/>*/}
+                        {/*        <span className="sm:inline hidden ml-1">All</span>*/}
+                        {/*    </button>*/}
+                        {/*</div>*/}
                         <div>
                             <button
                                 className="flex bg-white hover:bg-yellow-500 rounded-lg p-1.5 mr-1 mb-1 block"

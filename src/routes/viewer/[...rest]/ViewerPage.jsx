@@ -64,6 +64,10 @@ const ViewerPage = () => {
         setIsLeftOpen(!isLeftOpen)
     }
 
+    const ReportOpen = () => {
+        setIsReportOpen(!isReportOpen)
+    }
+
     const handleLabelOpen = (e, value) => {
         e.preventDefault();
         const newLabelOpen = [...labelOpen];
@@ -361,6 +365,7 @@ const ViewerPage = () => {
         toast.error('刪除功能目前遇到伺服器錯誤，目前維修中')
     };
 
+
     return (
         <>
             <div className="flex h-full w-auto flex-col">
@@ -387,18 +392,53 @@ const ViewerPage = () => {
                                     LeftDrawerOpen={LeftDrawerOpen}
                                     isLeftOpen={[isLeftOpen, setIsLeftOpen]}
                         />) : (
-                        <div className="bg-opacity-0 flex justify-start items-center z-30 mt-2">
-                            <div className="bg-opacity-0 absolute z-30 mt-2">
-                                <button
-                                    className="flex items-center bg-gray-400 hover:bg-gray-600 text-white font-bold rounded-r-lg px-2 py-5"
-                                    onClick={LeftDrawerOpen}>
-                                    {'>'}
-                                </button>
-                            </div>
-                        </div>
-                    )
-                    }
-                    {isReportOpen && (<Report/>)}
+                        !isReportOpen && (
+                            <div className="bg-opacity-0 flex items-center z-30">
+                                <div className="bg-opacity-0 absolute z-30">
+                                    <button
+                                        className="flex items-center bg-gray-400 align-bottom hover:bg-gray-600 text-white font-bold rounded-r-lg py-8 w-8 mb-2"
+                                        onClick={LeftDrawerOpen}>
+                                        <span className="rotate-90 tracking-wider">Info</span>
+                                    </button>
+                                    {studyUid === '1.2.826.0.1.3680043.8.498.10440910359896722642033112720879029428' && (
+                                        <button
+                                            className="flex items-center bg-gray-400 align-bottom m-0 hover:bg-gray-600 text-white font-bold rounded-r-lg py-8 w-8"
+                                            onClick={ReportOpen}>
+                                            <span className="rotate-90 tracking-wider -ml-2.5">report</span>
+                                        </button>
+                                    )}
+                                </div>
+                            </div>)
+                    )}
+                    {isReportOpen ? (
+                        <>
+                            <Report ReportOpen={ReportOpen}/>
+                            {!isLeftOpen && (
+                                <div className="bg-opacity-0 flex justify-start items-center z-30 mt-2 ">
+                                    <div className="bg-opacity-0 absolute z-30">
+                                        <button
+                                            className="flex items-center bg-gray-400 align-bottom m-0 hover:bg-gray-600 text-white font-bold rounded-r-lg py-8 w-8"
+                                            onClick={LeftDrawerOpen}>
+                                            <span className="rotate-90 tracking-wider -ml-2.5">Info</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        isLeftOpen ? (
+                            <div className="bg-opacity-0 flex justify-start items-center z-30 mt-2 ">
+                                <div className="bg-opacity-0 absolute z-30">
+                                    {studyUid === '1.2.826.0.1.3680043.8.498.10440910359896722642033112720879029428' && (
+                                    <button
+                                        className="flex items-center bg-gray-400 align-bottom m-0 hover:bg-gray-600 text-white font-bold rounded-r-lg py-8 w-8"
+                                        onClick={ReportOpen}>
+                                        <span className="rotate-90 tracking-wider -ml-2.5">report</span>
+                                    </button>
+                                        )}
+                                </div>
+                            </div>) : (<></>)
+                    )}
                     <MicroscopyViewer
                         baseUrl={baseUrl}
                         studyUid={studyUid}
