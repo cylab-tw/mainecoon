@@ -114,7 +114,7 @@ The following variables are used to configure the runtime settings:
 * Support displaying additional DICOM annotation types including parametric maps, saliency maps, and segmentation.
 
 # Acknowledgement
-* To acknowledge the Mainecoon in an academic publication, please cite "release soon".
+* To acknowledge the Mainecoon in an academic publication, please cite
   - Hsu, CW., Yang, SW., Lee, YT. et al. Mainecoon: Implementing an Open-Source Web Viewer for DICOM Whole Slide Images with AI-Integrated PACS for Digital Pathology. J Digit Imaging. Inform. med. (2025). https://doi.org/10.1007/s10278-025-01425-6
 
 * Grants from the Ministry of Science and Technology Taiwan supported this project.
