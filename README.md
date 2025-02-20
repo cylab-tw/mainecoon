@@ -115,7 +115,9 @@ The following variables are used to configure the runtime settings:
 
 # Acknowledgement
 * To acknowledge the Mainecoon in an academic publication, please cite "release soon".
-* This project was supported by grants from the Ministry of Science and Technology Taiwan.
+  - Hsu, CW., Yang, SW., Lee, YT. et al. Mainecoon: Implementing an Open-Source Web Viewer for DICOM Whole Slide Images with AI-Integrated PACS for Digital Pathology. J Digit Imaging. Inform. med. (2025). https://doi.org/10.1007/s10278-025-01425-6
+
+* Grants from the Ministry of Science and Technology Taiwan supported this project.
 * We acknowledge H99 teams at Taipei Veterans General Hospital (TVGH) and the [Smile Lab](http://smile.ee.ncku.edu.tw) at National Cheng Kung University for validation.
 * Dr.Yi-Chen Yeh from the Department of Pathology and Laboratory Medicine TVGH, provides many useful suggestions in many aspects of the clinical domain.
 
