@@ -118,7 +118,9 @@ export const getImagingInfo = async (baseUrl, studyUid, seriesUid) => {
 
 const isValidSmImage = image => {
     if (!image) return false;
-    return !image.imageType.includes('LABEL') && !image.imageType.includes('OVERVIEW');
+    return !image.imageType.includes('LABEL')
+        && !image.imageType.includes('OVERVIEW')
+        && !image.imageType.includes('THUMBNAIL');
 };
 
 /**
