@@ -4,7 +4,6 @@ import {combineUrl, fetchPatientDetails, generateSeriesUID} from "../../../lib/s
 import {Icon} from "@iconify/react";
 import ViewerPageHeader from "./ViewerHeader.jsx";
 import LeftDrawer from "./LeftDrawer.jsx"
-import {Report} from "../../report/Report.jsx";
 import {getAnnotations, getImagingInfo, getSeriesInfo} from '../../../lib/dicom-webs/series';
 import {DICOMWEB_URLS} from '../../../lib/dicom-webs';
 import {getSlideLabel, getSpecimenList} from "../../../lib/image/index.js";
@@ -32,7 +31,6 @@ const ViewerPage = () => {
     const [images, setImages] = useState([])
     const [annotations, setAnnotations] = useState({})
     const [isLeftOpen, setIsLeftOpen] = useState(true)
-    const [isReportOpen, setIsReportOpen] = useState(false)
     const [isRightOpen, setIsRightOpen] = useState(true)
     const [labelOpen, setLabelOpen] = useState([1, 1, 1, 0, 1, 1])
     const [drawType, setDrawType] = useState(null)
@@ -62,10 +60,6 @@ const ViewerPage = () => {
 
     const LeftDrawerOpen = () => {
         setIsLeftOpen(!isLeftOpen)
-    }
-
-    const ReportOpen = () => {
-        setIsReportOpen(!isReportOpen)
     }
 
     const handleLabelOpen = (e, value) => {
@@ -372,7 +366,6 @@ const ViewerPage = () => {
                 <ViewerPageHeader drawType={[drawType, setDrawType]}
                                   save={[save, setSave]}
                                   isLeftOpen={[isLeftOpen, setIsLeftOpen]}
-                                  isReportOpen={[isReportOpen, setIsReportOpen]}
                                   detail={patientDetails}
                                   onMessageChange={getDrawType}
                                   DrawColor={[drawColor, setDrawColor]}
@@ -392,52 +385,15 @@ const ViewerPage = () => {
                                     LeftDrawerOpen={LeftDrawerOpen}
                                     isLeftOpen={[isLeftOpen, setIsLeftOpen]}
                         />) : (
-                        !isReportOpen && (
                             <div className="bg-opacity-0 flex items-center z-30">
                                 <div className="bg-opacity-0 absolute z-30">
                                     <button
-                                        className="flex items-center bg-gray-400 align-bottom hover:bg-gray-600 text-white font-bold rounded-r-lg py-8 w-8 mb-2"
+                                        className="flex items-center bg-gray-400 align-bottom hover:bg-gray-600 text-white font-bold rounded-r-lg py-8 w-8"
                                         onClick={LeftDrawerOpen}>
                                         <span className="rotate-90 tracking-wider">Info</span>
                                     </button>
-                                    {studyUid === '1.2.826.0.1.3680043.8.498.10440910359896722642033112720879029428' && (
-                                        <button
-                                            className="flex items-center bg-gray-400 align-bottom m-0 hover:bg-gray-600 text-white font-bold rounded-r-lg py-8 w-8"
-                                            onClick={ReportOpen}>
-                                            <span className="rotate-90 tracking-wider -ml-2.5">report</span>
-                                        </button>
-                                    )}
                                 </div>
-                            </div>)
-                    )}
-                    {isReportOpen ? (
-                        <>
-                            <Report ReportOpen={ReportOpen}/>
-                            {!isLeftOpen && (
-                                <div className="bg-opacity-0 flex justify-start items-center z-30 mt-2 ">
-                                    <div className="bg-opacity-0 absolute z-30">
-                                        <button
-                                            className="flex items-center bg-gray-400 align-bottom m-0 hover:bg-gray-600 text-white font-bold rounded-r-lg py-8 w-8"
-                                            onClick={LeftDrawerOpen}>
-                                            <span className="rotate-90 tracking-wider -ml-2.5">Info</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </>
-                    ) : (
-                        isLeftOpen ? (
-                            <div className="bg-opacity-0 flex justify-start items-center z-30 mt-2 ">
-                                <div className="bg-opacity-0 absolute z-30">
-                                    {studyUid === '1.2.826.0.1.3680043.8.498.10440910359896722642033112720879029428' && (
-                                    <button
-                                        className="flex items-center bg-gray-400 align-bottom m-0 hover:bg-gray-600 text-white font-bold rounded-r-lg py-8 w-8"
-                                        onClick={ReportOpen}>
-                                        <span className="rotate-90 tracking-wider -ml-2.5">report</span>
-                                    </button>
-                                        )}
-                                </div>
-                            </div>) : (<></>)
+                            </div>
                     )}
                     <MicroscopyViewer
                         baseUrl={baseUrl}
